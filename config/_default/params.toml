@@ -16,30 +16,30 @@ logo_text = "jlv6.com"
 navbar_fixed = true
 # theme-mode
 theme_switcher = true
-theme_default = "system" # available options [light/dark/system]
+theme_default = "system"
 # Main Sections
 mainSections = ["blog"]
 # contact form action
-## contact_form_action = "#" # contact form works with [https://airform.io/] or [https://formspree.io]
+## contact_form_action = ""
 # google tag manager, see https://developers.google.com/tag-manager/
-## google_tag_manager = "" # example: G-XXXXXXXXXX
-## google_adsense = ""     # example: ca-pub-xxxxxxxxxxxxxxxx
+## google_tag_manager = ""
+## google_adsense = ""
 # custom script on header, example: custom_script= "<script>console.log(\"Hello World\")</script>"
-custom_script = ""
+## custom_script = ""
 # copyright
-## copyright = "Designed & Developed by [Zeon Studio](https://zeon.studio)"
+## copyright = ""
 
 # Preloader
 # preloader module: https://github.com/gethugothemes/hugo-modules/tree/master/components/preloader
 [preloader]
 enable = false
-preloader = "" # use jpg, png, svg or gif format.
+## preloader = ""
 
 # Navigation button
 [navigation_button]
 enable = true
 label = "Dashboard"
-link = "https://04home20.jlv6.com"
+link = "https://jlv6.com/dashboard"
 
 # search
 # search module: https://github.com/gethugothemes/hugo-modules/tree/master/search
@@ -56,8 +56,8 @@ show_categories = true
 # announcement module: https://github.com/gethugothemes/hugo-modules/tree/master/components/announcement
 [announcement]
 enable = false
-expire_days = 7
-content = "You must replace the **baseURL** in **hugo.toml** file when deploying, you can manage this announcement from the **params.toml** file."
+## expire_days = 7
+## content = ""
 
 # seo meta data for OpenGraph / Twitter Card
 # seo module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/basic-seo
@@ -82,9 +82,9 @@ content = "You must replace the **baseURL** in **hugo.toml** file when deploying
 # cookies module: https://github.com/gethugothemes/hugo-modules/tree/master/components/cookie-consent
 [cookies]
 enable = false
-expire_days = 60
-content = "This site uses cookies. By continuing to use this website, you agree to their use."
-button = "I Accept"
+## expire_days = 60
+## content = "This site uses cookies. By continuing to use this website, you agree to their use."
+## button = "I Accept"
 
 # diagrams
 ## [mermaid]
@@ -94,19 +94,17 @@ button = "I Accept"
 [widgets]
 sidebar = ["categories", "tags"]
 
-
 # google map
 [google_map]
 enable = false
-map_api_key = "AIzaSyCcABaamniA6OL5YvYSpB3pFMNrXwXnLwU"
-map_latitude = "51.5223477"
-map_longitude = "-0.1622023"
-map_marker = "images/marker.png"
-
+## map_api_key = ""
+## map_latitude = ""
+## map_longitude = ""
+## map_marker = ""
 
 # Subscription
 [subscription]
 enable = false
 # mailchimp subsciption
-mailchimp_form_action = "https://gmail.us4.list-manage.com/subscribe/post?u=463ee871f45d2d93748e77cad&amp;id=a0a2c6d074" # replace this url with yours
-mailchimp_form_name = "b_463ee871f45d2d93748e77cad_a0a2c6d074"
+## mailchimp_form_action = ""
+## mailchimp_form_name = ""
