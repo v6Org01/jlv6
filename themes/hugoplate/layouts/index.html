@@ -34,8 +34,8 @@
   {{ end }}
   <!-- /Introduction -->
 
-  <!-- IntroTech -->
-  {{ range $i, $e:= .Params.introTech }}
+  <!-- Sections -->
+  {{ range $i, $e:= .Params.sections }}
     <section class="section-sm {{ if (modBool $i 2) }}bg-gradient{{ end }}">
       <div class="container">
         <div class="row items-center justify-between">
@@ -43,8 +43,8 @@
             class="mb:md-0 {{ if not (modBool $i 2) }}
               md:order-2
             {{ end }} md:col-5 mb-6">
-            {{ partial "image" (dict "Src" .image_light "Class" "img-light" "Alt" "introTech image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
-            {{ partial "image" (dict "Src" .image_dark "Class" "img-dark" "Alt" "introTech image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
+            {{ partial "image" (dict "Src" .image_light "Class" "img-light" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
+            {{ partial "image" (dict "Src" .image_dark "Class" "img-dark" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
           </div>
           <div
             class="{{ if not (modBool $i 2) }}
