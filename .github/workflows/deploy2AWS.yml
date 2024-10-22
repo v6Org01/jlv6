@@ -57,9 +57,3 @@ jobs:
         id: workspace-output
         with:
           workspace: ${{ env.TF_WORKSPACE }}
-      - name: Show Run Status
-        run: |
-          echo "Latest Run Status: ${{ steps.get-run.outputs.run_status }}"
-      - name: Show Workspace Output
-        run: |
-          echo "Workspace Output: ${{ steps.workspace-output.outputs.outputs }}"
