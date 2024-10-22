@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "publicRead" {
     sid = "PublicRead"
     actions = ["s3:GetObject"]
     resources = ["arn:aws:s3:::${var.AWS_PROD_S3_BUCKET_NAME}/*"]
-    principal {
+    principals {
       type        = "AWS"
       identifiers = ["*"]
     }
