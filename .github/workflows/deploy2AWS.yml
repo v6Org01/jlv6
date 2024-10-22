@@ -47,11 +47,19 @@ jobs:
         with:
           run: ${{ steps.create-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
-      - name: TFC - Get/Show Run
+      - name: TFC - Get Run Info
         uses: hashicorp/tfc-workflows-github/actions/show-run@v1.3.1
         id: get-run
         with:
           run: ${{ steps.create-run.outputs.run_id }}
+      - name: TFC - Get Workspace Output
+        uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
+        id: workspace-output
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
       - name: Show Run Status
         run: |
           echo "Latest Run Status: ${{ steps.get-run.outputs.run_status }}"
+      - name: Show Workspace Output
+        run: |
+          echo "Workspace Output: ${{ steps.workspace-output.outputs.outputs }}"
