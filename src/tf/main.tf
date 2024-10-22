@@ -33,8 +33,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "prod01" {
 
   rule {
     apply_server_side_encryption_by_default {
-      bucket_key_enabled
-      sse_algorithm     = AES256
+      sse_algorithm = AES256
     }
   }
 }
@@ -51,10 +50,10 @@ resource "aws_s3_bucket_website_configuration" "prod01" {
 
 resource "aws_s3_bucket_policy" "prod01" {
   bucket = aws_s3_bucket.prod01.id
-  policy = data.prod01.aws_iam_policy_document.publicRead.json
+  policy = data.aws_iam_policy_document.publicRead.json
 }
 
-data "prod01" "aws_iam_policy_document" "publicRead" {
+data "aws_iam_policy_document" "publicRead" {
   statement {
     sid = "PublicRead"
 
