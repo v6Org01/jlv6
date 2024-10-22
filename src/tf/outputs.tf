@@ -23,11 +23,6 @@ output "s3_bucket_hosted_zone_id" {
   value       = try(aws_s3_bucket.prod01.hosted_zone_id, "")
 }
 
-output "s3_bucket_lifecycle_configuration_rules" {
-  description = "The lifecycle rules of the bucket, if the bucket is configured with lifecycle rules. If not, prod01 will be an empty string."
-  value       = try(aws_s3_bucket_lifecycle_configuration.prod01.rule, "")
-}
-
 output "s3_bucket_policy" {
   description = "The policy of the bucket, if the bucket is configured with a policy. If not, prod01 will be an empty string."
   value       = try(aws_s3_bucket_policy.prod01.policy, "")
