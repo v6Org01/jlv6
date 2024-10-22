@@ -1,0 +1,54 @@
+name: deploy2aws
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+      
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  TF_CLOUD_ORGANIZATION: "${{ secrets.TF_CLOUD_ORGANIZATION }}"
+  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  TF_WORKSPACE: "${{ secrets.TF_WORKSPACE }}"
+  CONFIG_DIRECTORY: "${{ vars.TF_CONFIG_DIRECTORY }}"
+  ## Additional env variables
+  # TF_LOG: DEBUG ## Helpful for troubleshooting
+  # TF_MAX_TIMEOUT: "30m" ## If you wish to override the default "1h"
+
+jobs:
+
+  terraform-cloud-apply-run:
+    environment: production
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: TFC - Upload config
+        id: upload
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
+        with:
+          directory: ${{ env.CONFIG_DIRECTORY }}
+      - name: TFC - Create Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
+        id: create-run
+        with:
+          configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
+      - name: TFC - Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
+        id: apply
+        if: ${{ fromJSON(steps.create-run.outputs.payload).data.attributes.actions.IsConfirmable }}
+        with:
+          run: ${{ steps.create-run.outputs.run_id }}
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+      - name: TFC - Show Run
+        uses: hashicorp/tfc-workflows-github/actions/show-run@v1.3.1
+        id: show-run
+        with:
+          run: ${{ steps.create-run.outputs.run_id }}
+      
