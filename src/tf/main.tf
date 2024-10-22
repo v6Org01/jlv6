@@ -19,15 +19,6 @@ resource "aws_s3_bucket_public_access_block" "prod01" {
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_acl" "prod01" {
-  depends_on = [
-    aws_s3_bucket_ownership_controls.prod01,
-    aws_s3_bucket_public_access_block.prod01,
-  ]
-  bucket = aws_s3_bucket.prod01.id
-  acl    = "public-read"
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "prod01" {
   bucket = aws_s3_bucket.prod01.id
 
@@ -56,15 +47,13 @@ resource "aws_s3_bucket_policy" "prod01" {
 data "aws_iam_policy_document" "publicRead" {
   statement {
     sid = "PublicRead"
-
-    actions = [
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${var.AWS_PROD_S3_BUCKET_NAME}/*"
-    ]
+    actions = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::${var.AWS_PROD_S3_BUCKET_NAME}/*"]
+    principal {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    effect = "Allow"
   }
 }
 
