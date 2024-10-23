@@ -65,6 +65,7 @@ jobs:
   terraform-cloud-apply-run:
     environment: production
     runs-on: self-hosted
+    needs: k8s-certmanager-jlv6-get
     steps:
       - name: Checkout
         uses: actions/checkout@v4
