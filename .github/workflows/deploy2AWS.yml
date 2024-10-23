@@ -28,7 +28,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Generate cert files
-        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret
+        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret@main
         with:
           SECRET: ${{ vars.K8S_SECRET_CERT }}
           NAMESPACE: ${{ vars.K8S_NAMESPACE_CERT }}
