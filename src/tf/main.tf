@@ -57,4 +57,12 @@ data "aws_iam_policy_document" "publicRead" {
   }
 }
 
+# ACM
+resource "aws_acm_certificate" "cert01" {
+  private_key=file("privkey.pem")
+  certificate_body = file("cert.pem")
+  certificate_chain=file("fullchain.pem")
+}
+
+
 # CLOUDFRONT

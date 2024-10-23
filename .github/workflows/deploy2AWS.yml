@@ -6,6 +6,7 @@ on:
     branches: ["main"]
       
 permissions:
+  id-token: write
   contents: read
 
 concurrency:
@@ -22,12 +23,56 @@ env:
 
 jobs:
 
+  k8s-certmanager-jlv6-get:
+    environment: production
+    runs-on: self-hosted
+    steps:
+      - name: Generate cert files
+        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret
+        with:
+          SECRET: ${{ vars.K8S_SECRET_CERT }}
+          NAMESPACE: ${{ vars.K8S_NAMESPACE_CERT }}
+          KUBECONFIG: ${{ secrets.K8S_KUBECONFIG_CERT }}
+      - name: Upload cert files
+        uses: actions/upload-artifact@v4
+        with: 
+          name: artifact-cert-jlv6
+          path: |
+            ./privkey.pem
+            ./fullchain.pem
+            ./cert.pem
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+ # aws-import-cert:
+ #   environment: production
+ #   runs-on: self-hosted
+ #   steps:
+ #     - name: Install AWS CLI and Auth
+ #       uses: v6Org01/.github/actions/install-cli-login-AWS
+ #       with:
+ #         AWS_REGION: us-east-1
+ #         AWS_ROLE: "${{ secrets.AWS_ROLE }}"
+ #     - name: Download cert files
+ #       uses: actions/download-artifact@v4
+ #       with:
+ #         name: artifact-cert-jlv6
+ #     - name: Import ACM cert
+ #       run: |
+ #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
+
   terraform-cloud-apply-run:
     environment: production
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download cert files
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-cert-jlv6
+          path: ${{ env.TF_DIRECTORY }}
       - name: TFC - Upload config
         id: upload
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
