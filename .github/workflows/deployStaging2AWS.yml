@@ -1,6 +1,7 @@
 name: deploy_staging_to_aws
 
 on:
+  workflow_dispatch:
   push:
     branches: ["staging"]
       
