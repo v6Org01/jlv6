@@ -69,6 +69,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: 'refs/heads/staging'
       - name: Download cert files
         uses: actions/download-artifact@v4
         with:
