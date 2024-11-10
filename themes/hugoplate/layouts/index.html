@@ -1,0 +1,112 @@
+{{ define "main" }}
+
+  <!-- {{ partial "page-header" . }} -->
+
+  <!-- Introduction -->
+  {{ with .Params.introduction }}
+    <section class="section pt-14">
+      <div class="container">
+        <div class="row justify-center">
+          <div class="lg:col-7 md:col-9 mb-8 text-center">
+            <h1 class="mb-4 text-h3 lg:text-h1">
+              {{ .title | markdownify }}
+            </h1>
+            <h3 class="mb-4" id="location-info">
+              <!-- Default message, can be replaced dynamically -->
+              Loading location information...
+            </h3>
+            <p class="mb-8">
+              {{ .content | markdownify }}
+            </p>
+            {{ with .button }}
+              {{ if .enable }}
+                <a
+                  class="btn btn-primary"
+                  href="{{ .link | absURL }}"
+                  {{ if strings.HasPrefix .link `http` }}
+                    target="_blank" rel="noopener"
+                  {{ end }}>
+                  {{ .label }}
+                  <i class="fa fa-arrow-right pl-2"></i>
+                </a>
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </section>
+  {{ end }}
+  <!-- /Introduction -->
+
+  <!-- Sections -->
+  {{ range $i, $e:= .Params.sections }}
+    <section class="section-sm {{ if (modBool $i 2) }}bg-gradient{{ end }}">
+      <div class="container">
+        <div class="row items-center justify-between">
+          <div
+            class="mb:md-0 {{ if not (modBool $i 2) }}
+              md:order-2
+            {{ end }} md:col-5 mb-6">
+            {{ partial "image" (dict "Src" .image_light "Class" "img-light" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
+            {{ partial "image" (dict "Src" .image_dark "Class" "img-dark" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
+          </div>
+          <div
+            class="{{ if not (modBool $i 2) }}
+              md:order-1
+            {{ end }} md:col-7 lg:col-6">
+            <h2 class="mb-4">
+              {{ .title | markdownify }}
+            </h2>
+            <p class="mb-8 text-lg">
+              {{ .content | markdownify }}
+            </p>
+            <ul>
+              {{ range .bulletpoints }}
+                <li class="relative mb-4 pl-6">
+                  <i class="fa fa-check absolute left-0 top-1.5"></i>
+                  {{ . | markdownify }}
+                </li>
+              {{ end }}
+            </ul>
+            {{ with .button }}
+              {{ if .enable }}
+                <a class="btn btn-primary mt-6" href="{{ .link | absURL }}">
+                  {{ .label }}
+                  <i class="fa fa-arrow-right pl-2"></i>
+                </a>
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </section>
+  {{ end }}
+  <!-- /IntroTech -->
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      fetch(window.location.href, { method: "HEAD" })
+        .then(response => {
+          const deploymentLoc = response.headers.get("X-Deployment-Location");
+          
+          let message = "";
+          
+          if (deploymentLoc === "aws") {
+            message = 'You are viewing the <span style="color: #FF9900;">AWS</span> hosted version of this website.';
+          } else if (deploymentLoc === "k8s") {
+            message = 'You are viewing the on-premise (k8s) hosted version of this website.';
+          } else {
+            message = 'Could not retrieve location info.';
+          }
+  
+          // Insert the location information into the list item
+          const envInfoElement = document.getElementById("location-info");
+          if (envInfoElement) {
+            envInfoElement.innerHTML = message; // Use innerHTML to allow HTML tags (like <span>) to work
+          }
+        })
+        .catch(error => console.error("Could not retrieve location info:", error));
+    });
+  </script>
+
+{{ end }}

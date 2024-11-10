@@ -1,0 +1,29 @@
+############# English navigation ##############
+
+# main menu
+[[main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[main]]
+name = "Tech Blog"
+url = "/blog"
+weight = 2
+
+[[main]]
+name = "Wiki"
+url = "https://jlv6.com/wiki"
+weight = 3
+
+[[main]]
+name = "About Me"
+url = "/about"
+weight = 4
+
+# footer menu
+
+[[footer]]
+name = "Privacy Policy"
+url = "/privacy-policy"
+weight = 1
