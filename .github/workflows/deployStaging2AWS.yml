@@ -1,0 +1,106 @@
+name: deploy_staging_to_aws
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["staging"]
+    paths: ["public/**"]
+      
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  TF_CLOUD_ORGANIZATION: "${{ secrets.TF_CLOUD_ORGANIZATION }}"
+  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  TF_WORKSPACE: "${{ vars.TF_WORKSPACE }}"
+  TF_DIRECTORY: "${{ vars.TF_CONFIG_DIRECTORY }}"
+  TF_LOG: DEBUG
+  TF_MAX_TIMEOUT: "30m" 
+
+jobs:
+
+  k8s-certmanager-jlv6-get:
+    environment: staging
+    runs-on: self-hosted
+    steps:
+      - name: Generate cert files
+        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret@main
+        with:
+          SECRET: ${{ vars.K8S_SECRET_CERT }}
+          NAMESPACE: ${{ vars.K8S_NAMESPACE_CERT }}
+          KUBECONFIG: ${{ secrets.K8S_KUBECONFIG_CERT }}
+      - name: Upload cert files
+        uses: actions/upload-artifact@v4
+        with: 
+          name: artifact-cert-jlv6
+          path: |
+            ./privkey.pem
+            ./fullchain.pem
+            ./cert.pem
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+ # aws-import-cert:
+ #   environment: production
+ #   runs-on: self-hosted
+ #   steps:
+ #     - name: Install AWS CLI and Auth
+ #       uses: v6Org01/.github/actions/install-cli-login-AWS
+ #       with:
+ #         AWS_REGION: us-east-1
+ #         AWS_ROLE: "${{ secrets.AWS_ROLE }}"
+ #     - name: Download cert files
+ #       uses: actions/download-artifact@v4
+ #       with:
+ #         name: artifact-cert-jlv6
+ #     - name: Import ACM cert
+ #       run: |
+ #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
+
+  terraform-cloud-apply-run:
+    environment: staging
+    runs-on: self-hosted
+    needs: k8s-certmanager-jlv6-get
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download cert files
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-cert-jlv6
+          path: ${{ env.TF_DIRECTORY }}
+      - name: TFC - Upload config
+        id: upload
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.TF_DIRECTORY }}
+      - name: TFC - Create Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
+        id: create-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
+      - name: TFC - Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
+        id: apply
+        if: ${{ fromJSON(steps.create-run.outputs.payload).data.attributes.actions.IsConfirmable }}
+        with:
+          run: ${{ steps.create-run.outputs.run_id }}
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+      - name: TFC - Get Run Info
+        uses: hashicorp/tfc-workflows-github/actions/show-run@v1.3.1
+        id: get-run
+        with:
+          run: ${{ steps.create-run.outputs.run_id }}
+      - name: TFC - Get Workspace Output
+        uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
+        id: workspace-output
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}

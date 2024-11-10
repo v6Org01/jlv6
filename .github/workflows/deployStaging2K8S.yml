@@ -1,0 +1,113 @@
+name: deploy_staging_to_k8s
+
+on:
+  workflow_dispatch:
+    inputs:
+      SKIP_BUILD:
+        description: 'Skip build and push phase'
+        required: false
+        type: boolean
+        default: false
+      SKIP_DEPLOY_STAGING:
+        description: 'Skip deployment to staging'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches: ["staging"]
+    paths: ["public/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+
+jobs:
+  build-image-push:
+    if: ${{ inputs.SKIP_BUILD == false }}
+    strategy:
+      matrix:
+        platform:
+          - amd64
+          - arm64
+        include:
+          - platform: amd64
+            runner: gha-runner-scale-set-amd64
+          - platform: arm64
+            runner: gha-runner-scale-set-arm64
+    runs-on: ${{ matrix.runner }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ vars.REGISTRY_PRIVATE }}/arc-${{ vars.APPLICATION }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - name: Set up Docker Buildx
+        uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
+        with:
+          REGISTRY: ${{ vars.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+      - name: Login to private # to push
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_PRIVATE }}
+          username: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+          password: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+
+
+  build-image-push:
+    if: ${{ inputs.SKIP_BUILD == false }}
+    uses: v6Org01/.github/.github/workflows/BuildPushImage.yaml@main
+    with:
+      APPLICATION: ${{ vars.APPLICATION }}
+      VERSION: ${{ vars.DUO_VERSION }}
+      PUSH_TO_PUBLIC: true
+      PUSH_TO_PRIVATE: true
+      WF_OWNER: ${{ vars.OWNER }}
+      WF_REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
+      WF_REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
+      WF_REGISTRY_PUBLIC: ${{ vars.REGISTRY_PUBLIC }}
+    secrets:
+      WF_REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+      WF_REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+      WF_REGISTRY_PUBLIC_USER: ${{ github.actor }}
+      WF_REGISTRY_PUBLIC_PASSWD: ${{ secrets.PAT_PACKAGES }}
+
+  deploy-staging:
+    if: ${{ !failure() && inputs.SKIP_DEPLOY_STAGING == false }}
+    environment: staging
+    runs-on: gha-runner-scale-set-arm64
+    needs: build-image-push
+    steps:
+      - name: Install openssh-client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install openssh-client -y
+          sudo rm -rf /var/lib/apt/lists/*
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
+      - name: Update image tag and deploy app with ArgoCD
+        uses: v6Org01/.github/actions/update-imageTag-argoDeploy@main
+        with:
+          ARGOCD_APPLICATION_FILE: ${{ vars.ARGOCD_APPLICATION_FILE }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
+          NAMESPACE: ${{ vars.NAMESPACE }}
+          VERSION: ${{ vars.DUO_VERSION }}
