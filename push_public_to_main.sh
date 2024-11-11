@@ -38,9 +38,9 @@ git push origin $DEVELOPMENT_BRANCH || { echo "Failed to push changes to the dev
 #     exit 1
 # fi
 
-# Sleep for 30 seconds to allow changes to propagate
-echo "Waiting for 30 seconds to ensure changes propagate..."
-sleep 30
+# Sleep for 5 seconds to allow changes to propagate
+echo "Waiting for 5 seconds to ensure changes propagate..."
+sleep 5
 
 # Fetch the latest changes from the production branch
 echo "Fetching the latest changes from the production branch..."
