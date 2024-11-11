@@ -26,29 +26,24 @@ jobs:
         id: check-skip
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"--create-tag"* ]]; then
-            echo "skip_create_tag=false" >> $GITHUB_ENV
+            echo "skip_create_tag=false" >> $GITHUB_OUTPUT
           else
-            echo "skip_create_tag=true" >> $GITHUB_ENV
+            echo "skip_create_tag=true" >> $GITHUB_OUTPUT
           if [[ "${{ github.event.head_commit.message }}" == *"--skip-build-push-image"* ]]; then
-            echo "skip_build_push_image=true" >> $GITHUB_ENV
+            echo "skip_build_push_image=true" >> $GITHUB_OUTPUT
           else
-            echo "skip_build_push_image=false" >> $GITHUB_ENV
+            echo "skip_build_push_image=false" >> $GITHUB_OUTPUT
           fi
           if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-aws"* ]]; then
-            echo "skip_deploy_aws=true" >> $GITHUB_ENV
+            echo "skip_deploy_aws=true" >> $GITHUB_OUTPUT
           else
-            echo "skip_deploy_aws=false" >> $GITHUB_ENV
+            echo "skip_deploy_aws=false" >> $GITHUB_OUTPUT
           fi
           if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-k8s"* ]]; then
-            echo "skip_deploy_k8s=true" >> $GITHUB_ENV
+            echo "skip_deploy_k8s=true" >> $GITHUB_OUTPUT
           else
-            echo "skip_deploy_k8s=false" >> $GITHUB_ENV
+            echo "skip_deploy_k8s=false" >> $GITHUB_OUTPUT
           fi
-        outputs:
-          skip_create_tag: ${{ env.skip_create_tag }}
-          skip_build_push_image: ${{ env.skip_build_push_image }}
-          skip_deploy_aws: ${{ env.skip_deploy_aws }}
-          skip_deploy_k8s: ${{ env.skip_deploy_k8s }}
  
   create-update-version-tag:
     if: ${{ needs.define-actions.outputs.skip_create_tag == false }}
