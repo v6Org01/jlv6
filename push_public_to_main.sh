@@ -5,6 +5,10 @@ PRODUCTION_BRANCH="main"
 DEVELOPMENT_BRANCH="development"
 DIR_TO_MERGE="public"
 
+# Prompt for commit message
+echo "help: --create-tag major.minor.patch, --skip-build-push-image, --skip-deploy-aws, --skip-deploy-k8s"
+read -p "Enter commit message: " commit_msg
+
 # Kill the npm process for "npm run dev"
 echo "Killing any running npm process (npm run dev)..."
 pkill -f "npm run dev" || echo "No npm run dev process found."
@@ -58,7 +62,7 @@ git checkout $DEVELOPMENT_BRANCH -- $DIR_TO_MERGE || { echo "Failed to checkout 
 # Add and commit the changes
 echo "Adding and committing the merged public directory..."
 git add $DIR_TO_MERGE
-git commit -m "Merge public directory from development branch into production"
+git commit -m "$commit_msg"
 
 # Push the changes to the remote production branch
 echo "Pushing changes to the remote production branch..."
