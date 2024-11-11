@@ -51,7 +51,6 @@ jobs:
           - platform: arm64
             runner: gha-runner-scale-set-arm64
     runs-on: ${{ matrix.runner }}
-    needs: version-tag
     steps:
       - name: Checkout
         uses: actions/checkout@v4
