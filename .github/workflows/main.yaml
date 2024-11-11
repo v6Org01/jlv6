@@ -1,25 +1,8 @@
-name: init
+name: main
 
 on:
-  workflow_dispatch:
-    inputs:
-      SKIP_BUILD_PUSH_IMAGE:
-        description: 'Skip build and push phase'
-        required: false
-        type: boolean
-        default: false
-      SKIP_DEPLOY_AWS:
-        description: 'Skip deployment to AWS'
-        required: false
-        type: boolean
-        default: false
-      SKIP_DEPLOY_K8S:
-        description: 'Skip deployment to K8S'
-        required: false
-        type: boolean
-        default: false
   push:
-    branches: ["staging"]
+    branches: ["main"]
     paths: ["public/**"]
 
 permissions:
@@ -46,17 +29,17 @@ jobs:
             echo "skip_create_tag=false" >> $GITHUB_ENV
           else
             echo "skip_create_tag=true" >> $GITHUB_ENV
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-build-push-image"* || inputs.SKIP_BUILD_PUSH_IMAGE == true ]]; then
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-build-push-image"* ]]; then
             echo "skip_build_push_image=true" >> $GITHUB_ENV
           else
             echo "skip_build_push_image=false" >> $GITHUB_ENV
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-aws"* || inputs.SKIP_DEPLOY_AWS == true ]]; then
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-aws"* ]]; then
             echo "skip_deploy_aws=true" >> $GITHUB_ENV
           else
             echo "skip_deploy_aws=false" >> $GITHUB_ENV
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-k8s"* || inputs.SKIP_DEPLOY_K8S == true ]]; then
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-k8s"* ]]; then
             echo "skip_deploy_k8s=true" >> $GITHUB_ENV
           else
             echo "skip_deploy_k8s=false" >> $GITHUB_ENV
@@ -103,16 +86,14 @@ jobs:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-  deploy-to-aws-production:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
-    environment: production
-    needs: deploy-to-aws-staging
-    uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
-    with:
-      TF_DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
-      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
-    secrets:
-      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+  # deploy-to-aws-production:
+  #   if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
+  #   environment: production
+  #   needs: deploy-to-aws-staging
+  #   uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
+  #     TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+  #   secrets:
+  #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       
 
   # deploy-to-k8s:

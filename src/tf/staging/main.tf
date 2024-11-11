@@ -76,11 +76,6 @@ module "cf_distribution_01" {
     locations        = ["US", "CA", "GB", "DE", "FR", "BE", "NL", "LU"]
   }
 
-  logging_config = {
-    bucket = module.log_bucket.s3_bucket_bucket_domain_name
-    prefix = "cf_distribution_01"
-  }
-
   create_origin_access_identity = false
   create_origin_access_control = true
   origin_access_control = {
@@ -92,12 +87,42 @@ module "cf_distribution_01" {
     }
   }
 
+  origin_group = {
+    origGroup01 = {
+      failover_status_codes      = [500, 502, 503, 504]
+      primary_member_origin_id   = "primaryK8S"
+      secondary_member_origin_id = "failoverS3"
+    }
+  }
+
   origin = {
-    primaryS3 = {
+    primaryK8S = {
+      domain_name = var.JLV6_DOMAIN
+      custom_origin_config = {
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+      custom_header = {
+        name = "X-Deployment-Location"
+        value = "k8s"
+      }
+      origin_shield = {
+        enabled = false
+      }
+    }
+  }
+
+  origin = {
+    failoverS3 = {
       domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
       custom_origin_config = {
         http_port              = 80
         origin_protocol_policy = "http-only"
+      }
+      custom_header = {
+        name = "X-Deployment-Location"
+        value = "aws"
       }
       origin_shield = {
         enabled = false
@@ -107,7 +132,7 @@ module "cf_distribution_01" {
   }
 
   default_cache_behavior {
-    target_origin_id       = "primaryS3"
+    target_origin_id       = "failoverS3"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", HEAD"]
     cached_methods         = ["GET", HEAD"]
