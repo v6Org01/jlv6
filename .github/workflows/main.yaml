@@ -74,8 +74,6 @@ jobs:
     with:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
-      TF_DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
-      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
     secrets:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
