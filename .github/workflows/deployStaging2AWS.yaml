@@ -4,13 +4,19 @@ on:
   workflow_call:
     inputs:
       K8S_NAMESPACE_CERT:
+        description: 'Namespace containing TLS cert secret'
+        required: true
+        type: string
       K8S_SECRET_CERT:
+        description: 'TLS cert secret name'
+        required: true
+        type: string
       TF_DIRECTORY:
-        description: ''
+        description: 'Dir containing TF config files'
         required: true
         type: string
       TF_WORKSPACE:
-        description: ''
+        description: 'TFC Workspace'
         required: true
         type: string
     secrets:
@@ -76,5 +82,5 @@ jobs:
       - name: TFC - Apply
         uses: v6Org01/.github/actions/run-TerraformCloudApply@main
         with:
-          DIRECTORY: ${{ env.TF_DIRECTORY }}
-          WORKSPACE: ${{ env.TF_WORKSPACE }}
+          DIRECTORY: ${{ inputs.TF_DIRECTORY }}
+          WORKSPACE: ${{ inputs.TF_WORKSPACE }}
