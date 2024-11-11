@@ -69,7 +69,6 @@ jobs:
 
   deploy-to-aws-staging:
     if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
-    environment: staging
     needs: create-update-version-tag
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
