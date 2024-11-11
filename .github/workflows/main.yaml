@@ -61,6 +61,10 @@ jobs:
     uses: v6Org01/jlv6/.github/workflows/buildPushImage.yaml@main
     with:
       APPLICATION: ${{ vars.APPLICATION }}
+      JLV6_GID: ${{ vars.JLV6_GID }}
+      JLV6_GROUP: ${{ vars.JLV6_GROUP }}
+      JLV6_UID: ${{ vars.JLV6_UID }}
+      JLV6_USER: ${{ vars.JLV6_USER }}
       REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
       REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
     secrets:
