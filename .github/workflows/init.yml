@@ -1,0 +1,123 @@
+name: init
+
+on:
+  workflow_dispatch:
+    inputs:
+      SKIP_BUILD_PUSH_IMAGE:
+        description: 'Skip build and push phase'
+        required: false
+        type: boolean
+        default: false
+      SKIP_DEPLOY_AWS:
+        description: 'Skip deployment to AWS'
+        required: false
+        type: boolean
+        default: false
+      SKIP_DEPLOY_K8S:
+        description: 'Skip deployment to K8S'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches: ["staging"]
+    paths: ["public/**"]
+
+permissions:
+  contents: read
+ 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+
+  define-actions:
+    runs-on: gha-runner-scale-set-arm64
+    outputs:
+      skip_create_tag: ${{ steps.check-skip.outputs.skip_create_tag }}
+      skip_build_push_image: ${{ steps.check-skip.outputs.skip_build_push_image }}
+      skip_deploy_aws: ${{ steps.check-skip.outputs.skip_deploy_aws }}
+      skip_deploy_k8s: ${{ steps.check-skip.outputs.skip_deploy_k8s }}
+    steps:
+      - name: Set skip values
+        id: check-skip
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"--create-tag"* ]]; then
+            echo "skip_create_tag=false" >> $GITHUB_ENV
+          else
+            echo "skip_create_tag=true" >> $GITHUB_ENV
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-build-push-image"* || inputs.SKIP_BUILD_PUSH_IMAGE == true ]]; then
+            echo "skip_build_push_image=true" >> $GITHUB_ENV
+          else
+            echo "skip_build_push_image=false" >> $GITHUB_ENV
+          fi
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-aws"* || inputs.SKIP_DEPLOY_AWS == true ]]; then
+            echo "skip_deploy_aws=true" >> $GITHUB_ENV
+          else
+            echo "skip_deploy_aws=false" >> $GITHUB_ENV
+          fi
+          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-k8s"* || inputs.SKIP_DEPLOY_K8S == true ]]; then
+            echo "skip_deploy_k8s=true" >> $GITHUB_ENV
+          else
+            echo "skip_deploy_k8s=false" >> $GITHUB_ENV
+          fi
+        outputs:
+          skip_create_tag: ${{ env.skip_create_tag }}
+          skip_build_push_image: ${{ env.skip_build_push_image }}
+          skip_deploy_aws: ${{ env.skip_deploy_aws }}
+          skip_deploy_k8s: ${{ env.skip_deploy_k8s }}
+ 
+  create-update-version-tag:
+    if: ${{ needs.define-actions.outputs.skip_create_tag == false }}
+    runs-on: gha-runner-scale-set-arm64
+    needs: define-actions
+    steps:
+      - name: Create or update git tag
+        uses: v6Org01/.github/actions/create-git-versionTag@main
+        with:
+          DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+
+  build-push-image:
+    if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == false }}
+    needs: create-update-version-tag
+    uses: v6Org01/jlv6/.github/workflows/buildPushImage.yaml@main
+    with:
+      APPLICATION: ${{ vars.APPLICATION }}
+      REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
+      REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
+    secrets:
+      REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+      REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+
+  deploy-to-aws-staging:
+    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
+    environment: staging
+    needs: create-update-version-tag
+    uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
+    with:
+      K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
+      K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
+      TF_DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+    secrets:
+      KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+
+  deploy-to-aws-production:
+    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
+    environment: production
+    needs: deploy-to-aws-staging
+    uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
+    with:
+      TF_DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      
+
+  # deploy-to-k8s:
+  #   if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_k8s == false }}
+  #   needs: build-push-image
+  #   uses: v6Org01/jlv6/.github/workflows/deploy2K8S.yaml@main
+  #   with:
+  #   secrets:

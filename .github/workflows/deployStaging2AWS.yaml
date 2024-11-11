@@ -1,0 +1,80 @@
+name: deploy_staging_to_aws
+
+on:
+  workflow_call:
+    inputs:
+      K8S_NAMESPACE_CERT:
+      K8S_SECRET_CERT:
+      TF_DIRECTORY:
+        description: ''
+        required: true
+        type: string
+      TF_WORKSPACE:
+        description: ''
+        required: true
+        type: string
+    secrets:
+      KUBECONFIG_PLUTO_CERT:
+        required: true
+      TF_API_TOKEN:
+        required: true
+      
+jobs:
+
+  k8s-certmanager-jlv6-get:
+    runs-on: gha-runner-scale-set-arm64
+    steps:
+      - name: Generate cert files
+        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret@main
+        with:
+          NAMESPACE: ${{ inputs.K8S_NAMESPACE_CERT }}
+          SECRET: ${{ inputs.K8S_SECRET_CERT }}
+          KUBECONFIG: ${{ secrets.K8S_KUBECONFIG_CERT }}
+      - name: Upload cert files
+        uses: actions/upload-artifact@v4
+        with: 
+          name: artifact-cert-jlv6
+          path: |
+            ./privkey.pem
+            ./fullchain.pem
+            ./cert.pem
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+ # aws-import-cert:
+ #   environment: production
+ #   runs-on: self-hosted
+ #   steps:
+ #     - name: Install AWS CLI and Auth
+ #       uses: v6Org01/.github/actions/install-cli-login-AWS
+ #       with:
+ #         AWS_REGION: us-east-1
+ #         AWS_ROLE: "${{ secrets.AWS_ROLE }}"
+ #     - name: Download cert files
+ #       uses: actions/download-artifact@v4
+ #       with:
+ #         name: artifact-cert-jlv6
+ #     - name: Import ACM cert
+ #       run: |
+ #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
+
+  terraform-cloud-apply-run:
+    runs-on: gha-runner-scale-set-arm64
+    needs: k8s-certmanager-jlv6-get
+    env:
+      TF_LOG: DEBUG
+      TF_MAX_TIMEOUT: "30m"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download cert files
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-cert-jlv6
+          path: ${{ inputs.TF_DIRECTORY }}
+      - name: TFC - Apply
+        uses: v6Org01/.github/actions/run-TerraformCloudApply@main
+        with:
+          DIRECTORY: ${{ env.TF_DIRECTORY }}
+          WORKSPACE: ${{ env.TF_WORKSPACE }}

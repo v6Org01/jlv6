@@ -1,0 +1,129 @@
+name: build_push_image
+
+on:
+  workflow_call:
+    inputs:
+      APPLICATION:
+        description: 'Application for which to build container image'
+        required: true
+        type: string
+      JLV6_GID:
+        description: 'Linux group id'
+        required: true
+        type: string
+      JLV6_GROUP:
+        description: 'Linux group name'
+        required: true
+        type: string
+      JLV6_UID:
+        description: 'Linux user id'
+        required: true
+        type: string
+      JLV6_USER:
+        description: 'Linux user name'
+        required: true
+        type: string
+      REGISTRY_PRIVATE:
+        description: 'Private registry URI:PORT'
+        required: true
+        type: string
+      REGISTRY_PRIVATE_PULL:
+        description: 'Private registry URI:PULL_PORT'
+        required: true
+        type: string
+    secrets:
+      REGISTRY_PRIVATE_USER:
+        required: true
+      REGISTRY_PRIVATE_PASSWD:
+        required: true
+
+jobs:
+
+  build-image-push:
+    strategy:
+      matrix:
+        platform:
+          - amd64
+          - arm64
+        include:
+          - platform: amd64
+            runner: gha-runner-scale-set-amd64
+          - platform: arm64
+            runner: gha-runner-scale-set-arm64
+    runs-on: ${{ matrix.runner }}
+    needs: version-tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Get Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - name: Set up Docker Buildx
+        uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
+        with:
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
+      - name: Login to private # to push
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.REGISTRY_PRIVATE }}
+          username: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
+      - name: Build and Push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/${{ matrix.platform }}
+          file: src/docker/Dockerfile
+          push: true
+          cache-from: type=gha,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
+          provenance: false
+          build-args: |
+            "JLV6_UID=${{ inputs.JLV6_UID }}"
+            "JLV6_USER=${{ inputs.JLV6_USER }}"
+            "JLV6_GID=${{ inputs.JLV6_GID }}"
+            "JLV6_GROUP=${{ inputs.JLV6_GROUP }}"
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            "${{ steps.meta.outputs.tags }}"
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ matrix.platform }}
+
+  build-merge:
+    runs-on: gha-runner-scale-set-arm64
+    needs: build-image-push
+    steps:
+      - name: Set up Docker Buildx
+        uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
+        with:
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
+      - name: Login to private # to push
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.REGISTRY_PRIVATE }}
+          username: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
+      - name: Create manifest list and push
+        run: |
+          docker buildx imagetools create \
+            $(echo ${{ steps.meta.outputs.tags }}" | sed 's/,/ -t /g') \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:amd64" \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:arm64"
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}"
