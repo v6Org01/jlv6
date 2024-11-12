@@ -130,9 +130,19 @@ module "cf_distribution_01" {
       origin_access_control = "s3_oac_01"
     }
   }
+  
+  ordered_cache_behavior {
+    path_pattern     = "/${var.APPLICATION_VERSION}/*"
+    target_origin_id = "failoverS3"
+    viewer_protocol_policy = "https-only"
+    allowed_methods        = ["GET", HEAD"]
+    cached_methods         = ["GET", HEAD"]
+    compress               = true
+    use_forwarded_values = false
+  }
 
   default_cache_behavior {
-    target_origin_id       = "failoverS3"
+    target_origin_id       = "origGroup01"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", HEAD"]
     cached_methods         = ["GET", HEAD"]

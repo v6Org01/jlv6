@@ -3,6 +3,10 @@ name: deploy_staging_to_aws
 on:
   workflow_call:
     inputs:
+      VERSION:
+        description: 'Application version'
+        required: true
+        type: string
       K8S_NAMESPACE_CERT:
         description: 'Namespace containing TLS cert secret'
         required: true
@@ -12,7 +16,11 @@ on:
         required: true
         type: string
       TF_CLOUD_ORGANIZATION:
-        description: 'TFC Organization'
+        description: 'Terraform Cloud Organization'
+        required: true
+        type: string
+      TF_WORKSPACE_ID:
+        description: 'Terraform Cloud Workspace ID'
         required: true
         type: string
     secrets:
@@ -78,7 +86,48 @@ jobs:
         with:
           name: artifact-cert-jlv6
           path: ${{ inputs.TF_DIRECTORY }}
-      - name: TFC - Apply
+      - name: Set Terraform Cloud variable
+        run: |
+          # Check if the variable already exists
+          EXISTING_VAR_ID=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars" | \
+            jq -r ".data[] | select(.attributes.key == \"APPLICATION_VERSION\") | .id")
+
+          # Define the payload for updating or creating the variable
+          payload=$(jq -n --arg key "APPLICATION_VERSION" --arg value "${{ inputs.VERSION }}" \
+            '{
+              data: {
+                type: "vars",
+                attributes: {
+                  key: $key,
+                  value: $value,
+                  category: "terraform", # Use "terraform" for Terraform variables
+                  hcl: false,      # Set to true if the variable is HCL code
+                  sensitive: false # Set to true if the variable is sensitive
+                }
+              }
+            }')
+
+          if [ -n "$EXISTING_VAR_ID" ]; then
+            # Update the existing variable
+            curl -s -X PATCH \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              -d "$payload" \
+              "https://app.terraform.io/api/v2/vars/$EXISTING_VAR_ID"
+            echo "Variable 'APPLICATION_VERSION' updated successfully."
+          else
+            # Create a new variable
+            curl -s -X POST \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              -d "$payload" \
+              "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars"
+            echo "Variable 'APPLICATION_VERSION' created successfully."
+          fi 
+      - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloudApply@main
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}

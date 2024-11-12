@@ -70,7 +70,6 @@ jobs:
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
       APPLICATION: ${{ vars.APPLICATION }}
-      VERSION: ${{ vars.APPLICATION_VERSION }}
       BUILD_ARGS: |
         REGISTRY=${{ vars.REGISTRY_PRIVATE_PULL }}
         JLV6_GID=${{ vars.JLV6_GID }}
@@ -81,6 +80,7 @@ jobs:
       PUSH_TO_PUBLIC: false
       REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
       REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
+      VERSION: ${{ vars.APPLICATION_VERSION }}
     secrets:
       REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
@@ -93,6 +93,8 @@ jobs:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE_ID: ${{ vars.TF_WORKSPACE_ID }}
+      VERSION: ${{ vars.APPLICATION_VERSION }}
     secrets:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
