@@ -11,8 +11,8 @@ module "s3_bucket_01" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 
-  attach_policy = true
-  policy        = data.aws_iam_policy_document.s3_policy_01.json 
+  attach_policy = false
+  policy        = data.aws_iam_policy_document.s3_policy_doc_01.json 
 
   website = {
     index_document = "index.html"
@@ -28,7 +28,7 @@ module "s3_bucket_01" {
   }
 }
 
-data "aws_iam_policy_document" "s3_policy_01" {
+data "aws_iam_policy_document" "s3_policy_doc_01" {
   statement {
     sid = "AllowCloudFrontAccess"
     actions = ["s3:GetObject"]
@@ -46,6 +46,14 @@ data "aws_iam_policy_document" "s3_policy_01" {
   }
 }
 
+resource "aws_s3_bucket_policy" "s3_policy_01" {
+  depends_on = [
+    module.cf_distribution_01
+  ]
+  bucket = module.s3_bucket_01.bucket_name
+  policy = data.aws_iam_policy_document.s3_policy_doc_01.json
+}
+
 # ACM
 resource "aws_acm_certificate" "cert01" {
   private_key=file("privkey.pem")
@@ -55,7 +63,7 @@ resource "aws_acm_certificate" "cert01" {
 
 # CLOUDFRONT
 module "cf_distribution_01" {
-  # Ensure CloudFront distribution creation happens after ACM_CERT is created
+  # Ensure CloudFront distribution creation happens after ACM_CERT and S3_BUCKET_01 are created
   depends_on = [
    module.s3_bucket_01,
    aws_acm_certificate.cert01
