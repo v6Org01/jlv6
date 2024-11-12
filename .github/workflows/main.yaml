@@ -54,7 +54,7 @@ jobs:
           echo "skip_deploy_k8s is set to ${{ steps.check-skip.outputs.skip_deploy_k8s }}"
  
   create-update-version-tag:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_create_tag == false }}
+    if: ${{ needs.define-actions.outputs.skip_create_tag == 'false' }}
     runs-on: gha-runner-scale-set-arm64
     needs: define-actions
     steps:
@@ -64,7 +64,7 @@ jobs:
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
 
   build-push-image:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == false }}
+    if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == 'false' }}
     needs: create-update-version-tag
     uses: v6Org01/jlv6/.github/workflows/buildPushImage.yaml@main
     with:
@@ -80,7 +80,7 @@ jobs:
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
 
   deploy-to-aws-staging:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
+    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == 'false' }}
     needs: create-update-version-tag
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
