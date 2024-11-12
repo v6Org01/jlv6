@@ -64,7 +64,7 @@ jobs:
   terraform-cloud-apply-run:
     runs-on: gha-runner-scale-set-arm64
     environment: staging
-    needs: k8s-certmanager-jlv6-get
+    needs: get-jlv6-tls-cert-k8s
     env:
       TF_CLOUD_ORGANIZATION: ${{ inputs.TF_CLOUD_ORGANIZATION }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
