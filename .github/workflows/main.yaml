@@ -72,6 +72,7 @@ jobs:
       APPLICATION: ${{ vars.APPLICATION }}
       VERSION: ${{ vars.APPLICATION_VERSION }}
       BUILD_ARGS: |
+        REGISTRY=${{ vars.REGISTRY_PRIVATE_PULL }}
         JLV6_GID=${{ vars.JLV6_GID }}
         JLV6_GROUP=${{ vars.JLV6_GROUP }}
         JLV6_UID=${{ vars.JLV6_UID }}
@@ -91,6 +92,7 @@ jobs:
     with:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
     secrets:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}

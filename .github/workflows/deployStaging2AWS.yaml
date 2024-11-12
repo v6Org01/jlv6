@@ -11,6 +11,10 @@ on:
         description: 'TLS cert secret name'
         required: true
         type: string
+      TF_CLOUD_ORGANIZATION:
+        description: 'TFC Organization'
+        required: true
+        type: string
     secrets:
       KUBECONFIG_PLUTO_CERT:
         required: true
@@ -19,7 +23,7 @@ on:
       
 jobs:
 
-  k8s-certmanager-jlv6-get:
+  get-jlv6-tls-cert-k8s:
     runs-on: gha-runner-scale-set-arm64
     steps:
       - name: Generate cert files
@@ -62,6 +66,8 @@ jobs:
     environment: staging
     needs: k8s-certmanager-jlv6-get
     env:
+      TF_CLOUD_ORGANIZATION: ${{ inputs.TF_CLOUD_ORGANIZATION }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
     steps:
