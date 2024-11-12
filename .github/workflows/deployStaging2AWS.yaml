@@ -19,10 +19,6 @@ on:
         description: 'Terraform Cloud Organization'
         required: true
         type: string
-      TF_WORKSPACE_ID:
-        description: 'Terraform Cloud Workspace ID'
-        required: true
-        type: string
     secrets:
       KUBECONFIG_PLUTO_CERT:
         required: true
@@ -85,14 +81,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: artifact-cert-jlv6
-          path: ${{ inputs.TF_DIRECTORY }}
+          path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Set Terraform Cloud variable
         run: |
           # Check if the variable already exists
           EXISTING_VAR_ID=$(curl -s \
             -H "Authorization: Bearer $TF_API_TOKEN" \
             -H "Content-Type: application/vnd.api+json" \
-            "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars" | \
+            "https://app.terraform.io/api/v2/workspaces/${{ vars.TF_WORKSPACE_ID }}/vars" | \
             jq -r ".data[] | select(.attributes.key == \"APPLICATION_VERSION\") | .id")
 
           # Define the payload for updating or creating the variable
@@ -124,7 +120,7 @@ jobs:
               -H "Authorization: Bearer $TF_API_TOKEN" \
               -H "Content-Type: application/vnd.api+json" \
               -d "$payload" \
-              "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars"
+              "https://app.terraform.io/api/v2/workspaces/${{ vars.TF_WORKSPACE_ID }}/vars"
             echo "Variable 'APPLICATION_VERSION' created successfully."
           fi 
       - name: Terraform Cloud - Apply
