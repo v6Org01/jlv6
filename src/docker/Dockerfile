@@ -9,8 +9,8 @@ ENV SERVER_ROOT=/public
 ENV SERVER_CONFIG_FILE=/etc/config.toml
 COPY ./public /public
 RUN <<EOF
-  addgroup -g ${JLV6_GROUP} ${JLV6_GROUP}
-  adduser -h /home/${JLV6_USER} -u ${JLV6_USER} -D -G ${JLV6_GROUP} ${JLV6_USER}
+  addgroup --system --gid ${JLV6_GID} ${JLV6_GROUP}
+  adduser --system --disabled-password --home /home/${JLV6_USER} --uid ${JLV6_UID} --ingroup ${JLV6_GROUP} ${JLV6_USER}
   # changing ownership of static-web-server files
   RUN chown -R ${JLV6_USER}:${JLV6_GROUP} /entrypoint.sh
   RUN chown -R ${JLV6_USER}:${JLV6_GROUP} /usr/local/bin/static-web-server
