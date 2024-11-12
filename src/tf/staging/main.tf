@@ -118,7 +118,7 @@ module "cf_distribution_01" {
       }
       origin_access_control = "s3_oac_01"
     }
-  ]
+  }
 
   origin_group = {
     origGroup01 = {
