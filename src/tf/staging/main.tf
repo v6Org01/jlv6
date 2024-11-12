@@ -12,7 +12,6 @@ module "s3_bucket_01" {
   restrict_public_buckets = true
 
   attach_policy = false
-  policy        = data.aws_iam_policy_document.s3_policy_doc_01.json 
 
   website = {
     index_document = "index.html"
@@ -29,6 +28,10 @@ module "s3_bucket_01" {
 }
 
 data "aws_iam_policy_document" "s3_policy_doc_01" {
+  depends_on = [
+    module.s3_bucket_01,
+    module.cf_distribution_01
+  ]
   statement {
     sid = "AllowCloudFrontAccess"
     actions = ["s3:GetObject"]
