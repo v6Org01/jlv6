@@ -30,17 +30,17 @@ jobs:
           else
             echo "skip_create_tag=true" >> $GITHUB_OUTPUT
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-build-push-image"* ]]; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--skip-build-push-imageg"; then
             echo "skip_build_push_image=true" >> $GITHUB_OUTPUT
           else
             echo "skip_build_push_image=false" >> $GITHUB_OUTPUT
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-aws"* ]]; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--skip-deploy-aws"; then
             echo "skip_deploy_aws=true" >> $GITHUB_OUTPUT
           else
             echo "skip_deploy_aws=false" >> $GITHUB_OUTPUT
           fi
-          if [[ "${{ github.event.head_commit.message }}" == *"--skip-deploy-k8s"* ]]; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--deploy-k8s"; then
             echo "skip_deploy_k8s=true" >> $GITHUB_OUTPUT
           else
             echo "skip_deploy_k8s=false" >> $GITHUB_OUTPUT
@@ -54,7 +54,7 @@ jobs:
           echo "skip_deploy_k8s is set to ${{ steps.check-skip.outputs.skip_deploy_k8s }}"
  
   create-update-version-tag:
-    if: ${{ needs.define-actions.outputs.skip_create_tag == false }}
+    if: ${{ !failure() && needs.define-actions.outputs.skip_create_tag == false }}
     runs-on: gha-runner-scale-set-arm64
     needs: define-actions
     steps:
