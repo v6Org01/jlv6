@@ -47,10 +47,11 @@ jobs:
           fi
       - name: Debug
         run: |
-          echo ${{ steps.check-skip.outputs.skip_create_tag }}
-          echo ${{ steps.check-skip.outputs.skip_build_push_image }}
-          echo ${{ steps.check-skip.outputs.skip_deploy_aws }}
-          echo ${{ steps.check-skip.outputs.skip_deploy_k8s }}
+          echo "Commit msg: ${{ github.event.head_commit.message }}"
+          echo "skip_create_tag is set to ${{ steps.check-skip.outputs.skip_create_tag }}"
+          echo "skip_build_push_image is set to ${{ steps.check-skip.outputs.skip_build_push_image }}"
+          echo "skip_deploy_aws is set to ${{ steps.check-skip.outputs.skip_deploy_aws }}"
+          echo "skip_deploy_k8s is set to ${{ steps.check-skip.outputs.skip_deploy_k8s }}"
  
   create-update-version-tag:
     if: ${{ needs.define-actions.outputs.skip_create_tag == false }}
