@@ -45,6 +45,12 @@ jobs:
           else
             echo "skip_deploy_k8s=false" >> $GITHUB_OUTPUT
           fi
+      - name: Debug
+        run: |
+          echo ${{ steps.check-skip.outputs.skip_create_tag }}
+          echo ${{ steps.check-skip.outputs.skip_build_push_image }}
+          echo ${{ steps.check-skip.outputs.skip_deploy_aws }}
+          echo ${{ steps.check-skip.outputs.skip_deploy_k8s }}
  
   create-update-version-tag:
     if: ${{ needs.define-actions.outputs.skip_create_tag == false }}
