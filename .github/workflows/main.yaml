@@ -67,13 +67,17 @@ jobs:
   build-push-image:
     if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == 'false' }}
     needs: create-update-version-tag
-    uses: v6Org01/jlv6/.github/workflows/buildPushImage.yaml@main
+    uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
       APPLICATION: ${{ vars.APPLICATION }}
-      JLV6_GID: ${{ vars.JLV6_GID }}
-      JLV6_GROUP: ${{ vars.JLV6_GROUP }}
-      JLV6_UID: ${{ vars.JLV6_UID }}
-      JLV6_USER: ${{ vars.JLV6_USER }}
+      VERSION: ${{ vars.APPLICATION_VERSION }}
+      BUILD_ARGS: |
+        JLV6_GID=${{ vars.JLV6_GID }}
+        JLV6_GROUP=${{ vars.JLV6_GROUP }}
+        JLV6_UID=${{ vars.JLV6_UID }}
+        JLV6_USER=${{ vars.JLV6_USER }}
+      PUSH_TO_PRIVATE: true
+      PUSH_TO_PUBLIC: false
       REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
       REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
     secrets:
