@@ -27,7 +27,7 @@ jobs:
         with:
           NAMESPACE: ${{ inputs.K8S_NAMESPACE_CERT }}
           SECRET: ${{ inputs.K8S_SECRET_CERT }}
-          KUBECONFIG: ${{ secrets.K8S_KUBECONFIG_CERT }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       - name: Upload cert files
         uses: actions/upload-artifact@v4
         with: 
