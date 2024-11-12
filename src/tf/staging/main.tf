@@ -57,6 +57,7 @@ resource "aws_acm_certificate" "cert01" {
 module "cf_distribution_01" {
   # Ensure CloudFront distribution creation happens after ACM_CERT is created
   depends_on = [
+   module.s3_bucket_01,
    aws_acm_certificate.cert01
   ]
 
