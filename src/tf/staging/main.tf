@@ -87,16 +87,9 @@ module "cf_distribution_01" {
     }
   }
 
-  origin_group = {
-    origGroup01 = {
-      failover_status_codes      = [500, 502, 503, 504]
-      primary_member_origin_id   = "primaryK8S"
-      secondary_member_origin_id = "failoverS3"
-    }
-  }
-
-  origin = {
-    primaryK8S = {
+  origin = [
+    {
+      origin_id   = "primaryK8S"
       domain_name = var.JLV6_DOMAIN
       custom_origin_config = {
         https_port             = 443
@@ -110,11 +103,9 @@ module "cf_distribution_01" {
       origin_shield = {
         enabled = false
       }
-    }
-  }
-
-  origin = {
-    failoverS3 = {
+    },
+    {
+      origin_id   = "failoverS3"
       domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
       custom_origin_config = {
         http_port              = 80
@@ -129,23 +120,36 @@ module "cf_distribution_01" {
       }
       origin_access_control = "s3_oac_01"
     }
-  }
+  ]
+
+  origin_groups = [
+    {
+      origin_group_id = "origGroup01"
+      failover_criteria = {
+        status_codes = [500, 502, 503, 504]
+      }
+      members = [
+        { origin_id = "primaryK8S" },
+        { origin_id = "failoverS3" }
+      ]
+    }
+  ]
   
-  ordered_cache_behavior {
+  ordered_cache_behavior = {
     path_pattern     = "/${var.APPLICATION_VERSION}/*"
     target_origin_id = "failoverS3"
     viewer_protocol_policy = "https-only"
-    allowed_methods        = ["GET", HEAD"]
-    cached_methods         = ["GET", HEAD"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     compress               = true
     use_forwarded_values = false
   }
 
-  default_cache_behavior {
+  default_cache_behavior = {
     target_origin_id       = "origGroup01"
     viewer_protocol_policy = "https-only"
-    allowed_methods        = ["GET", HEAD"]
-    cached_methods         = ["GET", HEAD"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     compress               = true
     use_forwarded_values = false
   }
