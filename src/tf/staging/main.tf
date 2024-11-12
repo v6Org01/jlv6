@@ -53,7 +53,7 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
   depends_on = [
     module.cf_distribution_01
   ]
-  bucket = module.s3_bucket_01.bucket_name
+  bucket = module.s3_bucket_01.s3_bucket_id
   policy = data.aws_iam_policy_document.s3_policy_doc_01.json
 }
 
