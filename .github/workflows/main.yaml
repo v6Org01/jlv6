@@ -62,6 +62,7 @@ jobs:
         uses: v6Org01/.github/actions/create-git-versionTag@main
         with:
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          PAT_DEFAULT: ${{ secrets.PAT_DEFAULT }}
 
   build-push-image:
     if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == 'false' }}
