@@ -66,7 +66,7 @@ jobs:
  #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
 
   terraform-cloud-apply-run:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     environment: staging
     needs: get-jlv6-tls-cert-k8s
     env:
