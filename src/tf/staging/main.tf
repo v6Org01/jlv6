@@ -15,7 +15,7 @@ module "s3_bucket_01" {
   policy        = data.aws_iam_policy_document.s3_policy_01.json 
 
   website = {
-    index_document = "index.html""
+    index_document = "index.html"
     error_document = "404.html"
   }
 
