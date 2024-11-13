@@ -1,0 +1,67 @@
+name: deploy_shared_to_aws
+
+on:
+  workflow_call:
+    inputs:
+      K8S_NAMESPACE_CERT:
+        description: 'Namespace containing TLS cert secret'
+        required: true
+        type: string
+      K8S_SECRET_CERT:
+        description: 'TLS cert secret name'
+        required: true
+        type: string
+      TF_CLOUD_ORGANIZATION:
+        description: 'Terraform Cloud Organization'
+        required: true
+        type: string
+    secrets:
+      KUBECONFIG_PLUTO_CERT:
+        required: true
+      TF_API_TOKEN:
+        required: true
+
+jobs:
+
+  get-jlv6-tls-cert-k8s-for-acm:
+    runs-on: gha-runner-scale-set-arm64
+    steps:
+      - name: Generate cert files
+        uses: v6Org01/.github/actions/generate-certFiles-for-k8s-secret@main
+        with:
+          NAMESPACE: ${{ inputs.K8S_NAMESPACE_CERT }}
+          SECRET: ${{ inputs.K8S_SECRET_CERT }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
+      - name: Upload cert files
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-cert-jlv6
+          path: |
+            ./privkey.pem
+            ./fullchain.pem
+            ./cert.pem
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  terraform-cloud-apply-run:
+    runs-on: gha-runner-scale-set-amd64
+    needs: get-jlv6-tls-cert-k8s
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ inputs.TF_CLOUD_ORGANIZATION }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_LOG: DEBUG
+      TF_MAX_TIMEOUT: "30m"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download cert files
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-cert-jlv6
+          path: ${{ vars.TF_CONFIG_DIRECTORY }}
+      - name: Terraform Cloud - Apply
+        uses: v6Org01/.github/actions/run-TerraformCloudApply@main
+        with:
+          DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
+          WORKSPACE: ${{ vars.TF_WORKSPACE }}

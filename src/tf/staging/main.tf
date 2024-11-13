@@ -1,7 +1,9 @@
-# S3
+## S3 ##
+
 module "s3_bucket_01" {
-  source = "terraform-aws-modules/s3-bucket/aws"
-  bucket = var.AWS_S3_BUCKET_01
+  provider = aws.${var.AWS_REGION_02}
+  source   = "terraform-aws-modules/s3-bucket/aws"
+  bucket   = var.AWS_S3_BUCKET_01
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
@@ -50,26 +52,20 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
 }
 
 resource "aws_s3_bucket_policy" "s3_policy_01" {
+  provider = aws.${var.AWS_REGION_02}
   depends_on = [
-    module.cf_distribution_01
+    data.aws_iam_policy_document.s3_policy_doc_01
   ]
   bucket = module.s3_bucket_01.s3_bucket_id
   policy = data.aws_iam_policy_document.s3_policy_doc_01.json
 }
 
-# ACM
-resource "aws_acm_certificate" "cert01" {
-  private_key=file("privkey.pem")
-  certificate_body = file("cert.pem")
-  certificate_chain=file("fullchain.pem")
-}
+## CLOUDFRONT ##
 
-# CLOUDFRONT
 module "cf_distribution_01" {
-  # Ensure CloudFront distribution creation happens after ACM_CERT and S3_BUCKET_01 are created
+  provider = aws.${var.AWS_REGION_01}
   depends_on = [
-   module.s3_bucket_01,
-   aws_acm_certificate.cert01
+   module.s3_bucket_01
   ]
 
   source = "terraform-aws-modules/cloudfront/aws"
@@ -161,7 +157,7 @@ module "cf_distribution_01" {
   }
 
   viewer_certificate = {
-    acm_certificate_arn = aws_acm_certificate.cert01.arn
+    acm_certificate_arn = data.terraform_remote_state.shared.outputs.aws_acm_certificate_cert01_arn
     ssl_support_method  = "sni-only"
   }
 }

@@ -25,22 +25,22 @@ jobs:
       - name: Set skip values
         id: check-skip
         run: |
-          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--create-tag"; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--create-tag|--ct"; then
             echo "skip_create_tag=false" >> $GITHUB_OUTPUT
           else
             echo "skip_create_tag=true" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--skip-build-push-image"; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-build-push-image|--sbpi"; then
             echo "skip_build_push_image=true" >> $GITHUB_OUTPUT
           else
             echo "skip_build_push_image=false" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--skip-deploy-aws"; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-aws|--sda"; then
             echo "skip_deploy_aws=true" >> $GITHUB_OUTPUT
           else
             echo "skip_deploy_aws=false" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -- "--deploy-k8s"; then
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--deploy-k8s|--sdk"; then
             echo "skip_deploy_k8s=true" >> $GITHUB_OUTPUT
           else
             echo "skip_deploy_k8s=false" >> $GITHUB_OUTPUT
@@ -85,17 +85,26 @@ jobs:
       REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
 
-  deploy-to-aws-staging:
+  deploy-to-aws-shared:
     if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == 'false' }}
     needs: create-update-version-tag
-    uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
+    uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
     with:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      VERSION: ${{ vars.APPLICATION_VERSION }}
     secrets:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+
+  deploy-to-aws-staging:
+    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == 'false' }}
+    needs: deploy-to-aws-shared
+    uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
+    with:
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      VERSION: ${{ vars.APPLICATION_VERSION }}
+    secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
   # deploy-to-aws-production:
