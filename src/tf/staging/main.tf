@@ -116,7 +116,7 @@ module "cf_distribution_01" {
       ]
       origin_shield = {
         enabled              = false
-        origin_shield_region = var.AWS_REGION
+        origin_shield_region = "us-east-1"
       }
     }
     failoverS3 = {
