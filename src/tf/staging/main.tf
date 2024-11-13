@@ -1,8 +1,10 @@
 ## S3 ##
 
 module "s3_bucket_01" {
-  provider = aws.eu_central_1
   source   = "terraform-aws-modules/s3-bucket/aws"
+  providers = {
+    aws = aws.eu_central_1
+  }
   bucket   = var.AWS_S3_BUCKET_01
 
   control_object_ownership = true
@@ -63,12 +65,14 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
 ## CLOUDFRONT ##
 
 module "cf_distribution_01" {
-  provider = aws.us_east_1
   depends_on = [
    module.s3_bucket_01
   ]
 
   source = "terraform-aws-modules/cloudfront/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
 
   aliases = ["${var.JLV6_URI}"]
 
