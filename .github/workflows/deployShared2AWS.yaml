@@ -44,7 +44,7 @@ jobs:
           retention-days: 1
           overwrite: true
 
-  terraform-cloud-apply-run:
+  tfc-shared-apply-run:
     runs-on: gha-runner-scale-set-amd64
     needs: get-jlv6-tls-cert-k8s-for-acm
     env:

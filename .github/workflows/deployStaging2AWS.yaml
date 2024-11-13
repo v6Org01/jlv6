@@ -34,7 +34,7 @@ jobs:
  #       run: |
  #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
 
-  terraform-cloud-apply-run:
+  tfc-staging-apply-run:
     runs-on: gha-runner-scale-set-amd64
     environment: staging
     env:
