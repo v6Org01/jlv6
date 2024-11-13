@@ -170,7 +170,6 @@ module "cf_distribution_01" {
 
   viewer_certificate = {
     acm_certificate_arn      = aws_acm_certificate.cert01.arn
-    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.3"
   }
 }
