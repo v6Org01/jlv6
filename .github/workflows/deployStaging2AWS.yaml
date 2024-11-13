@@ -7,21 +7,11 @@ on:
         description: 'Application version'
         required: true
         type: string
-      K8S_NAMESPACE_CERT:
-        description: 'Namespace containing TLS cert secret'
-        required: true
-        type: string
-      K8S_SECRET_CERT:
-        description: 'TLS cert secret name'
-        required: true
-        type: string
       TF_CLOUD_ORGANIZATION:
         description: 'Terraform Cloud Organization'
         required: true
         type: string
     secrets:
-      KUBECONFIG_PLUTO_CERT:
-        required: true
       TF_API_TOKEN:
         required: true
       
