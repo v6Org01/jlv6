@@ -20,7 +20,6 @@ jobs:
       BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}
       DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}
       DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}
-      VERSION: ${{ steps.check-commit.outputs.VERSION }}
     steps:
       - name: Check commit message
         id: check-commit
@@ -29,15 +28,15 @@ jobs:
             MAJOR="${BASH_REMATCH[1]}"
             MINOR="${BASH_REMATCH[2]}"
             PATCH="${BASH_REMATCH[3]}"
-            echo "VERSION=v${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
+            echo "VERSION=v${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV
 
             # Define actions
-            echo "CREATE_GIT_TAG=true" >> $GITHUB_OUTPUT
-            echo "CREATE_TFC_VAR=true" >> $GITHUB_OUTPUT
+            echo "CREATE_GIT_TAG=true" >> $GITHUB_ENV
+            echo "CREATE_TFC_VAR=true" >> $GITHUB_ENV
 
           else
-            echo "CREATE_GIT_TAG=false" >> $GITHUB_OUTPUT
-            echo "CREATE_TFC_VAR=false" >> $GITHUB_OUTPUT
+            echo "CREATE_GIT_TAG=false" >> $GITHUB_ENV
+            echo "CREATE_TFC_VAR=false" >> $GITHUB_ENV
           fi
 
           if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-build|-sb"; then
@@ -60,19 +59,19 @@ jobs:
       - name: Debug
         run: |
           echo "COMMIT_MSG: ${{ github.event.head_commit.message }}"
-          echo "CREATE_GIT_TAG: ${{ steps.check-commit.outputs.CREATE_GIT_TAG }}"
-          echo "CREATE_TFC_VAR: ${{ steps.check-commit.outputs.CREATE_TFC_VAR }}"
+          echo "CREATE_GIT_TAG: ${{ env.CREATE_GIT_TAG }}"
+          echo "CREATE_TFC_VAR: ${{ env.CREATE_TFC_VAR }}"
           echo "BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}"
           echo "DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}"
           echo "DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}"
       - name: Update git tag
-        if: ${{ steps.check-commit.outputs.CREATE_GIT_TAG == 'true' }}
+        if: ${{ env.CREATE_GIT_TAG == 'true' }}
         uses: v6Org01/.github/actions/update-gitTag@main
         with:
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          TAG_VALUE: ${{ steps.check-commit.outputs.VERSION }} 
+          TAG_VALUE: ${{ env.VERSION }} 
       - name: Update Terraform Cloud var
-        if: ${{ steps.check-commit.outputs.CREATE_TFC_VAR == 'true' }}
+        if: ${{ env.CREATE_TFC_VAR == 'true' }}
         uses: v6Org01/.github/actions/update-TerraformCloud-SetVariable@main
         with:
           TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
@@ -81,7 +80,7 @@ jobs:
           VAR_SENSITIVITY: false
           VAR_NAME: VERSION
           VAR_SET_NAME: APPLICATION
-          VAR_VALUE: ${{ steps.check-commit.outputs.VERSION }}
+          VAR_VALUE: ${{ env.VERSION }}
         
   build-push-image:
     if: ${{ !failure() && needs.init.outputs.BUILD_IMAGE == 'true' }}
@@ -122,7 +121,6 @@ jobs:
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
