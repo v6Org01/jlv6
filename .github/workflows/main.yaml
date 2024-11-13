@@ -93,7 +93,7 @@ jobs:
         
   build-push-image:
     if: ${{ !failure() && needs.init.outputs.BUILD_IMAGE == 'true' }}
-    needs: create-update-version-tag
+    needs: init
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
       APPLICATION: ${{ vars.APPLICATION }}
@@ -114,7 +114,7 @@ jobs:
 
   deploy-to-aws-shared:
     if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
-    needs: create-update-version-tag
+    needs: init
     uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
     with:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
