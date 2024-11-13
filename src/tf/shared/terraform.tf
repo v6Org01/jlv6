@@ -8,8 +8,8 @@ terraform {
 }
 
 provider "aws" {
-  alias  = var.AWS_REGION_01
-  region = var.AWS_REGION_01
+  alias  = "us_east_1"
+  region = "us_east_1"
   default_tags {
     tags = {
       application = "jlv6.com"
@@ -19,8 +19,8 @@ provider "aws" {
 }
 
 provider "aws" {
-  region = var.AWS_REGION_02
-  alias  = var.AWS_REGION_02
+  alias  = "eu-central-1"
+  region = "eu-central-1"
   default_tags {
     tags = {
       application = "jlv6.com"

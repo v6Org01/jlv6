@@ -1,7 +1,7 @@
 ## S3 ##
 
 module "s3_bucket_01" {
-  provider = aws.${var.AWS_REGION_02}
+  provider = aws.eu-central-1
   source   = "terraform-aws-modules/s3-bucket/aws"
   bucket   = var.AWS_S3_BUCKET_01
 
@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
 }
 
 resource "aws_s3_bucket_policy" "s3_policy_01" {
-  provider = aws.${var.AWS_REGION_02}
+  provider = aws.eu-central-1
   depends_on = [
     data.aws_iam_policy_document.s3_policy_doc_01
   ]
@@ -63,7 +63,7 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
 ## CLOUDFRONT ##
 
 module "cf_distribution_01" {
-  provider = aws.${var.AWS_REGION_01}
+  provider = aws.us_east_1
   depends_on = [
    module.s3_bucket_01
   ]
