@@ -122,7 +122,7 @@ jobs:
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      VERSION: ${{ steps.check-commit.outputs.VERSION }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
