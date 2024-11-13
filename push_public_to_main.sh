@@ -6,7 +6,7 @@ DEVELOPMENT_BRANCH="development"
 DIR_TO_MERGE="public"
 
 # Prompt for commit message
-echo "help: --create-tag major.minor.patch, --skip-build-push-image, --skip-deploy-aws, --skip-deploy-k8s"
+echo "help: --create-tag|--ct major.minor.patch, --skip-build-push-image|--sbpi, --skip-deploy-aws|--sda, --skip-deploy-k8s|--sdk"
 read -p "Enter commit message: " commit_msg
 
 # Kill the npm process for "npm run dev"
