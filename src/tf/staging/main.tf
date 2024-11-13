@@ -106,7 +106,6 @@ module "cf_distribution_01" {
         http_port              = 80
         https_port             = 443
         origin_protocol_policy = "https-only"
-        origin_ssl_protocols   = ["TLSv1.2"]
       }
       custom_header = [
         {
@@ -170,6 +169,8 @@ module "cf_distribution_01" {
   }
 
   viewer_certificate = {
-    acm_certificate_arn = aws_acm_certificate.cert01.arn
+    acm_certificate_arn      = aws_acm_certificate.cert01.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.3"
   }
 }
