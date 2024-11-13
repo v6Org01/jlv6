@@ -103,30 +103,38 @@ module "cf_distribution_01" {
     primaryK8S = {
       domain_name = var.JLV6_DOMAIN
       custom_origin_config = {
+        http_port              = 80
         https_port             = 443
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      custom_header = {
-        name = "X-Deployment-Location"
-        value = "k8s"
-      }
+      custom_header = [
+        {
+          name  = "X-Deployment-Location"
+          value = "k8s"
+        }
+      ]
       origin_shield = {
-        enabled = false
+        enabled              = false
+        origin_shield_region = var.AWS_REGION
       }
     }
     failoverS3 = {
       domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
       custom_origin_config = {
         http_port              = 80
+        https_port             = 443
         origin_protocol_policy = "http-only"
       }
-      custom_header = {
-        name = "X-Deployment-Location"
-        value = "aws"
-      }
+      custom_header = [
+        {
+          name  = "X-Deployment-Location"
+          value = "aws"
+        }
+      ]
       origin_shield = {
-        enabled = false
+        enabled              = false
+        origin_shield_region = var.AWS_REGION
       }
       origin_access_control = "s3_oac_01"
     }
