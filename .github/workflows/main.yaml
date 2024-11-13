@@ -65,14 +65,14 @@ jobs:
           else
             echo "DEPLOY_K8S=true" >> $GITHUB_OUTPUT
           fi
-      # - name: Debug
-      #   run: |
-      #     echo "COMMIT_MSG: ${{ github.event.head_commit.message }}"
-      #     echo "CREATE_GIT_TAG: ${{ steps.check-commit.outputs.CREATE_GIT_TAG }}"
-      #     echo "CREATE_TFC_VAR: ${{ steps.check-commit.outputs.CREATE_TFC_VAR }}"
-      #     echo "BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}"
-      #     echo "DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}"
-      #     echo "DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}"
+      - name: Debug
+        run: |
+          echo "COMMIT_MSG: ${{ github.event.head_commit.message }}"
+          echo "CREATE_GIT_TAG: ${{ steps.check-commit.outputs.CREATE_GIT_TAG }}"
+          echo "CREATE_TFC_VAR: ${{ steps.check-commit.outputs.CREATE_TFC_VAR }}"
+          echo "BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}"
+          echo "DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}"
+          echo "DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}"
       - name: Update git tag
         if: ${{ steps.check-commit.outputs.CREATE_GIT_TAG == 'true' }}
         uses: v6Org01/.github/actions/update-gitTag@main
