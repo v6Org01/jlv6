@@ -14,58 +14,85 @@ concurrency:
 
 jobs:
 
-  define-actions:
+  init:
     runs-on: gha-runner-scale-set-arm64
     outputs:
-      skip_create_tag: ${{ steps.check-skip.outputs.skip_create_tag }}
-      skip_build_push_image: ${{ steps.check-skip.outputs.skip_build_push_image }}
-      skip_deploy_aws: ${{ steps.check-skip.outputs.skip_deploy_aws }}
-      skip_deploy_k8s: ${{ steps.check-skip.outputs.skip_deploy_k8s }}
+      BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}
+      DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}
+      DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}
     steps:
-      - name: Set skip values
-        id: check-skip
+      - name: Check commit message
+        id: check-commit
         run: |
-          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--create-tag|--ct"; then
-            echo "skip_create_tag=false" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event.head_commit.message }}" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            VERSION="${MAJOR}.${MINOR}.${PATCH}"
+
+            # Create or update repository variable
+            curl -L \
+              -X PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.PAT_DEFAULT }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -d "{\"name\":\"APPLICATION_VERSION\",\"value\":\"v${VERSION}\"}" \
+              https://api.github.com/repos/v6Org01/jlv6/actions/variables/APPLICATION_VERSION
+
+            # Define actions
+            echo "CREATE_GIT_TAG=true" >> $GITHUB_OUTPUT
+            echo "CREATE_TFC_VAR=true" >> $GITHUB_OUTPUT
+
           else
-            echo "skip_create_tag=true" >> $GITHUB_OUTPUT
+            echo "CREATE_GIT_TAG=false" >> $GITHUB_OUTPUT
+            echo "CREATE_TFC_VAR=false" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-build-push-image|--sbpi"; then
-            echo "skip_build_push_image=true" >> $GITHUB_OUTPUT
+
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-build|-sb"; then
+            echo "BUILD_IMAGE=false" >> $GITHUB_OUTPUT
           else
-            echo "skip_build_push_image=false" >> $GITHUB_OUTPUT
+            echo "BUILD_IMAGE=true" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-aws|--sda"; then
-            echo "skip_deploy_aws=true" >> $GITHUB_OUTPUT
+
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-aws|-sa"; then
+            echo "DEPLOY_AWS=false" >> $GITHUB_OUTPUT
           else
-            echo "skip_deploy_aws=false" >> $GITHUB_OUTPUT
+            echo "DEPLOY_AWS=true" >> $GITHUB_OUTPUT
           fi
-          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--deploy-k8s|--sdk"; then
-            echo "skip_deploy_k8s=true" >> $GITHUB_OUTPUT
+
+          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-k8s|-sk"; then
+            echo "DEPLOY_K8S=false" >> $GITHUB_OUTPUT
           else
-            echo "skip_deploy_k8s=false" >> $GITHUB_OUTPUT
+            echo "DEPLOY_K8S=true" >> $GITHUB_OUTPUT
           fi
       - name: Debug
         run: |
           echo "Commit msg: ${{ github.event.head_commit.message }}"
-          echo "skip_create_tag is set to ${{ steps.check-skip.outputs.skip_create_tag }}"
-          echo "skip_build_push_image is set to ${{ steps.check-skip.outputs.skip_build_push_image }}"
-          echo "skip_deploy_aws is set to ${{ steps.check-skip.outputs.skip_deploy_aws }}"
-          echo "skip_deploy_k8s is set to ${{ steps.check-skip.outputs.skip_deploy_k8s }}"
- 
-  create-update-version-tag:
-    if: ${{ needs.define-actions.outputs.skip_create_tag == 'false' }}
-    runs-on: gha-runner-scale-set-arm64
-    needs: define-actions
-    steps:
-      - name: Create or update git tag
-        uses: v6Org01/.github/actions/create-git-versionTag@main
+	  echo "CREATE_GIT_TAG: ${{ steps.check-commit.outputs.CREATE_GIT_TAG }}"
+          echo "CREATE_TFC_VAR: ${{ steps.check-commit.outputs.CREATE_TFC_VAR }}"
+          echo "BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}"
+          echo "DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}"
+          echo "DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}"
+      - name: Update git tag
+        if: ${{ steps.check-commit.outputs.CREATE_GIT_TAG == 'true' }}
+        uses: v6Org01/.github/actions/update-gitTag@main
         with:
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          PAT_DEFAULT: ${{ secrets.PAT_DEFAULT }}
-
+          TAG_VALUE: ${{ vars.APPLICATION_VERSION }}
+      - name: Update Terraform Cloud var
+        if: ${{ steps.check-commit.outputs.CREATE_TFC_VAR == 'true' }}
+        uses: v6Org01/.github/actions/update-TerraformCloud-SetVariable@main
+        with:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+          VAR_CATEGORY: terraform
+          VAR_SENSITIVITY: false
+          VAR_NAME: VERSION
+          VAR_SET_NAME: APPLICATION
+          VAR_VALUE: ${{ vars.APPLICATION_VERSION }}
+        
   build-push-image:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_build_push_image == 'false' }}
+    if: ${{ !failure() && needs.init.outputs.BUILD_IMAGE == 'true' }}
     needs: create-update-version-tag
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
@@ -86,7 +113,7 @@ jobs:
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
 
   deploy-to-aws-shared:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == 'false' }}
+    if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
     needs: create-update-version-tag
     uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
     with:
@@ -98,7 +125,7 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
   deploy-to-aws-staging:
-    if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == 'false' }}
+    if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
     needs: deploy-to-aws-shared
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
@@ -108,7 +135,7 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
   # deploy-to-aws-production:
-  #   if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_aws == false }}
+  #   if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
   #   environment: production
   #   needs: deploy-to-aws-staging
   #   uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
@@ -118,7 +145,7 @@ jobs:
       
 
   # deploy-to-k8s:
-  #   if: ${{ !failure() && needs.define-actions.outputs.skip_deploy_k8s == false }}
+  #   if: ${{ !failure() && needs.init.outputs.DEPLOY_K8S == 'true' }}
   #   needs: build-push-image
   #   uses: v6Org01/jlv6/.github/workflows/deploy2K8S.yaml@main
   #   with:
