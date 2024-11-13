@@ -106,6 +106,7 @@ module "cf_distribution_01" {
         http_port              = 80
         https_port             = 443
         origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
       }
       custom_header = [
         {
@@ -120,22 +121,13 @@ module "cf_distribution_01" {
     }
     failoverS3 = {
       domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
-      custom_origin_config = {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "http-only"
-      }
+      origin_access_control = "s3_oac_01"
       custom_header = [
         {
           name  = "X-Deployment-Location"
           value = "aws"
         }
       ]
-      origin_shield = {
-        enabled              = false
-        origin_shield_region = var.AWS_REGION
-      }
-      origin_access_control = "s3_oac_01"
     }
   }
 
@@ -169,7 +161,7 @@ module "cf_distribution_01" {
   }
 
   viewer_certificate = {
-    acm_certificate_arn      = aws_acm_certificate.cert01.arn
-    minimum_protocol_version = "TLSv1.3"
+    acm_certificate_arn = aws_acm_certificate.cert01.arn
+    ssl_support_method  = "sni-only"
   }
 }
