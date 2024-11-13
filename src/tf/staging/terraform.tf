@@ -9,7 +9,7 @@ terraform {
 
 provider "aws" {
   alias  = "us_east_1"
-  region = "us_east_1"
+  region = "us-east-1"
   default_tags {
     tags = {
       application = "jlv6.com"
@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "eu-central-1"
+  alias  = "eu_central_1"
   region = "eu-central-1"
   default_tags {
     tags = {

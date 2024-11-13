@@ -1,7 +1,7 @@
 ## S3 ##
 
 module "s3_bucket_01" {
-  provider = aws.eu-central-1
+  provider = aws.eu_central_1
   source   = "terraform-aws-modules/s3-bucket/aws"
   bucket   = var.AWS_S3_BUCKET_01
 
@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
 }
 
 resource "aws_s3_bucket_policy" "s3_policy_01" {
-  provider = aws.eu-central-1
+  provider = aws.eu_central_1
   depends_on = [
     data.aws_iam_policy_document.s3_policy_doc_01
   ]
