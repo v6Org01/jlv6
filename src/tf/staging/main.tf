@@ -148,12 +148,10 @@ module "cf_distribution_01" {
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
       compress               = true
-      forwarded_values {
-        query_string = false  # Set to true if you need to forward query strings
-        cookies {
-          forward = "none"    # Options: "none", "whitelist", or "all"
-        }
-      }
+
+      use_forwarded_values         = false
+      cache_policy_name            = "Managed-CachingOptimized"
+      origin_request_policy_name   = "AllViewerAndCloudFrontHeaders-2022-06"
     }
   ]
 
@@ -163,12 +161,10 @@ module "cf_distribution_01" {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
-    forwarded_values {
-      query_string = false  # Set to true if you need to forward query strings
-      cookies {
-        forward = "none"    # Options: "none", "whitelist", or "all"
-      }
-    }
+
+    use_forwarded_values         = false
+    cache_policy_name            = "Managed-CachingOptimized"
+    origin_request_policy_name   = "AllViewerAndCloudFrontHeaders-2022-06"
   }
 
   viewer_certificate = {
