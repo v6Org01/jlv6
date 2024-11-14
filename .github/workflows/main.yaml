@@ -20,6 +20,7 @@ jobs:
       BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}
       DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}
       DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}
+      VERSION: ${{ steps.check-commit.outputs.VERSION }}
     steps:
       - name: Check commit message
         id: check-commit
@@ -28,7 +29,7 @@ jobs:
             MAJOR="${BASH_REMATCH[1]}"
             MINOR="${BASH_REMATCH[2]}"
             PATCH="${BASH_REMATCH[3]}"
-            echo "VERSION=v${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV
+            echo "VERSION=v${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
 
             # Define actions
             echo "CREATE_GIT_TAG=true" >> $GITHUB_ENV
@@ -69,7 +70,7 @@ jobs:
         uses: v6Org01/.github/actions/update-gitTag@main
         with:
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          TAG_VALUE: ${{ env.VERSION }} 
+          TAG_VALUE: ${{ steps.check-commit.outputs.VERSION }} 
       - name: Update Terraform Cloud var
         if: ${{ env.CREATE_TFC_VAR == 'true' }}
         uses: v6Org01/.github/actions/update-TerraformCloud-SetVariable@main
@@ -80,7 +81,7 @@ jobs:
           VAR_SENSITIVITY: false
           VAR_NAME: VERSION
           VAR_SET_NAME: APPLICATION
-          VAR_VALUE: ${{ env.VERSION }}
+          VAR_VALUE: ${{ steps.check-commit.outputs.VERSION }}
         
   build-push-image:
     if: ${{ !failure() && needs.init.outputs.BUILD_IMAGE == 'true' }}
@@ -98,7 +99,7 @@ jobs:
       PUSH_TO_PUBLIC: false
       REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
       REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
-      VERSION: ${{ vars.APPLICATION_VERSION }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
