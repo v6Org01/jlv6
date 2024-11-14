@@ -36,6 +36,7 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
     module.s3_bucket_01,
     module.cf_distribution_01
   ]
+  provider = aws.eu_central_1
   statement {
     sid = "AllowCloudFrontAccess"
     actions = ["s3:GetObject"]
