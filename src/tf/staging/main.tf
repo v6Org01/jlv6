@@ -141,7 +141,7 @@ module "cf_distribution_01" {
   
   ordered_cache_behavior = [
     {
-      path_pattern     = "/${var.APPLICATION_VERSION}/*"
+      path_pattern     = "/${var.VERSION}/*"
       target_origin_id = "failoverS3"
       viewer_protocol_policy = "https-only"
       allowed_methods        = ["GET", "HEAD"]

@@ -1,4 +1,4 @@
-ARG REGISTRY
+ARG REGISTRY=docker.io
 FROM ${REGISTRY}/joseluisq/static-web-server:2-alpine
 LABEL maintainer="dev_lau11@a.jlv6.com"
 ARG JLV6_UID
