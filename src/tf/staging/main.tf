@@ -113,12 +113,12 @@ module "cf_distribution_01" {
         {
           name  = "X-Deployment-Location"
           value = "k8s"
+        },
+        {
+          name  = "X-Deployment-Environment"
+          value = "staging"
         }
       ]
-      origin_shield = {
-        enabled              = false
-        origin_shield_region = "us-east-1"
-      }
     }
     failoverS3 = {
       domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
@@ -127,6 +127,10 @@ module "cf_distribution_01" {
         {
           name  = "X-Deployment-Location"
           value = "aws"
+        },
+        {
+          name  = "X-Deployment-Environment"
+          value = "staging"
         }
       ]
     }
@@ -168,7 +172,9 @@ module "cf_distribution_01" {
   }
 
   viewer_certificate = {
-    acm_certificate_arn = data.terraform_remote_state.shared.outputs.aws_acm_certificate_cert01_arn
-    ssl_support_method  = "sni-only"
+    cloudfront_default_certificate = false
+    acm_certificate_arn            = data.terraform_remote_state.shared.outputs.aws_acm_certificate_cert01_arn
+    ssl_support_method             = "sni-only"
+    minimum_protocol_version       = "TLSv1.2_2021"
   }
 }
