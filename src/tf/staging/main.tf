@@ -148,7 +148,12 @@ module "cf_distribution_01" {
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
       compress               = true
-      use_forwarded_values = false
+      forwarded_values {
+        query_string = false  # Set to true if you need to forward query strings
+        cookies {
+          forward = "none"    # Options: "none", "whitelist", or "all"
+        }
+      }
     }
   ]
 
@@ -158,7 +163,12 @@ module "cf_distribution_01" {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
-    use_forwarded_values = false
+    forwarded_values {
+      query_string = false  # Set to true if you need to forward query strings
+      cookies {
+        forward = "none"    # Options: "none", "whitelist", or "all"
+      }
+    }
   }
 
   viewer_certificate = {
