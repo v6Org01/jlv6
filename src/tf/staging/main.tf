@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
   statement {
     sid = "AllowCloudFrontAccess"
     actions = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::${module.s3_bucket_01.s3_bucket_arn}/*"]
+    resources = ["${module.s3_bucket_01.s3_bucket_arn}/*"]
     principals {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
