@@ -8,6 +8,10 @@ on:
         required: true
         type: string
     secrets:
+      CF_API_TOKEN:
+        required: true
+      CF_ZONE_ID:
+        required: true
       TF_API_TOKEN:
         required: true
       
@@ -30,7 +34,7 @@ jobs:
  #       run: |
  #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
 
-  tfc-staging-apply-run:
+  tf-staging-apply-run:
     runs-on: gha-runner-scale-set-amd64
     environment: staging
     env:
@@ -38,11 +42,41 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
+    outputs:
+      CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME: ${{ steps.
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Terraform Cloud - Apply
-        uses: v6Org01/.github/actions/run-TerraformCloudApply@main
+        uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
+        id: tf-apply
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
+      - name: Get CloudFront domain name
+        run: |
+          echo "Parsing TFC JSON outputs..."
+          TFC_OUTPUTS=$(echo '${{ steps.tf-apply.outputs.TF_APPLY_OUTPUT }}' | jq -r '.outputs')
+          for TFC_OUTPUT in $(echo "${TFC_OUPUTS}" | jq -c '.[]'); do
+            name=$(echo "${TFC_OUTPUT}" | jq -r '.name')
+            value=$(echo "${TFC_OUTPUT}" | jq -r '.value')
+            case "$name" in
+              "module_cf_distribution_01_cloudfront_distribution_domain_name"
+                echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$value" >> $GITHUB_OUTPUT
+                ;;
+            esac
+          done
+
+  update-cloudfare-dns:
+    runs-on: gha-runner-scale-set-arm64
+    environment: staging
+    needs: tf-staging-apply-run
+    steps:
+      - name: Update DNS record
+        uses: v6Org01/.github/actions/update-CloudflareDnsRecord/@main
+        with:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME }}
+          CF_RECORD_TYPE: CNAME
+          CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}

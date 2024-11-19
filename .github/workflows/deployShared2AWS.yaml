@@ -44,7 +44,7 @@ jobs:
           retention-days: 1
           overwrite: true
 
-  tfc-shared-apply-run:
+  tf-shared-apply-run:
     runs-on: gha-runner-scale-set-amd64
     needs: get-jlv6-tls-cert-k8s-for-acm
     env:
@@ -61,7 +61,7 @@ jobs:
           name: artifact-cert-jlv6
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Terraform Cloud - Apply
-        uses: v6Org01/.github/actions/run-TerraformCloudApply@main
+        uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
