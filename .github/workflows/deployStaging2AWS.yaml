@@ -43,7 +43,7 @@ jobs:
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
     outputs:
-      CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME: ${{ steps.
+      CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME: ${{ steps.tf-output-cloudfront-domain-name.outputs.CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,6 +54,7 @@ jobs:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
       - name: Get CloudFront domain name
+        id: tf-output-cloudfront-domain-name
         run: |
           echo "Parsing TFC JSON outputs..."
           TFC_OUTPUTS=$(echo '${{ steps.tf-apply.outputs.TF_APPLY_OUTPUT }}' | jq -r '.outputs')
