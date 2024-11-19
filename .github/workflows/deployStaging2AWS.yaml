@@ -57,7 +57,7 @@ jobs:
         id: tf-output-cloudfront-domain-name
         run: |
           echo "Parsing TFC JSON outputs..."
-          TF_OUTPUTS="${{ steps.tf-apply.outputs.TF_OUTPUT }}"
+          TF_OUTPUTS=${{ fromJSON(steps.tf-apply.outputs.TF_OUTPUT) }}
           for TF_OUTPUT in $(echo "${TF_OUTPUTS}" | jq -c '.[]'); do
             name=$(echo "${TF_OUTPUT}" | jq -r '.name')
             value=$(echo "${TF_OUTPUT}" | jq -r '.value')
