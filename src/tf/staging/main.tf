@@ -156,6 +156,13 @@ module "cf_distribution_01" {
       use_forwarded_values         = false
       cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
       origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+
+      function_association = {
+        # Valid keys: viewer-request, viewer-response
+        viewer-request = {
+          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
+        }
+      }
     }
   ]
 
@@ -169,6 +176,13 @@ module "cf_distribution_01" {
     use_forwarded_values         = false
     cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+
+    function_association = {
+      # Valid keys: viewer-request, viewer-response
+      viewer-request = {
+        function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
+      }
+    }
   }
 
   viewer_certificate = {
