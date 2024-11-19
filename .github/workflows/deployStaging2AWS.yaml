@@ -60,6 +60,7 @@ jobs:
           DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
           CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
           echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME" >> $GITHUB_OUTPUT
+          echo $CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME
 
   update-cloudfare-dns:
     runs-on: gha-runner-scale-set-arm64
@@ -67,7 +68,7 @@ jobs:
     needs: tf-staging-apply-run
     steps:
       - name: Update DNS record
-        uses: v6Org01/.github/actions/update-CloudflareDnsRecord/@main
+        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
         with:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME }}
