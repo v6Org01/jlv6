@@ -43,7 +43,8 @@ jobs:
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
     outputs:
-      CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME: ${{ steps.tf-output-cloudfront-domain-name.outputs.CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME }}
+      CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+      S3_BUCKET_01_ID: ${{ steps.tfc-workspace-output.outputs.S3_BUCKET_01_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,13 +54,15 @@ jobs:
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
-      - name: Get CloudFront domain name
-        id: tf-output-cloudfront-domain-name
+      - name: Terraform Cloud - Get workspace output(s)
+        id: tfc-workspace-output
         run: |
           echo "Parsing TFC JSON outputs..."
           DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
-          CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-          echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME" | tee $GITHUB_OUTPUT
+          CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+          echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" | tee $GITHUB_OUTPUT
+          S3_BUCKET_01_ID=$(jq -r '.[] | select(.name=="module_s3_bucket_01_s3_bucket_id") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+          echo "S3_BUCKET_01_ID=$S3_BUCKET_01_ID" | tee $GITHUB_OUTPUT
 
   update-cloudfare-dns:
     runs-on: gha-runner-scale-set-arm64
@@ -72,5 +75,5 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME }}
           CF_RECORD_TYPE: CNAME
-          CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME }}
+          CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
