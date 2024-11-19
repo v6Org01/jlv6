@@ -59,8 +59,7 @@ jobs:
           echo "Parsing TFC JSON outputs..."
           DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
           CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-          echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME" >> $GITHUB_OUTPUT
-          echo $CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME
+          echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME" | tee $GITHUB_OUTPUT
 
   update-cloudfare-dns:
     runs-on: gha-runner-scale-set-arm64
