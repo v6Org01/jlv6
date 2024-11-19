@@ -69,6 +69,10 @@ jobs:
     environment: staging
     needs: tf-staging-apply-run
     steps:
+      - name: Debug
+        run: |
+          echo "${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME}}"
+          echo ${{ needs.tf-staging-apply-run.outputs.S3_BUCKET_01_ID }}
       - name: Update DNS record
         uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
         with:
