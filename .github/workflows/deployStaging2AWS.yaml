@@ -57,7 +57,9 @@ jobs:
         id: tf-output-cloudfront-domain-name
         run: |
           echo "Parsing TFC JSON outputs..."
-          TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
+          DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
+          CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< "${{ steps.tf-apply.outputs.TF_OUTPUT }}"))
+          echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME" >> $GITHUB_OUTPUT
       #    for TF_OUTPUT in $(echo "${TF_OUTPUTS}" | jq -c '.[]'); do
       #      name=$(echo "${TF_OUTPUT}" | jq -r '.name')
       #      value=$(echo "${TF_OUTPUT}" | jq -r '.value')
