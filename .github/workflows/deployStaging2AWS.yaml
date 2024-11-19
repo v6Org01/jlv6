@@ -57,10 +57,10 @@ jobs:
         id: tf-output-cloudfront-domain-name
         run: |
           echo "Parsing TFC JSON outputs..."
-          TFC_OUTPUTS=$(echo '${{ steps.tf-apply.outputs.TF_APPLY_OUTPUT }}' | jq -r '.outputs')
-          for TFC_OUTPUT in $(echo "${TFC_OUPUTS}" | jq -c '.[]'); do
-            name=$(echo "${TFC_OUTPUT}" | jq -r '.name')
-            value=$(echo "${TFC_OUTPUT}" | jq -r '.value')
+          TF_OUTPUTS=$(echo '${{ steps.tf-apply.outputs.TF_OUTPUT }}' | jq -r '.outputs')
+          for TF_OUTPUT in $(echo "${TF_OUPUTS}" | jq -c '.[]'); do
+            name=$(echo "${TF_OUTPUT}" | jq -r '.name')
+            value=$(echo "${TF_OUTPUT}" | jq -r '.value')
             case "$name" in
               "module_cf_distribution_01_cloudfront_distribution_domain_name"
                 echo "CLOUDFRONT_DISTRIBUTION_DOMAIN_NAME=$value" >> $GITHUB_OUTPUT
