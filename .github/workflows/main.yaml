@@ -100,7 +100,7 @@ jobs:
       PUSH_TO_PUBLIC: false
       REGISTRY_PRIVATE: ${{ vars.REGISTRY_PRIVATE }}
       REGISTRY_PRIVATE_PULL: ${{ vars.REGISTRY_PRIVATE_PULL }}
-      VERSION: ${{ need.init.outputs.VERSION }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       REGISTRY_PRIVATE_USER: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
