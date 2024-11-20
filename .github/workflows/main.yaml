@@ -6,6 +6,7 @@ on:
     paths: ["public/**"]
 
 permissions:
+  id-token: write
   contents: read
  
 concurrency:
