@@ -122,7 +122,11 @@ module "cf_distribution_01" {
     }
     failoverS3 = {
       domain_name = module.s3_bucket_01.s3_bucket_website_endpoint
-      origin_access_control = "s3_oac_01"
+      custom_origin_config = {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "http-only"
+      }
       custom_header = [
         {
           name  = "X-Deployment-Location"
@@ -133,6 +137,8 @@ module "cf_distribution_01" {
           value = "staging"
         }
       ]
+      origin_access_control = "s3_oac_01"
+      origin_path = "/${var.VERSION}/"
     }
   }
 
@@ -144,27 +150,27 @@ module "cf_distribution_01" {
     }
   }
   
-  ordered_cache_behavior = [
-    {
-      path_pattern     = "/${var.VERSION}/*"
-      target_origin_id = "failoverS3"
-      viewer_protocol_policy = "https-only"
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      compress               = true
-
-      use_forwarded_values         = false
-      cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
-      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
-
-      function_association = {
-        # Valid keys: viewer-request, viewer-response
-        viewer-request = {
-          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
-        }
-      }
-    }
-  ]
+#  ordered_cache_behavior = [
+#    {
+#      path_pattern     = "/${var.VERSION}/*"
+#      target_origin_id = "failoverS3"
+#      viewer_protocol_policy = "https-only"
+#      allowed_methods        = ["GET", "HEAD"]
+#      cached_methods         = ["GET", "HEAD"]
+#      compress               = true
+#
+#      use_forwarded_values         = false
+#      cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+#      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+#
+#      function_association = {
+#        # Valid keys: viewer-request, viewer-response
+#        viewer-request = {
+#          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
+#        }
+#      }
+#    }
+#  ]
 
   default_cache_behavior = {
     target_origin_id       = "origGroup01"
