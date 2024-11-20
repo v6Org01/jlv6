@@ -122,11 +122,11 @@ jobs:
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-      VERSION: ${{ needs.init.outputs.VERSION }}
 
   # deploy-to-aws-production:
   #   if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
