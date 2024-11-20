@@ -108,13 +108,12 @@ jobs:
   deploy-to-aws-shared:
     if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}
     needs: init
-    outputs:
-      VERSION: ${{ needs.init.outputs.VERSION }}
     uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
     with:
       K8S_NAMESPACE_CERT: ${{ vars.K8S_NAMESPACE_CERT }}
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
