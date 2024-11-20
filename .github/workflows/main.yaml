@@ -126,6 +126,7 @@ jobs:
       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      VERSION: ${{ needs.init.outputs.VERSION }}
 
   # deploy-to-aws-production:
   #   if: ${{ !failure() && needs.init.outputs.DEPLOY_AWS == 'true' }}

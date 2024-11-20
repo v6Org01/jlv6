@@ -7,6 +7,10 @@ on:
         description: 'Terraform Cloud Organization'
         required: true
         type: string
+      VERSION:
+        description: 'Application version'
+        required: true
+        type: string
     secrets:
       CF_API_TOKEN:
         required: true
@@ -16,23 +20,6 @@ on:
         required: true
       
 jobs:
-
- # aws-import-cert:
- #   environment: production
- #   runs-on: self-hosted
- #   steps:
- #     - name: Install AWS CLI and Auth
- #       uses: v6Org01/.github/actions/install-cli-login-AWS
- #       with:
- #         AWS_REGION: us-east-1
- #         AWS_ROLE: "${{ secrets.AWS_ROLE }}"
- #     - name: Download cert files
- #       uses: actions/download-artifact@v4
- #       with:
- #         name: artifact-cert-jlv6
- #     - name: Import ACM cert
- #       run: |
- #         aws acm import-certificate --certificate file://cert.pem --certificate-chain file://fullchain.pem --private-key file://privkey.pem
 
   tf-staging-apply-run:
     runs-on: gha-runner-scale-set-amd64
@@ -77,3 +64,19 @@ jobs:
           CF_RECORD_TYPE: CNAME
           CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+
+  cp-public-to-s3:
+    runs-on: gha-runner-scale-set-arm64
+    environment: staging
+    needs: update-cloudfare-dns
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install aws cli and auth
+        uses: v6Org01/.github/actions/install-cli-login-AWS
+        with:
+          AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
+          AWS_ROLE: "${{ secrets.AWS_ROLE_ARN }}"
+      - name: Copy to S3
+        run: |
+          aws s3 sync ./public s3://${{ needs.tf-staging-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }} --delete
