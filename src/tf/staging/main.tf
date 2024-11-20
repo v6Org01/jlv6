@@ -121,7 +121,7 @@ module "cf_distribution_01" {
       ]
     }
     failoverS3 = {
-      domain_name = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
+      domain_name = module.s3_bucket_01.s3_bucket_website_endpoint
       origin_access_control = "s3_oac_01"
       custom_header = [
         {
