@@ -73,7 +73,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install aws cli and auth
-        uses: v6Org01/.github/actions/install-cli-login-AWS
+        uses: v6Org01/.github/actions/install-cli-login-AWS@main
         with:
           AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
           AWS_ROLE: "${{ secrets.AWS_ROLE_ARN }}"
