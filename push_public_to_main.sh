@@ -42,13 +42,13 @@ git push origin $DEVELOPMENT_BRANCH || { echo "Failed to push changes to the dev
 echo "Waiting for 5 seconds to ensure changes propagate..."
 sleep 5
 
-# Fetch the latest changes from the production branch
-# echo "Fetching the latest changes from the production branch..."
-# git fetch origin $PRODUCTION_BRANCH
-
 # Switch to the production branch
 echo "Switching to the production branch..."
 git checkout $PRODUCTION_BRANCH || { echo "Failed to switch to the production branch"; exit 1; }
+
+# Pull latest changes from the production branch
+# echo "Pulling the latest changes from the production branch..."
+git pull --rebase
 
 # Enable sparse-checkout and set it to only include the public directory
 echo "Enabling sparse-checkout for the public directory..."
