@@ -17,10 +17,10 @@ module "s3_bucket_01" {
 
   attach_policy = false
 
-  website = {
-    index_document = "index.html"
-    error_document = "404.html"
-  }
+#  website = {
+#    index_document = "index.html"
+#    error_document = "404.html"
+#  }
 
   server_side_encryption_configuration = {
     rule = {
@@ -121,12 +121,9 @@ module "cf_distribution_01" {
       ]
     }
     failoverS3 = {
-      domain_name = module.s3_bucket_01.s3_bucket_website_endpoint
-      custom_origin_config = {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "http-only"
-      }
+      domain_name           = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
+      origin_access_control = "s3_oac_01"
+      origin_path           = "/${var.VERSION}/"
       custom_header = [
         {
           name  = "X-Deployment-Location"
@@ -137,8 +134,6 @@ module "cf_distribution_01" {
           value = "staging"
         }
       ]
-      origin_access_control = "s3_oac_01"
-      origin_path = "/${var.VERSION}/"
     }
   }
 
