@@ -186,8 +186,6 @@ module "cf_distribution_01" {
     }
   }
 
-  default_root_object = "index.html"
-
   viewer_certificate = {
     cloudfront_default_certificate = false
     acm_certificate_arn            = data.terraform_remote_state.shared.outputs.aws_acm_certificate_cert01_arn

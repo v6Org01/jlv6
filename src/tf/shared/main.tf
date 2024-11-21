@@ -9,11 +9,10 @@ resource "aws_acm_certificate" "cert01" {
 ## CLOUDFRONT ##
 
 resource "aws_cloudfront_function" "cf_function_01" {
-  # https://www.andrlik.org/dispatches/til-block-ai-bots-cloudfront-function/
   provider = aws.us_east_1
-  name     = "block-ai-crawler"
-  comment  = "Block AI crawler user-agents"
+  name     = "viewer-request-01"
+  comment  = "Multipurpose function"
   runtime  = "cloudfront-js-2.0"
-  code     = file("${path.module}/cf-function-block-ai-crawler.js")
+  code     = file("${path.module}/cf-function-viewer-request.js")
   publish  = true
 }
