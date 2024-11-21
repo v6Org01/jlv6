@@ -1,6 +1,8 @@
-### Work in progress
+### 🚧 Work in progress
 
 #### To do
+---
+
 - Create image for gha runners containing packages..
   - python 3.x
   - aws cli
