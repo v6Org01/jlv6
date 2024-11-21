@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jlv6
+  name: jlv6-www
   namespace: prod
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   labels:
-    k8s-app: "jlv6"
+    k8s-app: "jlv6-www"
 spec:
   # The project the application belongs to.
   project: prod
@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://github.com/v6Org01/k8s.git # Can point to either a Helm chart repo or a git repo.
     targetRevision: main  # For Helm, this refers to the chart version.
-    path: clusters/pluto/jlv6 # This has no meaning for Helm charts pulled directly from a Helm repo instead of git.
+    path: clusters/pluto/jlv6-www # This has no meaning for Helm charts pulled directly from a Helm repo instead of git.
 
     # helm specific config
     helm:
