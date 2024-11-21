@@ -139,11 +139,13 @@ jobs:
   #     TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
   #   secrets:
   #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-      
 
-  # deploy-to-k8s:
-  #   if: ${{ !failure() && needs.init.outputs.DEPLOY_K8S == 'true' }}
-  #   needs: build-push-image
-  #   uses: v6Org01/jlv6/.github/workflows/deploy2K8S.yaml@main
-  #   with:
-  #   secrets:
+  deploy-to-k8s-staging:
+    if: ${{ !failure() && needs.init.outputs.DEPLOY_K8S == 'true' }}
+    needs: build-push-image
+    uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
+    with:
+      VERSION: ${{ needs.build-push-image.outputs.VERSION }}
+    secrets:
+      DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+      KUBECONFIG_PLUTO_STAGING: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}

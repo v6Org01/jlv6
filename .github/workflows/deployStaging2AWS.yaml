@@ -72,7 +72,7 @@ jobs:
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
   cp-public-to-s3:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     environment: staging
     needs: tf-staging-apply-run
     steps:
