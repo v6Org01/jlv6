@@ -89,6 +89,7 @@ jobs:
 
   check-cancelled:
     runs-on: gha-runner-scale-set-arm64
+    needs: tf-shared-apply-run
     outputs:
       IS_CANCELLED: ${{ steps.set-output-cancelled.outputs.IS_CANCELLED }}
     steps:
