@@ -116,7 +116,7 @@ module "cf_distribution_01" {
         },
         {
           name  = "X-Deployment-Environment"
-          value = "staging"
+          value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
         }
       ]
     }
