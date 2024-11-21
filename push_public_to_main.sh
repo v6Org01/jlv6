@@ -44,7 +44,7 @@ sleep 5
 
 # Fetch the latest changes from the production branch
 echo "Pulling the latest changes from the production branch..."
-git pull origin $PRODUCTION_BRANCH --rebase
+git pull origin $PRODUCTION_BRANCH
 
 # Switch to the production branch
 echo "Switching to the production branch..."
