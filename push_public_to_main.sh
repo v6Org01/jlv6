@@ -43,8 +43,8 @@ echo "Waiting for 5 seconds to ensure changes propagate..."
 sleep 5
 
 # Fetch the latest changes from the production branch
-echo "Fetching the latest changes from the production branch..."
-git fetch origin $PRODUCTION_BRANCH
+echo "Pulling the latest changes from the production branch..."
+git pull origin $PRODUCTION_BRANCH --rebase
 
 # Switch to the production branch
 echo "Switching to the production branch..."
