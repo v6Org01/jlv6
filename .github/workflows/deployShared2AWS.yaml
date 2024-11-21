@@ -25,6 +25,9 @@ on:
       TF_API_TOKEN:
         required: true
     outputs:
+      IS_CANCELLED:
+        description: 'Check if job has been cancelled'
+        value: ${{ jobs.check-cancelled.outputs.IS_CANCELLED }}
       VERSION:
         description: 'Application version'
         value: ${{ jobs.forward-var-version.outputs.VERSION }} 
@@ -83,3 +86,13 @@ jobs:
         id: set-output-version
         run: |
           echo "VERSION=${{ inputs.VERSION }}" >> $GITHUB_OUTPUT
+
+  check-cancelled:
+    runs-on: gha-runner-scale-set-arm64
+    outputs:
+      IS_CANCELLED: ${{ steps.set-output-cancelled.outputs.IS_CANCELLED }}
+    steps:
+      - name: Set output IS_CANCELLED
+        id: set-output-cancelled
+        run: |
+          echo "IS_CANCELLED=true" >> $GITHUB_OUTPUT
