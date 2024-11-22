@@ -21,7 +21,6 @@ jobs:
       BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}
       DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}
       DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}
-      IS_CANCELLED: ${{ steps.check-cancelled.outputs.IS_CANCELLED }}
       VERSION: ${{ steps.check-commit.outputs.VERSION }}
     steps:
       - name: Check commit message
@@ -84,16 +83,11 @@ jobs:
           VAR_NAME: VERSION
           VAR_SET_NAME: APPLICATION
           VAR_VALUE: ${{ steps.check-commit.outputs.VERSION }}
-      - name: Check if cancelled
-        id: check-cancelled
-        if: ${{ cancelled() }}
-        run: |
-          echo "IS_CANCELLED=true" >> $GITHUB_OUTPUT
         
   build-push-image:
     if: >
       !failure() && 
-      needs.init.outputs.IS_CANCELLED != 'true' &&
+      !cancelled() &&
       needs.init.outputs.BUILD_IMAGE == 'true'
     needs: init
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
@@ -117,7 +111,7 @@ jobs:
   deploy-to-aws-shared:
     if: >
       !failure() &&
-      needs.init.outputs.IS_CANCELLED != 'true' &&
+      !cancelled() &&
       needs.init.outputs.DEPLOY_AWS == 'true'
     needs: init
     uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
@@ -133,7 +127,7 @@ jobs:
   deploy-to-aws-staging:
     if: >
       !failure() &&
-      needs.deploy-to-aws-shared.outputs.IS_CANCELLED != 'true' &&
+      !cancelled() &&
       needs.init.outputs.DEPLOY_AWS == 'true'
     needs: deploy-to-aws-shared
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
@@ -171,8 +165,7 @@ jobs:
   deploy-to-k8s-production:
     if: >
       !failure() &&
-      needs.deploy-to-k8s-staging.outputs.IS_CANCELLED != 'true' &&
-      needs.init.outputs.BUILD_IMAGE == 'true' &&
+      !cancelled() &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: deploy-to-k8s-staging
     uses: v6Org01/jlv6/.github/workflows/deployProduction2K8S.yaml@main
