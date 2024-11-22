@@ -158,8 +158,7 @@ jobs:
   deploy-to-k8s-staging:
     if: >
       !failure() &&
-      needs.build-push-image.outputs.IS_CANCELLED != 'true' &&
-      needs.init.outputs.BUILD_IMAGE == 'true' &&
+      !cancelled() &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: build-push-image
     uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
