@@ -153,7 +153,7 @@ jobs:
     if: >
       !failure() &&
       !cancelled() &&
-      needs.init.outputs.BUILD_IMAGE == 'true'
+      needs.init.outputs.BUILD_IMAGE == 'true' &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: build-push-image
     uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
@@ -167,7 +167,7 @@ jobs:
     if: >
       !failure() &&
       !cancelled() &&
-      needs.init.outputs.BUILD_IMAGE == 'true'
+      needs.init.outputs.BUILD_IMAGE == 'true' &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: deploy-to-k8s-staging
     uses: v6Org01/jlv6/.github/workflows/deployProduction2K8S.yaml@main
