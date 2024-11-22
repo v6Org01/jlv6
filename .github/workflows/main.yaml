@@ -124,6 +124,14 @@ jobs:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
+  test-outputs:
+    runs-on: gha-runner-scale-set-arm64
+    needs: deploy-to-aws-shared
+    steps:
+      - name: Test output VERSION
+        run: |
+          echo "VERSION: ${{ needs.init.outputs.VERSION }}"
+
   deploy-to-aws-staging:
     if: ${{ !failure() && needs.deploy-to-aws-shared.outputs.IS_CANCELLED != 'true' && needs.init.outputs.DEPLOY_AWS == 'true' }}
     needs: deploy-to-aws-shared
