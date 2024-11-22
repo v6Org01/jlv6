@@ -27,3 +27,25 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
           NAMESPACE: ${{ vars.K8S_NAMESPACE }}
           VERSION: ${{ inputs.VERSION }}
+
+  forward-var-version:
+    runs-on: gha-runner-scale-set-arm64
+    outputs:
+      VERSION: ${{ steps.set-output-version.outputs.VERSION }}
+    steps:
+      - name: Set output VERSION
+        id: set-output-version
+        run: |
+          echo "VERSION=${{ inputs.VERSION }}" >> $GITHUB_OUTPUT
+
+  check-cancelled:
+    runs-on: gha-runner-scale-set-arm64
+    needs: tf-shared-apply-run
+    outputs:
+      IS_CANCELLED: ${{ steps.set-output-cancelled.outputs.IS_CANCELLED }}
+    steps:
+      - name: Set output IS_CANCELLED
+        id: set-output-cancelled
+        if: ${{ cancelled() }}
+        run: |
+          echo "IS_CANCELLED=true" >> $GITHUB_OUTPUT

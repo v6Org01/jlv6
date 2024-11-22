@@ -24,13 +24,6 @@ on:
         required: true
       TF_API_TOKEN:
         required: true
-    outputs:
-      IS_CANCELLED:
-        description: 'Check if job has been cancelled'
-        value: ${{ jobs.check-cancelled.outputs.IS_CANCELLED }}
-      VERSION:
-        description: 'Application version'
-        value: ${{ jobs.forward-var-version.outputs.VERSION }} 
 
 jobs:
 

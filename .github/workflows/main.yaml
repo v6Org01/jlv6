@@ -91,7 +91,10 @@ jobs:
           echo "IS_CANCELLED=true" >> $GITHUB_OUTPUT
         
   build-push-image:
-    if: ${{ !failure() && needs.init.outputs.IS_CANCELLED != 'true' && needs.init.outputs.BUILD_IMAGE == 'true' }}
+    if: >
+      !failure() && 
+      needs.init.outputs.IS_CANCELLED != 'true' &&
+      needs.init.outputs.BUILD_IMAGE == 'true'
     needs: init
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
@@ -112,7 +115,10 @@ jobs:
       REGISTRY_PRIVATE_PASSWD: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
 
   deploy-to-aws-shared:
-    if: ${{ !failure() && needs.init.outputs.IS_CANCELLED != 'true' && needs.init.outputs.DEPLOY_AWS == 'true' }}
+    if: >
+      !failure() &&
+      needs.init.outputs.IS_CANCELLED != 'true' &&
+      needs.init.outputs.DEPLOY_AWS == 'true'
     needs: init
     uses: v6Org01/jlv6/.github/workflows/deployShared2AWS.yaml@main
     with:
@@ -124,16 +130,11 @@ jobs:
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-  test-outputs:
-    runs-on: gha-runner-scale-set-arm64
-    needs: deploy-to-aws-shared
-    steps:
-      - name: Test output VERSION
-        run: |
-          echo "VERSION: ${{ needs.init.outputs.VERSION }}"
-
   deploy-to-aws-staging:
-    if: ${{ !failure() && needs.deploy-to-aws-shared.outputs.IS_CANCELLED != 'true' && needs.init.outputs.DEPLOY_AWS == 'true' }}
+    if: >
+      !failure() &&
+      needs.deploy-to-aws-shared.outputs.IS_CANCELLED != 'true' &&
+      needs.init.outputs.DEPLOY_AWS == 'true'
     needs: deploy-to-aws-shared
     uses: v6Org01/jlv6/.github/workflows/deployStaging2AWS.yaml@main
     with:
@@ -155,7 +156,11 @@ jobs:
   #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
   deploy-to-k8s-staging:
-    if: ${{ !failure() && needs.build-push-image.outputs.IS_CANCELLED != 'true' && needs.init.outputs.DEPLOY_K8S == 'true' }}
+    if: >
+      !failure() &&
+      needs.build-push-image.outputs.IS_CANCELLED != 'true' &&
+      needs.init.outputs.BUILD_IMAGE == 'true' &&
+      needs.init.outputs.DEPLOY_K8S == 'true'
     needs: build-push-image
     uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
     with:
@@ -163,3 +168,17 @@ jobs:
     secrets:
       DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
       KUBECONFIG_PLUTO_STAGING: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
+
+  deploy-to-k8s-production:
+    if: >
+      !failure() &&
+      needs.deploy-to-k8s-staging.outputs.IS_CANCELLED != 'true' &&
+      needs.init.outputs.BUILD_IMAGE == 'true' &&
+      needs.init.outputs.DEPLOY_K8S == 'true'
+    needs: deploy-to-k8s-staging
+    uses: v6Org01/jlv6/.github/workflows/deployProduction2K8S.yaml@main
+    with:
+      VERSION: ${{ needs.deploy-to-k8s-staging.outputs.VERSION }}
+    secrets:
+      DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+      KUBECONFIG_PLUTO_PROD: ${{ secrets.KUBECONFIG_PLUTO_PROD }}
