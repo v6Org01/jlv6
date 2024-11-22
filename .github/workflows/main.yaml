@@ -153,11 +153,12 @@ jobs:
     if: >
       !failure() &&
       !cancelled() &&
+      needs.init.outputs.BUILD_IMAGE == 'true'
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: build-push-image
     uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
     with:
-      VERSION: ${{ needs.init.outputs.VERSION }}
+      VERSION: ${{ needs.build-push-image.outputs.VERSION }}
     secrets:
       DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
       KUBECONFIG_PLUTO_STAGING: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
@@ -166,6 +167,7 @@ jobs:
     if: >
       !failure() &&
       !cancelled() &&
+      needs.init.outputs.BUILD_IMAGE == 'true'
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: deploy-to-k8s-staging
     uses: v6Org01/jlv6/.github/workflows/deployProduction2K8S.yaml@main
