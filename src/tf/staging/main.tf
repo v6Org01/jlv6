@@ -77,7 +77,7 @@ module "cf_distribution_01" {
 
   aliases = ["${var.JLV6-WWW_URI}"]
 
-  comment             = "CloudFront distribution for ${var.JLV6-WWW_URI}"
+  comment             = "Staging CloudFront distribution for ${var.JLV6-WWW_URI}"
   enabled             = true
   is_ipv6_enabled     = false
   price_class         = "PriceClass_100"
@@ -102,7 +102,7 @@ module "cf_distribution_01" {
 
   origin = {
     primaryK8S = {
-      domain_name = var.JLV6_DOMAIN
+      domain_name = var.AWS_CF_ORIGIN_JLV6_URI
       custom_origin_config = {
         http_port              = 80
         https_port             = 443
