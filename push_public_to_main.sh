@@ -5,15 +5,6 @@ PRODUCTION_BRANCH="main"
 DEVELOPMENT_BRANCH="development"
 DIR_TO_MERGE="public"
 
-# Check for OS type (macOS or Linux)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS uses sed differently, we need to provide an empty string for backup
-    SED_CMD="sed -i ''"
-else
-    # Linux (and other *nix systems) use sed without needing a backup extension
-    SED_CMD="sed -i"
-fi
-
 # Prompt for commit message
 echo "help: --skip-build-push-image|-sb, --skip-deploy-aws|-sa, --skip-deploy-k8s|--sk"
 read -p "Enter commit message: " commit_msg
@@ -63,7 +54,7 @@ echo "Replacing baseURL in the public directory with {{BASE_URL}}..."
 # Find files with "http://localhost:1313" and replace with "{{BASE_URL}}"
 find $DIR_TO_MERGE -type f -exec grep -l "http://localhost:1313" {} \; | while read -r file; do
   echo "Replacing baseURL in file: $file"
-  $SED_CMD "s|http://localhost:1313|{{BASE_URL}}|g" "$file"
+  sed -i '' 's|http://localhost:1313|{{BASE_URL}}|g' "$file"
 done
 
 # Add and commit the changes to main (production)
