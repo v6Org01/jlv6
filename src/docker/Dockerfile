@@ -8,13 +8,16 @@ ARG JLV6_GROUP
 ENV SERVER_ROOT=/public
 ENV SERVER_CONFIG_FILE=/etc/config.toml
 COPY ./public /public
+COPY ./src/docker/wrapper-entrypoint.sh /wrapper-entrypoint.sh
 RUN <<EOF
   addgroup --system --gid ${JLV6_GID} ${JLV6_GROUP}
   adduser --system --disabled-password --home /home/${JLV6_USER} --uid ${JLV6_UID} --ingroup ${JLV6_GROUP} ${JLV6_USER}
   # changing ownership of static-web-server files
+  chown -R ${JLV6_USER}:${JLV6_GROUP} /wrapper-entrypoint.sh
   chown -R ${JLV6_USER}:${JLV6_GROUP} /entrypoint.sh
   chown -R ${JLV6_USER}:${JLV6_GROUP} /usr/local/bin/static-web-server
   chown -R ${JLV6_USER}:${JLV6_GROUP} /public
-  chmod -R 770 /entrypoint.sh /usr/local/bin/static-web-server /public
+  chmod -R 770 /wrapper-entrypoint.sh /entrypoint.sh /usr/local/bin/static-web-server /public
 EOF
 USER ${JLV6_USER}
+ENTRYPOINT ["/wrapper-entrypoint.sh"]
