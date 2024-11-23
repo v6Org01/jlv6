@@ -1,0 +1,119 @@
+name: deploy_staging_to_aws
+
+on:
+  workflow_call:
+    inputs:
+      TF_CLOUD_ORGANIZATION:
+        description: 'Terraform Cloud Organization'
+        required: true
+        type: string
+      VERSION:
+        description: 'Application version'
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      CF_API_TOKEN:
+        required: true
+      CF_ZONE_ID:
+        required: true
+      TF_API_TOKEN:
+        required: true
+    outputs:
+      VERSION:
+        description: 'Application version'
+        value: ${{ jobs.forward-var-version.outputs.VERSION }}
+
+permissions:
+  id-token: write
+  contents: read
+      
+jobs:
+
+  tf-staging-apply-run:
+    runs-on: gha-runner-scale-set-amd64
+    environment: staging
+    env:
+      TF_CLOUD_ORGANIZATION: ${{ inputs.TF_CLOUD_ORGANIZATION }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_LOG: DEBUG
+      TF_MAX_TIMEOUT: "30m"
+    outputs:
+      CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+      S3_BUCKET_01_ID: ${{ steps.tfc-workspace-output.outputs.S3_BUCKET_01_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Terraform Cloud - Apply
+        uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
+        id: tf-apply
+        with:
+          DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
+          WORKSPACE: ${{ vars.TF_WORKSPACE }}
+      - name: Terraform Cloud - Get workspace output(s)
+        id: tfc-workspace-output
+        run: |
+          echo "Parsing TFC JSON outputs..."
+          DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
+          CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+          echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" >> $GITHUB_OUTPUT
+          S3_BUCKET_01_ID=$(jq -r '.[] | select(.name=="module_s3_bucket_01_s3_bucket_id") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+          echo "S3_BUCKET_01_ID=$S3_BUCKET_01_ID" >> $GITHUB_OUTPUT
+
+  update-cloudfare-dns-alias:
+    runs-on: gha-runner-scale-set-arm64
+    environment: staging
+    needs: tf-staging-apply-run
+    steps:
+      - name: Update DNS record
+        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
+        with:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS }}
+          CF_RECORD_TYPE: CNAME
+          CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+
+  update-cloudfare-dns-origin:
+    runs-on: gha-runner-scale-set-arm64
+    environment: staging
+    needs: tf-staging-apply-run
+    steps:
+      - name: Update DNS record
+        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
+        with:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ORIGIN }}
+          CF_RECORD_TYPE: CNAME
+          CF_RECORD_VALUE: ${{ vars.CF_RECORD_NAME_ORIGIN_VALUE }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+
+  cp-public-to-s3:
+    runs-on: gha-runner-scale-set-amd64
+    environment: staging
+    needs: tf-staging-apply-run
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install aws cli and auth
+        uses: v6Org01/.github/actions/install-cli-login-AWS@main
+        with:
+          AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
+          AWS_ROLE_ARN: "${{ secrets.AWS_ROLE_ARN }}"
+      - name: Replace BASE_URL
+        run: |
+          find ./public -type f -exec sed -i "s|{{BASE_URL}}|${{ vars.HUGO_BASE_URL }}|g" {} +
+      - name: Copy to S3
+        run: |
+          aws s3 sync ./public "s3://${{ needs.tf-staging-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }}" --delete
+
+  forward-var-version:
+    runs-on: gha-runner-scale-set-arm64
+    outputs:
+      VERSION: ${{ steps.set-output-version.outputs.VERSION }}
+    steps:
+      - name: Set output VERSION
+        id: set-output-version
+        run: |
+          echo "VERSION=${{ inputs.VERSION }}" >> $GITHUB_OUTPUT
