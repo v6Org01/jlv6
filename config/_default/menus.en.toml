@@ -13,7 +13,7 @@ weight = 2
 
 [[main]]
 name = "Wiki"
-url = "https://jlv6.com/wiki"
+url = "http://localhost:1313/wiki"
 weight = 3
 
 [[main]]

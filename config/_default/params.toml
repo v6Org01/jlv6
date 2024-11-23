@@ -39,7 +39,7 @@ enable = false
 [navigation_button]
 enable = true
 label = "Dashboard"
-link = "https://jlv6.com/dashboard"
+link = "http://localhost:1313/dashboard"
 
 # search
 # search module: https://github.com/gethugothemes/hugo-modules/tree/master/search

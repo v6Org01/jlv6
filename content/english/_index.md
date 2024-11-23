@@ -26,7 +26,7 @@ sections:
     button:
       enable: true
       label: "Start Reading"
-      link: "https://jlv6.com/techblog"
+      link: "http://localhost:1313/techblog"
 
   - title: "Accessing the applications.."
     image: "/images/homepage_demo.png"
