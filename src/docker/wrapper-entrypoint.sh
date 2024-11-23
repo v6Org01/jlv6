@@ -15,4 +15,4 @@ find /public -type f -exec sed -i "s|{{BASE_URL}}|$BASE_URL|g" {} +
 echo "Base URL replacement completed."
 
 # Start SWS image entrypoint.sh
-exec "$@"
+exec /entrypoint.sh "$@"
