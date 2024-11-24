@@ -12,10 +12,13 @@
               {{ .title | markdownify }}
             </h1>
             <ul class="mb-8">
-              {{ range .bulletpoints }}
-                <li>{{ . }}</li>
-              {{ end }}
               <li id="location-info"></li> <!-- Placeholder for dynamic content -->
+              {{ range .bulletpoints }}
+                <li class="relative mb-4 pl-6">
+                  <i class="fa fa-check absolute left-0 top-1.5"></i>
+                  {{ . | markdownify }}
+                </li>
+              {{ end }}
             </ul>
             <p class="mb-8">
               {{ .content | markdownify }}
@@ -106,7 +109,13 @@
           // Insert the location information into the list item
           const envInfoElement = document.getElementById("location-info");
           if (envInfoElement) {
-            envInfoElement.innerHTML = message; // Use innerHTML to allow HTML tags (like <img>) to work
+            // Apply the same <li> structure as static bullet points in Introduction
+            envInfoElement.innerHTML = ` 
+              <li class="relative mb-4 pl-6 flex items-center">
+                <i class="fa fa-check mr-3"></i>
+                ${message}
+              </li>
+            `;
           }
         })
         .catch(error => console.error("Could not retrieve location info:", error));
