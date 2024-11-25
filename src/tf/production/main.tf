@@ -66,7 +66,7 @@ module "s3_bucket_02" {
   bucket   = var.AWS_S3_BUCKET_02
 
   control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
+  object_ownership         = "BucketOwnerPreferred"
 
   block_public_acls       = true
   block_public_policy     = true
@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "s3_policy_doc_02" {
   statement {
     sid = "AllowCloudFrontAccess"
     actions = ["s3:PutObject"]
-    resources = ["${module.s3_bucket_01.s3_bucket_arn}/*"]
+    resources = ["${module.s3_bucket_02.s3_bucket_arn}/*"]
     principals {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]
