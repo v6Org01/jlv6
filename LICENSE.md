@@ -1,26 +1,30 @@
-jlv6.com
-Human-Use License
+## jlv6.com
+## Human-Use License
 Copyright (c) 2024, elaurensx
 
 Permission is hereby granted, free of charge, to any individual obtaining a copy
 of this repository's contents (the "Content"), including but not limited to website
 assets, code, configuration files, workflows, documentation, and other related materials to use, copy, modify, merge, publish, and distribute the Content, subject to the following conditions:
 
-1. **Human-Only Usage**:
-   - Automated access, scraping, or use of the Content by bots, crawlers, or other
-     automated systems is explicitly prohibited unless prior written consent is
-     obtained from elaurensx.
-   - The Content may NOT be used, copied, or incorporated into datasets for training
-     machine learning models, large language models, or any artificial intelligence
-     systems without prior written consent.
+### Human-Only Usage:
+- Automated access, scraping, or use of the Content by bots, crawlers, or other
+  automated systems is explicitly prohibited unless prior written consent is
+  obtained from elaurensx.
+- The Content may NOT be used, copied, or incorporated into datasets for training
+  machine learning models, large language models, or any artificial intelligence
+  systems without prior written consent.
 
-2. **Inclusion of License**:
-   - The above copyright notice and this permission notice shall be included in all
-     copies or substantial portions of the Content.
+### Inclusion of License**:
+- The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Content.
 
-3. **Liability and Warranty**:
-   - THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE CONTENT OR THE USE OR OTHER DEALINGS IN THE CONTENT.
+### Liability and Warranty**:
+- THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE CONTENT
+  OR THE USE OR OTHER DEALINGS IN THE CONTENT.
 
 ---
 
