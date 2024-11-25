@@ -1,12 +1,12 @@
 ## jlv6.com
-## Human-Use License
+### Human-Use License
 Copyright (c) 2024, elaurensx
 
 Permission is hereby granted, free of charge, to any individual obtaining a copy
 of this repository's contents (the "Content"), including but not limited to website
 assets, code, configuration files, workflows, documentation, and other related materials to use, copy, modify, merge, publish, and distribute the Content, subject to the following conditions:
 
-### Human-Only Usage:
+#### Human-Only Usage:
 - Automated access, scraping, or use of the Content by bots, crawlers, or other
   automated systems is explicitly prohibited unless prior written consent is
   obtained from elaurensx.
@@ -14,12 +14,12 @@ assets, code, configuration files, workflows, documentation, and other related m
   machine learning models, large language models, or any artificial intelligence
   systems without prior written consent.
 
-### Inclusion of License**:
-- The above copyright notice and this permission notice shall be included in all
+#### Inclusion of License:
+  The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Content.
 
-### Liability and Warranty**:
-- THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+#### Liability and Warranty:
+  THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
