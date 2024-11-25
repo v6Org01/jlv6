@@ -129,9 +129,9 @@ module "cf_distribution_01" {
     aws = aws.us_east_1
   }
 
-  aliases = ["${var.JLV6-WWW_URI}"]
+  aliases = ["${var.ADN}"]
 
-  comment             = "Staging CloudFront distribution for ${var.JLV6-WWW_URI}"
+  comment             = "Production distribution for ${var.WWW_URI}"
   enabled             = true
   is_ipv6_enabled     = false
   price_class         = "PriceClass_100"
