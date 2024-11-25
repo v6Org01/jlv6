@@ -1,4 +1,4 @@
-name: deploy_staging_to_aws
+name: deploy_production_to_aws
 
 on:
   workflow_call:
@@ -31,9 +31,9 @@ permissions:
       
 jobs:
 
-  tf-staging-apply-run:
+  tf-production-apply-run:
     runs-on: gha-runner-scale-set-amd64
-    environment: staging
+    environment: production
     env:
       TF_CLOUD_ORGANIZATION: ${{ inputs.TF_CLOUD_ORGANIZATION }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
@@ -63,8 +63,8 @@ jobs:
 
   update-cloudfare-dns-alias:
     runs-on: gha-runner-scale-set-arm64
-    environment: staging
-    needs: tf-staging-apply-run
+    environment: production
+    needs: tf-production-apply-run
     steps:
       - name: Update DNS record
         uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
@@ -72,13 +72,13 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS }}
           CF_RECORD_TYPE: CNAME
-          CF_RECORD_VALUE: ${{ needs.tf-staging-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+          CF_RECORD_VALUE: ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
   update-cloudfare-dns-origin:
     runs-on: gha-runner-scale-set-arm64
-    environment: staging
-    needs: tf-staging-apply-run
+    environment: production
+    needs: tf-production-apply-run
     steps:
       - name: Update DNS record
         uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
@@ -91,8 +91,8 @@ jobs:
 
   cp-public-to-s3:
     runs-on: gha-runner-scale-set-amd64
-    environment: staging
-    needs: tf-staging-apply-run
+    environment: production
+    needs: tf-production-apply-run
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,7 +106,7 @@ jobs:
           find ./public -type f -exec sed -i "s|{{BASE_URL}}|${{ vars.HUGO_BASE_URL }}|g" {} +
       - name: Copy to S3
         run: |
-          aws s3 sync ./public "s3://${{ needs.tf-staging-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }}" --delete
+          aws s3 sync ./public "s3://${{ needs.tf-production-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }}" --delete
 
   forward-var-version:
     runs-on: gha-runner-scale-set-arm64

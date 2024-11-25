@@ -140,21 +140,21 @@ jobs:
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-  # deploy-to-aws-production:
-  #   if: >
-  #     !failure() &&
-  #     !cancelled() &&
-  #     needs.init.outputs.DEPLOY_AWS == 'true'
-  #   needs: deploy-to-aws-staging
-  #   uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
-  #   with:
-  #     TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-  #     VERSION: ${{ needs.deploy-to-aws-staging.outputs.VERSION }}
-  #   secrets:
-  #     AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-  #     CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-  #     CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-  #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+  deploy-to-aws-production:
+    if: >
+      !failure() &&
+      !cancelled() &&
+      needs.init.outputs.DEPLOY_AWS == 'true'
+    needs: deploy-to-aws-staging
+    uses: v6Org01/jlv6/.github/workflows/deployProduction2AWS.yaml@main
+    with:
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      VERSION: ${{ needs.deploy-to-aws-staging.outputs.VERSION }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
   deploy-to-k8s-staging:
     if: >
