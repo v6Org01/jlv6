@@ -17,11 +17,6 @@ module "s3_bucket_01" {
 
   attach_policy = false
 
-#  website = {
-#    index_document = "index.html"
-#    error_document = "404.html"
-#  }
-
   server_side_encryption_configuration = {
     rule = {
       apply_server_side_encryption_by_default = {
@@ -157,6 +152,11 @@ module "cf_distribution_01" {
       signing_behavior = "always"
       signing_protocol = "sigv4"
     }
+  }
+
+  logging_config = {
+    bucket = module.s3_bucket_02.s3_bucket_bucket_domain_name
+    prefix = "cloudfront"
   }
 
   origin = {

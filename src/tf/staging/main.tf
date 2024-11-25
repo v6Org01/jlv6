@@ -17,11 +17,6 @@ module "s3_bucket_01" {
 
   attach_policy = false
 
-#  website = {
-#    index_document = "index.html"
-#    error_document = "404.html"
-#  }
-
   server_side_encryption_configuration = {
     rule = {
       apply_server_side_encryption_by_default = {
