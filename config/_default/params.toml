@@ -1,20 +1,12 @@
 #################### default parameters ############################
-# favicon module: https://github.com/gethugothemes/hugo-modules/tree/master/images#favicon-implementation
 favicon = "images/favicon.png"
-# logo module: https://github.com/gethugothemes/hugo-modules/tree/master/images#logo-implementation
 logo = "images/logo.png"
 logo_darkmode = "images/logo_darkmode.png"
-# use `px` or `x` with logo_width, example: "100px".
-# Note: logo_width is not work with .svg file
 logo_width = "66px"
 logo_height = "49px"
-# if logo_webp set false, will not generate WEBP version of logo | default is true
-## logo_webp = true
 # logo text will only show when logo is missing.
 logo_text = "jlv6.com"
-# navbar fixed to top
 navbar_fixed = true
-# theme-mode
 theme_switcher = true
 theme_default = "system"
 # Main Sections
