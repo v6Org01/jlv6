@@ -146,7 +146,7 @@ module "cf_distribution_01" {
   create_origin_access_identity = false
   create_origin_access_control = true
   origin_access_control = {
-    s3_oac_01 = {
+    s3_oac_02 = {
       description      = "OAC for ${module.s3_bucket_01.s3_bucket_id} bucket"
       origin_type      = "s3"
       signing_behavior = "always"
@@ -181,7 +181,7 @@ module "cf_distribution_01" {
     }
     failoverS3 = {
       domain_name           = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
-      origin_access_control = "s3_oac_01"
+      origin_access_control = "s3_oac_02"
       origin_path           = "/${var.VERSION}"
       custom_header = [
         {
