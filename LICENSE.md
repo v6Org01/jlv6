@@ -15,11 +15,11 @@ assets, code, configuration files, workflows, documentation, and other related m
   systems without prior written consent.
 
 #### Inclusion of License:
-  The above copyright notice and this permission notice shall be included in all
+- The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Content.
 
 #### Liability and Warranty:
-  THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+- THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
