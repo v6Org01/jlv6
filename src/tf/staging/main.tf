@@ -125,9 +125,13 @@ module "cf_distribution_01" {
           value = "aws"
         },
         {
-          name  = "X-Deployment-Environment"
-          value = "staging"
-        }
+          name  = "X-Origin-Selector"
+          value = "failovers3"
+        },
+        {
+          name  = "X-Application-Version"
+          value = "${var.VERSION}"
+        },
       ]
     }
   }
