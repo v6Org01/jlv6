@@ -8,8 +8,8 @@ introduction:
     - "Hello"
   button:
     enable: false
-    label: "Get Started For Free"
-    link: "https://github.com/zeon-studio/hugoplate"
+    label: "PLACEHOLDER"
+    link: "PLACEHOLDER"
 
 # Sections
 sections:
