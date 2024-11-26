@@ -263,20 +263,15 @@ module "cf_distribution_01" {
 
 ## LAMBDA ##
 
-data "template_file" "template01" {
+data "archive_file" "archive_01" {
   depends_on = [
     module.s3_bucket_01
   ]
-  provider = aws.eu_central_1
-  template = file("${path.module}/lambda-httpModifyHeaderHost.mjs")
-  vars = {
-    S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
-  }
-}
-
-data "archive_file" "archive_01" {
+  provider = aws.us_east_1
   type           = "zip"
-  source_content = data.template_file.template01.rendered
+  source_content = templatefile("${path.module}/lambda-httpModifyHeaderHost.mjs", {
+    S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
+  })
   output_path = "${path.module}/lambda-httpModifyHeaderHost.zip"
 }
 
