@@ -152,6 +152,7 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
 
 module "cf_distribution_01" {
   depends_on = [
+   module.lambda_at_edge_01,
    module.s3_bucket_01
   ]
 
@@ -265,7 +266,15 @@ module "cf_distribution_01" {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
     }
+    
+    lambda_function_association = {
+      origin-request = {
+        lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
+        include_body = false
+      }
+    }
   }
+
 
   viewer_certificate = {
     cloudfront_default_certificate = false
@@ -285,7 +294,6 @@ data "archive_file" "archive_01" {
 
 module "lambda_at_edge_01" {
   depends_on = [
-    module.cf_distribution_01,
     module.cw_logs_01
   ]
 
@@ -294,10 +302,13 @@ module "lambda_at_edge_01" {
     aws = aws.us_east_1
   }
 
-  lambda_at_edge         = true
+  lambda_at_edge = true
+  publish        = true
+
   create_package         = false
   local_existing_package = data.archive_file.archive_01.output_path
-
+  
+  architectures = ["x86_64"]
   function_name = "httpModifyHeaderHost-jlv6-staging"
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
   handler       = "index.handler"
@@ -316,6 +327,7 @@ module "lambda_at_edge_01" {
       cache_behavior_path_pattern = "*"
       distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
       event-type                  = "origin-request"
+      principal                   = "edgelambda.amazonaws.com"
       region                      = "us-east-1"
     }
 
