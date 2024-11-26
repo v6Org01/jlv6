@@ -1,7 +1,10 @@
-// Block AI Crawler
-// https://www.andrlik.org/dispatches/til-block-ai-bots-cloudfront-function/
 
 async function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    var headers = request.headers;
+    // Block AI Crawler
+    // https://www.andrlik.org/dispatches/til-block-ai-bots-cloudfront-function/
     const banned_agents = [
         'AdsBot-Google', 'AI2Bot', 'Amazonbot', 'anthropic-ai', 'Applebot', 'AwarioRssBot', 
         'AwarioSmartBot', 'Bytespider', 'CCBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-Web', 
@@ -11,12 +14,6 @@ async function handler(event) {
         'omgilibot', 'peer39_crawler', 'peer39_crawler/1.0', 'PerplexityBot', 'PiplBot', 
         'scoop.it', 'Seekr', 'YouBot'
     ];
-
-    var request = event.request;
-    var uri = request.uri;
-    var headers = request.headers;
-
-    // Check if User-Agent is banned
     const user_agent = headers['user-agent'] ? headers['user-agent'].value : '';
     for (var i = 0; i < banned_agents.length; i++) {
         var agent = banned_agents[i];
@@ -35,22 +32,11 @@ async function handler(event) {
             };
         }
     }
-
     // URL Rewrite to append index.html to failoverS3 origin
-
-    // Get the version from the custom header
-    var versionPath = headers['X-Application-Version'] ? `/${headers['X-Application-Version'].value}` : '';
-
-    // Check for origin failoverS3
-    if (headers['x-Origin-Selector'] && headers['x-Origin-Selector'].value === 'failovers3') {
-        if (uri.endsWith('/')) {
-            request.uri = versionPath + uri + 'index.html';
-        } else if (!uri.includes('.')) {
-            request.uri = versionPath + uri + '/index.html';
-        } else {
-            request.uri = versionPath + uri;
-        }
-    }
-
+    if (uri.endsWith('/')) {
+        request.uri += 'index.html';
+    } else if (!uri.includes('.')) {
+        request.uri += '/index.html';
+    } 
     return request;
 }

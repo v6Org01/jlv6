@@ -1,3 +1,73 @@
+## IAM ##
+
+resource "aws_iam_role" "iam_role_01" {
+  name = "lambdaExecRole-httpModifyHeadeHost-jlv6-staging"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com",
+          "edgelambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_01" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging"]
+  }
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_02" {
+  depends_on = [
+    module.cf_distribution_01
+  ]
+  statement {
+    actions = [
+      "cloudfront:UpdateDistribution",
+      "cloudfront:GetDistribution",
+      "cloudfront:CreateInvalidation"
+    ]
+    resources = [module.cf_distribution_01.cloudfront_distribution_arn]
+  }
+}
+
+resource "aws_iam_policy" "iam_policy_01" {
+  name        = "lambda-cloudwatchLogs-httpModifyHeaderHost-jlv6-staging"
+  description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
+}
+
+resource "aws_iam_policy" "iam_policy_02" {
+  name        = "lambda-cloudfront-httpModifyHeaderHost-jlv6-staging"
+  description = "Policy to manage CloudFront distribution for Lambda@Edge"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
+  role       = aws_iam_role.iam_role_01.name
+  policy_arn = aws_iam_policy.iam_policy_01.arn
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
+  role       = aws_iam_role.iam_role_01.name
+  policy_arn = aws_iam_policy.iam_policy_02.arn
+}
+
 ## S3 ##
 
 module "s3_bucket_01" {
@@ -106,11 +176,11 @@ module "cf_distribution_01" {
       }
       custom_header = [
         {
-          name  = "X-Deployment-Location"
+          name  = "x-deployment-location"
           value = "k8s"
         },
         {
-          name  = "X-Deployment-Environment"
+          name  = "x-deployment-environment"
           value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
         }
       ]
@@ -121,17 +191,9 @@ module "cf_distribution_01" {
       origin_path           = "/${var.VERSION}"
       custom_header = [
         {
-          name  = "X-Deployment-Location"
+          name  = "x-deployment-location"
           value = "aws"
-        },
-        {
-          name  = "X-Origin-Selector"
-          value = "failovers3"
-        },
-        {
-          name  = "X-Application-Version"
-          value = "${var.VERSION}"
-        },
+        }
       ]
     }
   }
@@ -191,4 +253,40 @@ module "cf_distribution_01" {
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
   }
+}
+
+## LAMBDA ##
+
+module "lambda_at_edge_01" {
+  depends_on = [
+    module.s3_bucket_01,
+    module.cf_distribution_01
+  ]
+
+  source = "terraform-aws-modules/lambda/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  lambda_at_edge = true
+  create_package = false
+
+  function_name = "httpModifyHeaderHost-jlv6-staging"
+  description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
+  handler       = "index.handler"
+  lambda_role   = aws_iam_role.iam_role_01.arn
+  runtime       = "nodejs22.x"
+  source_path   = templatefile("${path.module}/lambda-httpModifyHeaderHost.mjs",{ S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name})
+
+  allowed_triggers = {
+    "cf_defaultCache" = {
+      cache_behavior_path_pattern = "*"
+      distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
+      event-type                  = "origin-request"
+      region                      = "us-east-1"
+    }
+
+  }
+
+    
 }

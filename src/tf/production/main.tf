@@ -187,10 +187,6 @@ module "cf_distribution_01" {
         {
           name  = "X-Deployment-Location"
           value = "aws"
-        },
-        {
-          name  = "X-Deployment-Environment"
-          value = "staging"
         }
       ]
     }
