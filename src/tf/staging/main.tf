@@ -29,7 +29,10 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging"]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging:*.*",
+    ]
   }
 }
 
@@ -74,10 +77,21 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
   policy_arn = aws_iam_policy.iam_policy_02.arn
 }
 
+## CLOUDWATCH ##
+
+module "cw_logs_01" {
+  source = "cn-terraform/cloudwatch-logs/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+  logs_path = "/aws/lambda/httpModifyHeaderHost-jlv6-staging"
+  log_group_retention_in_days = 5
+}
+
 ## S3 ##
 
 module "s3_bucket_01" {
-  source   = "terraform-aws-modules/s3-bucket/aws"
+  source = "terraform-aws-modules/s3-bucket/aws"
   providers = {
     aws = aws.eu_central_1
   }
@@ -286,8 +300,15 @@ module "lambda_at_edge_01" {
   function_name = "httpModifyHeaderHost-jlv6-staging"
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
   handler       = "index.handler"
-  lambda_role   = aws_iam_role.iam_role_01.arn
   runtime       = "nodejs20.x"
+
+  create_role   = false
+  lambda_role   = aws_iam_role.iam_role_01.arn
+  
+  use_existing_cloudwatch_log_group  = true
+  attach_cloudwatch_logs_policy      = false
+  attach_create_log_group_permission = false
+  logging_log_group                  = module.cw_logs_01.log_group_name
 
   allowed_triggers = {
     "cf_defaultCache" = {
