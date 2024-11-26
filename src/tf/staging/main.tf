@@ -263,9 +263,25 @@ module "cf_distribution_01" {
 
 ## LAMBDA ##
 
+data "template_file" "template01" {
+  depends_on = [
+    module.s3_bucket_01
+  ]
+  provider = aws.eu_central_1
+  template = file("${path.module}/lambda-httpModifyHeaderHost.mjs")
+  vars = {
+    S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
+  }
+}
+
+data "archive_file" "archive_01" {
+  type           = "zip"
+  source_content = data.template_file.template01.rendered
+  output_path = "${path.module}/lambda-httpModifyHeaderHost.zip"
+}
+
 module "lambda_at_edge_01" {
   depends_on = [
-    module.s3_bucket_01,
     module.cf_distribution_01
   ]
 
@@ -281,8 +297,8 @@ module "lambda_at_edge_01" {
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
   handler       = "index.handler"
   lambda_role   = aws_iam_role.iam_role_01.arn
-  runtime       = "nodejs22.x"
-  source_path   = templatefile("${path.module}/lambda-httpModifyHeaderHost.mjs",{ S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name})
+  runtime       = "nodejs20.x"
+  source_path   = data.archive_file.archive_01.output_path
 
   allowed_triggers = {
     "cf_defaultCache" = {
