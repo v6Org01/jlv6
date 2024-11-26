@@ -285,7 +285,8 @@ data "archive_file" "archive_01" {
 
 module "lambda_at_edge_01" {
   depends_on = [
-    module.cf_distribution_01
+    module.cf_distribution_01,
+    module.cw_logs_01
   ]
 
   source = "terraform-aws-modules/lambda/aws"
