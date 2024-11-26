@@ -1,11 +1,13 @@
 terraform {
   required_providers {
+    archive = {}
     aws = {
       source = "hashicorp/aws"
       version = "~> 5.72.1"
     }
   }
 }
+provider archive {}
 
 provider "aws" {
   alias  = "us_east_1"
