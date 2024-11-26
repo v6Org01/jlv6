@@ -275,7 +275,6 @@ module "cf_distribution_01" {
     }
   }
 
-
   viewer_certificate = {
     cloudfront_default_certificate = false
     acm_certificate_arn            = data.terraform_remote_state.shared.outputs.aws_acm_certificate_cert01_arn
@@ -291,6 +290,33 @@ data "archive_file" "archive_01" {
   source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
   output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
 }
+
+resource "aws_lambda_permission" "current_version_triggers" {
+  provider      = aws.us_east_1
+  depends_on = [
+    module.cf_distribution_01,
+    module.lambda_at_edge_01
+  ]
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_at_edge_01.lambda_function_name
+  principal     = "edgelambda.amazonaws.com" 
+  statement_id  = "AllowExecutionFromCloudFront"
+  source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
+}
+
+resource "aws_lambda_permission" "unqualified_alias_triggers" {
+  provider      = aws.us_east_1
+  depends_on = [
+    module.cf_distribution_01,
+    module.lambda_at_edge_01
+  ]
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_at_edge_01.lambda_function_name
+  principal     = "edgelambda.amazonaws.com"
+  statement_id  = "AllowExecutionFromCloudFront"
+  source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
+}
+
 
 module "lambda_at_edge_01" {
   depends_on = [
@@ -322,16 +348,16 @@ module "lambda_at_edge_01" {
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
 
-  allowed_triggers = {
-    "cf_defaultCache" = {
-      cache_behavior_path_pattern = "*"
-      distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
-      event-type                  = "origin-request"
-      principal                   = "edgelambda.amazonaws.com"
-      region                      = "us-east-1"
-    }
+ # allowed_triggers = {
+ #   "cf_defaultCache" = {
+ #     cache_behavior_path_pattern = "*"
+ #     distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
+ #     event-type                  = "origin-request"
+ #     principal                   = "edgelambda.amazonaws.com"
+ #     region                      = "us-east-1"
+ #   }
 
-  }
+ # }
 
     
 }
