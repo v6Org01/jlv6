@@ -13,7 +13,7 @@ export const handler = async (event) => {
         // Set the Host header to the S3 bucket's endpoint
         request.headers['host'] = [{
             key: 'Host',
-            value: 'S3_ORIGIN_NAME'
+            value: 'jlv6-www-staging.s3.eu-central-1.amazonaws.com'
         }];
     }
     // Example: Output the modified request before returning

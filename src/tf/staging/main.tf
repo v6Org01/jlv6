@@ -264,14 +264,9 @@ module "cf_distribution_01" {
 ## LAMBDA ##
 
 data "archive_file" "archive_01" {
-  depends_on = [
-    module.s3_bucket_01
-  ]
-  type           = "zip"
-  source_content = templatefile("${path.module}/lambda-httpModifyHeaderHost.mjs", {
-    S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
-  })
-  output_path = "${path.module}/lambda-httpModifyHeaderHost.zip"
+  type        = "zip"
+  source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
+  output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
 }
 
 module "lambda_at_edge_01" {
