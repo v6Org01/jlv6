@@ -267,7 +267,6 @@ data "archive_file" "archive_01" {
   depends_on = [
     module.s3_bucket_01
   ]
-  provider = aws.us_east_1
   type           = "zip"
   source_content = templatefile("${path.module}/lambda-httpModifyHeaderHost.mjs", {
     S3_ORIGIN_NAME = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
