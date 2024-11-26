@@ -290,15 +290,15 @@ module "lambda_at_edge_01" {
     aws = aws.us_east_1
   }
 
-  lambda_at_edge = true
-  create_package = false
+  lambda_at_edge         = true
+  create_package         = false
+  local_existing_package = data.archive_file.archive_01.output_path
 
   function_name = "httpModifyHeaderHost-jlv6-staging"
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
   handler       = "index.handler"
   lambda_role   = aws_iam_role.iam_role_01.arn
   runtime       = "nodejs20.x"
-  source_path   = data.archive_file.archive_01.output_path
 
   allowed_triggers = {
     "cf_defaultCache" = {
