@@ -269,7 +269,7 @@ module "cf_distribution_01" {
     lambda_function_association = {
       origin-request = {
         include_body = false
-        lambda_arn = module.lambda_at_edge_01.lambda_function_arn
+        lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
     }
   }
