@@ -292,7 +292,7 @@ module "cf_distribution_01" {
 data "archive_file" "archive_01" {
   type        = "zip"
   source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
-  output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
+  output_path = "${path.module}/index.mjs.zip"
 }
 
 module "lambda_at_edge_01" {
