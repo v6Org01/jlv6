@@ -289,14 +289,9 @@ module "cf_distribution_01" {
 
 ## LAMBDA ##
 
-resource "local_file" "file01" {
-  content  = file("${path.module}/lambda-httpModifyHeaderHost.mjs")
-  filename = "${path.module}/index.mjs" # Rename it to index.mjs"
-}
-
 data "archive_file" "archive_01" {
   type        = "zip"
-  source_file = "${path.module}/index.mjs"
+  source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
   output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
 }
 
@@ -320,7 +315,7 @@ module "lambda_at_edge_01" {
   architectures = ["x86_64"]
   function_name = "httpModifyHeaderHost-jlv6-staging"
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
-  handler       = "index.handler"
+  handler       = "lambda-httpModifyHeaderHost.handler"
   runtime       = "nodejs20.x"
 
   create_role   = false
