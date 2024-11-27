@@ -221,7 +221,7 @@ module "cf_distribution_01" {
 
   origin_group = {
     origGroup01 = {
-      failover_status_codes      = [500, 502, 503, 504]
+      failover_status_codes      = [404, 500, 502, 503, 504]
       primary_member_origin_id   = "primaryK8S"
       secondary_member_origin_id = "failoverS3"
     }

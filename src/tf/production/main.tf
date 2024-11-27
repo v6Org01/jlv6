@@ -1,3 +1,93 @@
+## IAM ##
+
+resource "aws_iam_role" "iam_role_01" {
+  provider = aws.us_east_1
+  name = "lambdaExecRole-httpModifyHeadeHost-jlv6-production"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com",
+          "edgelambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_01" {
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-production:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-production:*.*",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_02" {
+  depends_on = [
+    module.cf_distribution_01
+  ]
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "cloudfront:UpdateDistribution",
+      "cloudfront:GetDistribution",
+      "cloudfront:CreateInvalidation"
+    ]
+    resources = [module.cf_distribution_01.cloudfront_distribution_arn]
+  }
+}
+
+resource "aws_iam_policy" "iam_policy_01" {
+  provider    = aws.us_east_1
+  name        = "lambda-cloudwatchLogs-httpModifyHeaderHost-jlv6-production"
+  description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
+}
+
+resource "aws_iam_policy" "iam_policy_02" {
+  provider    = aws.us_east_1
+  name        = "lambda-cloudfront-httpModifyHeaderHost-jlv6-production"
+  description = "Policy to manage CloudFront distribution for Lambda@Edge"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_01.name
+  policy_arn = aws_iam_policy.iam_policy_01.arn
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_01.name
+  policy_arn = aws_iam_policy.iam_policy_02.arn
+}
+
+## CLOUDWATCH ##
+
+module "cw_logs_01" {
+  source = "cn-terraform/cloudwatch-logs/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+  logs_path = "/aws/lambda/httpModifyHeaderHost-jlv6-production"
+  log_group_retention_in_days = 14
+}
+
 ## S3 ##
 
 module "s3_bucket_01" {
@@ -194,34 +284,40 @@ module "cf_distribution_01" {
 
   origin_group = {
     origGroup01 = {
-      failover_status_codes      = [500, 502, 503, 504]
+      failover_status_codes      = [404, 500, 502, 503, 504]
       primary_member_origin_id   = "primaryK8S"
       secondary_member_origin_id = "failoverS3"
     }
   }
-  
-#  ordered_cache_behavior = [
-#    {
-#      path_pattern     = "/${var.VERSION}/*"
-#      target_origin_id = "failoverS3"
-#      viewer_protocol_policy = "https-only"
-#      allowed_methods        = ["GET", "HEAD"]
-#      cached_methods         = ["GET", "HEAD"]
-#      compress               = true
-#
-#      use_forwarded_values         = false
-#      cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
-#      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
-#
-#      function_association = {
-#        # Valid keys: viewer-request, viewer-response
-#        viewer-request = {
-#          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
-#        }
-#      }
-#    }
-#  ]
 
+  ordered_cache_behavior = [
+    {
+      path_pattern     = "/index.html"
+      target_origin_id = "origGroup01"
+      viewer_protocol_policy = "https-only"
+      allowed_methods        = ["GET", "HEAD"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+
+      use_forwarded_values         = false
+      cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+
+      function_association = {
+        # Valid keys: viewer-request, viewer-response
+        viewer-request = {
+          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
+        }
+      }
+      lambda_function_association = {
+        origin-request = {
+          include_body = false
+          lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+        }
+      }
+    }
+  ]
+  
   default_cache_behavior = {
     target_origin_id       = "origGroup01"
     viewer_protocol_policy = "https-only"
@@ -239,6 +335,12 @@ module "cf_distribution_01" {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
     }
+    lambda_function_association = {
+      origin-request = {
+        include_body = false
+        lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+      }
+    }
   }
 
   viewer_certificate = {
@@ -247,4 +349,44 @@ module "cf_distribution_01" {
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
   }
+}
+
+# LAMBDA ##
+
+data "archive_file" "archive_01" {
+  type        = "zip"
+  source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
+  output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
+}
+
+module "lambda_at_edge_01" {
+  depends_on = [
+    data.archive_file.archive_01,
+    module.cw_logs_01
+  ]
+
+  source = "terraform-aws-modules/lambda/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  lambda_at_edge = true
+  publish        = true
+
+  create_package         = false
+  local_existing_package = data.archive_file.archive_01.output_path
+  
+  architectures = ["x86_64"]
+  function_name = "httpModifyHeaderHost-jlv6-production"
+  description   = "Sets host header value to Production S3_bucket when CloudFront origin request to S3.origin"
+  handler       = "lambda-httpModifyHeaderHost.handler"
+  runtime       = "nodejs20.x"
+
+  create_role   = false
+  lambda_role   = aws_iam_role.iam_role_01.arn
+  
+  use_existing_cloudwatch_log_group  = true
+  attach_cloudwatch_logs_policy      = false
+  attach_create_log_group_permission = false
+  logging_log_group                  = module.cw_logs_01.log_group_name
 }
