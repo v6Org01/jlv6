@@ -227,27 +227,33 @@ module "cf_distribution_01" {
     }
   }
   
-#  ordered_cache_behavior = [
-#    {
-#      path_pattern     = "/${var.VERSION}/*"
-#      target_origin_id = "failoverS3"
-#      viewer_protocol_policy = "https-only"
-#      allowed_methods        = ["GET", "HEAD"]
-#      cached_methods         = ["GET", "HEAD"]
-#      compress               = true
-#
-#      use_forwarded_values         = false
-#      cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
-#      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
-#
-#      function_association = {
-#        # Valid keys: viewer-request, viewer-response
-#        viewer-request = {
-#          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
-#        }
-#      }
-#    }
-#  ]
+  ordered_cache_behavior = [
+    {
+      path_pattern     = "/index.html"
+      target_origin_id = "origGroup01"
+      viewer_protocol_policy = "https-only"
+      allowed_methods        = ["GET", "HEAD"]
+      cached_methods         = ["GET", "HEAD"]
+      compress               = true
+
+      use_forwarded_values         = false
+      cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+      origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+
+      function_association = {
+        # Valid keys: viewer-request, viewer-response
+        viewer-request = {
+          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
+        }
+      }
+      lambda_function_association = {
+        origin-request = {
+          include_body = false
+          lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+        }
+      }
+    }
+  ]
 
   default_cache_behavior = {
     target_origin_id       = "origGroup01"
@@ -261,7 +267,6 @@ module "cf_distribution_01" {
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
     function_association = {
-      # Valid keys: viewer-request, viewer-response
       viewer-request = {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
@@ -289,33 +294,6 @@ data "archive_file" "archive_01" {
   source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
   output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
 }
-
-resource "aws_lambda_permission" "current_version_triggers" {
-  provider      = aws.us_east_1
-  depends_on = [
-    module.cf_distribution_01,
-    module.lambda_at_edge_01
-  ]
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda_at_edge_01.lambda_function_name
-  principal     = "edgelambda.amazonaws.com" 
-  statement_id  = "AllowExecutionFromCloudFrontVersionTrigger"
-  source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
-}
-
-resource "aws_lambda_permission" "unqualified_alias_triggers" {
-  provider      = aws.us_east_1
-  depends_on = [
-    module.cf_distribution_01,
-    module.lambda_at_edge_01
-  ]
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda_at_edge_01.lambda_function_name
-  principal     = "edgelambda.amazonaws.com"
-  statement_id  = "AllowExecutionFromCloudFrontAliasTrigger"
-  source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
-}
-
 
 module "lambda_at_edge_01" {
   depends_on = [
@@ -347,14 +325,4 @@ module "lambda_at_edge_01" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
-
- # allowed_triggers = {
- #   "cf_defaultCache" = {
- #     cache_behavior_path_pattern = "*"
- #     distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
- #     event-type                  = "origin-request"
- #     principal                   = "edgelambda.amazonaws.com"
- #     region                      = "us-east-1"
- #   }
- # }
 }
