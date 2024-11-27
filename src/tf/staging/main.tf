@@ -152,7 +152,6 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
 
 module "cf_distribution_01" {
   depends_on = [
-   module.lambda_at_edge_01,
    module.s3_bucket_01
   ]
 
@@ -266,13 +265,6 @@ module "cf_distribution_01" {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
     }
-    
-    lambda_function_association = {
-      origin-request = {
-        lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
-        include_body = false
-      }
-    }
   }
 
   viewer_certificate = {
@@ -300,7 +292,7 @@ resource "aws_lambda_permission" "current_version_triggers" {
   action        = "lambda:InvokeFunction"
   function_name = module.lambda_at_edge_01.lambda_function_name
   principal     = "edgelambda.amazonaws.com" 
-  statement_id  = "AllowExecutionFromCloudFront"
+  statement_id  = "AllowExecutionFromCloudFrontVersionTrigger"
   source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
 }
 
@@ -313,13 +305,15 @@ resource "aws_lambda_permission" "unqualified_alias_triggers" {
   action        = "lambda:InvokeFunction"
   function_name = module.lambda_at_edge_01.lambda_function_name
   principal     = "edgelambda.amazonaws.com"
-  statement_id  = "AllowExecutionFromCloudFront"
+  statement_id  = "AllowExecutionFromCloudFrontAliasTrigger"
   source_arn    = module.cf_distribution_01.cloudfront_distribution_arn
 }
 
 
 module "lambda_at_edge_01" {
   depends_on = [
+    data.archive_file.archive_01,
+    module.cf_distribution_01,
     module.cw_logs_01
   ]
 
@@ -348,16 +342,13 @@ module "lambda_at_edge_01" {
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
 
- # allowed_triggers = {
- #   "cf_defaultCache" = {
- #     cache_behavior_path_pattern = "*"
- #     distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
- #     event-type                  = "origin-request"
- #     principal                   = "edgelambda.amazonaws.com"
- #     region                      = "us-east-1"
- #   }
-
- # }
-
-    
+ allowed_triggers = {
+   "cf_defaultCache" = {
+     cache_behavior_path_pattern = "*"
+     distribution_id             = module.cf_distribution_01.cloudfront_distribution_id
+     event-type                  = "origin-request"
+     principal                   = "edgelambda.amazonaws.com"
+     region                      = "us-east-1"
+   }
+ }
 }
