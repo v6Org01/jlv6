@@ -1,1 +1,139 @@
 // Add your own custom styles here
+
+/* Hyperlink */
+a.a1 {
+  color: #21918e;  /* Set the color for links */
+  text-decoration: underline;  /* Underline the links */
+}
+
+a.a1:hover {
+  color: #197470;  /* Set hover color */
+  text-decoration: none;  /* Optionally remove underline on hover */
+}
+
+p.subtitle {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #21918e; /* Accent underline with the warm color */
+  padding-bottom: 10px;
+}
+
+span.title-explanation {
+  font-size: 1rem;
+  font-style: italic;
+}
+
+span.title-host {
+  color: #21918e;
+  font-size: 2.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+span.title-hub {
+  color: #f69a10;
+  font-size: 2.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Bullet point list */
+ul.bullet-list {
+  padding-left: 0;
+  list-style: none;
+  margin-left: 0;
+  text-align: left;
+}
+
+/* Parent item style */
+ul.bullet-list > li.parent-item {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem; /* Equivalent to pl-6 for indentation */
+  text-indent: -1.5rem;
+}
+
+/* Adding margin to the first child item */
+ul.bullet-list > li.parent-item > ul.child-list > li:first-child {
+  margin-top: 1rem; /* Add space between parent and first child */
+}
+
+/* Child list styles */
+ul.bullet-list .child-list {
+  padding-left: 2rem; /* Indentation for child items */
+  list-style-type: none;
+}
+
+ul.bullet-list .child-list .child-item {
+  margin-bottom: 0.25rem; /* Smaller space between each child item */
+  text-indent: -1.5rem;
+}
+
+/* Bullet Icon Styles for Parent Items */
+ul.bullet-list li .bullet-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 2px solid #ccc;
+  margin-right: 8px;
+  line-height: 1; /* Ensures the icon is centered with the text */
+  vertical-align: middle; /* Adjusts alignment, but now using line-height for better control */
+}
+
+/* Parent bullet color for dark mode */
+@media (prefers-color-scheme: dark) {
+  ul.bullet-list li .bullet-icon {
+    border: 2px solid #21918e;
+  }
+
+  /* Child bullet color for dark mode */
+  ul.bullet-list li .child-list .bullet-icon {
+    border: 2px solid #A0A9B1; 
+  }
+}
+
+/* Parent bullet color for light Mode
+@media (prefers-color-scheme: light) {
+  ul.bullet-list li .bullet-icon {
+    border: 2px solid #FF8A00;
+  }
+*/
+
+  /*
+  ul.bullet-list li .child-list .bullet-icon {
+    border: 2px solid #6B7B8C;
+  }
+}
+*/
+
+/* Adjusting icon size for parent and child items */
+ul.bullet-list li.parent-item .bullet-icon {
+  width: 10px; /* Larger size for parent items */
+  height: 10px;
+  margin-top: -2px;
+}
+
+ul.bullet-list li .child-list .bullet-icon {
+  width: 8px; /* Smaller size for child items */
+  height: 8px;
+  margin-top: -2px;
+}
+
+ul.bullet-list li img {
+  display: inline; /* Ensure images are inline */
+  vertical-align: middle; /* Align images with the text */
+}
+
+/* ul.bullet-list li span.text-aws {
+  background-color: #ea8e02;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+}
+*/

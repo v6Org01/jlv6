@@ -60,16 +60,6 @@ enable = false
 ## twitter = "zeon_studio"
 ## image = "images/og-image.png"
 
-
-# site verifications
-# verification module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/site-verifications
-[site_verification]
-## google = ""   # Your verification code
-## bing = ""     # Your verification code
-## baidu = ""    # Your verification code
-## facebook = "" # Your verification code
-## mastodon = "" # Your verification code
-
 # cookies
 # cookies module: https://github.com/gethugothemes/hugo-modules/tree/master/components/cookie-consent
 [cookies]
