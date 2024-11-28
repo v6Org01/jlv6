@@ -17,9 +17,33 @@
             <h2 class="mt-8 mb-2 text-h4 lg:text-h4">
               {{ .mvp_title | markdownify }}
             </h2>
-            <p class="mb-8 text-lg">
+            <p class="mb-1 text-lg">
               {{ .mvp_text | markdownify }}
             </p>
+             <!-- Start of the GitHub Status Table Section -->
+             <div class="status-table mb-8">
+              <table class="table-auto w-full text-center">
+                <thead>
+                  <tr>
+                    <th class="px-4 py-2"></th>
+                    <th class="px-4 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <!-- Loop over the github_status array to populate the table -->
+                    {{ range .github_status }}
+                    <td class="px-4 py-2">
+                      <a href="{{ .url }}" target="_blank">
+                        <img src="{{ .badge_url }}" alt="{{ .label }}">
+                      </a>
+                    </td>
+                    {{ end }}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- End of the GitHub Status Table Section -->
             <ul class="bullet-list mb-8">
             <!--  <li id="location-info"></li> Placeholder for dynamic content -->
               {{ range .bulletpoints }}

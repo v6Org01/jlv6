@@ -25,10 +25,13 @@ introduction:
         - "<u>Development branch</u>: Hugo theme files and script to push /public to main."
     - point: Not SEO-optimized, no advertisements, no third-party cookies, no user profiling, no data collection. The Private Policy can be found <a href="http://localhost:1313/privacy-policy" class="a1">here</a>.
     - point: A huge thank you! This website would not have been possible without the incredible contributions to the Hugo framework and the Hugoplate theme, developed by Zeon Studio.
-  button:
-    enable: false
-    label: "PLACEHOLDER"
-    link: "PLACEHOLDER"
+  github_status:
+    - label: "wf_ci-cd-pipeline"
+      url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
+      badge_url: "https://img.shields.io/github/workflow/status/v6Org01/jlv6/ci-cd-pipeline?label=workflow&logo=github"
+    - label: "git-tag"
+      url: ""
+      badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
 
 # Sections
 sections:
