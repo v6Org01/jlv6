@@ -1,4 +1,4 @@
-name: deploy_shared_to_aws
+name: deploy-shared-to-aws
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: deploy_staging_to_aws
+name: deploy-staging-to-aws
 
 on:
   workflow_call:

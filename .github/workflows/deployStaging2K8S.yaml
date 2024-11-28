@@ -1,4 +1,4 @@
-name: deploy_staging_to_k8s
+name: deploy-staging-to-k8s
 
 on:
   workflow_call:

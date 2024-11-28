@@ -1,4 +1,4 @@
-name: deploy_production_to_k8s
+name: deploy-production-to-k8s
 
 on:
   workflow_call:

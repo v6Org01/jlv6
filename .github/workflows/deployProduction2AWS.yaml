@@ -1,4 +1,4 @@
-name: deploy_production_to_aws
+name: deploy-production-to-aws
 
 on:
   workflow_call:
