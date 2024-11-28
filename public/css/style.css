@@ -2037,14 +2037,20 @@ input#nav-toggle:checked ~ #nav-menu {
 .pr-5 {
   padding-right: 1.25rem;
 }
-.pt-10 {
-  padding-top: 2.5rem;
+.pt-1 {
+  padding-top: 0.25rem;
 }
-.pt-14 {
-  padding-top: 3.5rem;
+.pt-3 {
+  padding-top: 0.75rem;
+}
+.pt-6 {
+  padding-top: 1.5rem;
 }
 .pt-7 {
   padding-top: 1.75rem;
+}
+.pt-8 {
+  padding-top: 2rem;
 }
 .text-center {
   text-align: center;
@@ -2054,9 +2060,6 @@ input#nav-toggle:checked ~ #nav-menu {
 }
 .text-\[8rem\] {
   font-size: 8rem;
-}
-.text-h2 {
-  font-size: 3.0517578125rem;
 }
 .text-h4 {
   font-size: 1.953125rem;
@@ -3212,11 +3215,6 @@ ul.bullet-list li img {
     width: 83.33333333333334%;
   }
 
-  .md\:col-11 {
-    flex: 0 0 auto;
-    width: 91.66666666666667%;
-  }
-
   .md\:order-1 {
     order: 1;
   }
@@ -3253,24 +3251,9 @@ ul.bullet-list li img {
     width: 66.66666666666667%;
   }
 
-  .lg\:col-9 {
-    flex: 0 0 auto;
-    width: 75%;
-  }
-
   .lg\:col-10 {
     flex: 0 0 auto;
     width: 83.33333333333334%;
-  }
-
-  .lg\:col-11 {
-    flex: 0 0 auto;
-    width: 91.66666666666667%;
-  }
-
-  .lg\:col-12 {
-    flex: 0 0 auto;
-    width: 100%;
   }
 
   .lg\:order-1 {
@@ -3441,10 +3424,6 @@ ul.bullet-list li img {
 
   .lg\:pb-0 {
     padding-bottom: 0px;
-  }
-
-  .lg\:text-h2 {
-    font-size: 3.0517578125rem;
   }
 
   .lg\:text-h4 {
