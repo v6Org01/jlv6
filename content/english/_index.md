@@ -11,7 +11,7 @@ introduction:
   image_dark: /images/arrow_down_02_dark_40x40.webp
   bulletpoints:
     - point: /index.html has been served directly from <img src="https://img.shields.io/badge/Kubernetes%20(onPremise)-326CE5?logo=kubernetes&logoColor=fff" alt="K8S Badge"> .
-    - point: <img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"> handles caching and delivery of all other content, with these specific details.. 
+    - point: <img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"> handles caching and delivery of all other content, with these specific details... 
       subpoints:
         - "Distribution pulls content from 2 Origins: An on-premise Kubernetes cluster  (primary) or a EU-hosted AWS S3 bucket (secondary)."
         - Function to return 403 Forbidden if user-agent = known AI crawler bot.
