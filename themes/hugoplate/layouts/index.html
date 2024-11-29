@@ -4,48 +4,24 @@
 
   <!-- Introduction -->
   {{ with .Params.introduction }}
-    <section class="section pt-6">
+    <section class="section pt-6 pb-2">
       <div class="container">
         <div class="row justify-center">
           <div class="lg:col-8 md:col-9 mb-8 text-center">
             <h1>
               <span class="title-host">Host</span><span class="title-hub">Hub</span>
             </h1>
-            <p class="subtitle">
+            <h2 class="mb-2 text-h6 lg:text-h6">
               {{ .subtitle | markdownify }}
-            </p>
-            <h2 class="mt-8 mb-2 text-h4 lg:text-h4">
+            </h2>
+            <p class="separator"></p>
+            <h2 class="mb-2 text-h4 lg:text-h4">
               {{ .mvp_title | markdownify }}
             </h2>
-            <p class="mb-1 text-lg">
+            <p class="mb-8 text-lg">
               {{ .mvp_text | markdownify }}
             </p>
-             <!-- Start of the GitHub Status Table Section -->
-             <div class="status-table mb-8">
-              <table class="table-auto w-full text-center">
-                <thead>
-                  <tr>
-                    <th class="px-4 py-2"></th>
-                    <th class="px-4 py-2"></th>
-                    <th class="px-4 py-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <!-- Loop over the github_status array to populate the table -->
-                    {{ range .github_status }}
-                    <td class="px-4 py-2">
-                      <a href="{{ .url }}" target="_blank">
-                        <img src="{{ .badge_url }}" alt="{{ .label }}">
-                      </a>
-                    </td>
-                    {{ end }}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <!-- End of the GitHub Status Table Section -->
-            <ul class="bullet-list mb-8">
+            <ul class="bullet-list mb-24">
             <!--  <li id="location-info"></li> Placeholder for dynamic content -->
               {{ range .bulletpoints }}
                 <li class="parent-item">
@@ -57,6 +33,26 @@
                           <span class="bullet-icon"></span> {{ . | markdownify }}
                         </li>
                       {{ end }}
+                    </ul>
+                  {{ end }}
+                  <!-- Add badges as single child item (optional) -->
+                  {{ if .badges }}
+                    <ul class="child-list">
+                      <li class="child-item badges-item">
+                        <div class="child-badge-row">
+                          {{ range .badges }}
+                            <span class="child-badge-item">
+                              {{ if .url }}
+                                <a href="{{ .url }}" target="_blank" rel="noopener">
+                                  <img src="{{ .badge_url }}" alt="{{ .label }}">
+                                </a>
+                              {{ else }}
+                                <img src="{{ .badge_url }}" alt="{{ .label }}">
+                              {{ end }}
+                            </span>
+                          {{ end }}
+                        </div>
+                      </li>
                     </ul>
                   {{ end }}
                 </li>
@@ -76,23 +72,29 @@
 
   <!-- Sections -->
   {{ range $i, $e:= .Params.sections }}
-    <section class="section-sm {{ if (modBool $i 2) }}bg-gradient{{ end }}">
+    <section class="section-sm">
       <div class="container">
-        <div class="row items-center justify-between">
+        <div class="row items-top justify-between">
           <div
             class="mb:md-0 {{ if not (modBool $i 2) }}
               md:order-2
-            {{ end }} md:col-5 mb-6">
+            {{ end }} md:col-5 mb-1">
             {{ partial "image" (dict "Src" .image_light "Class" "img-light" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
             {{ partial "image" (dict "Src" .image_dark "Class" "img-dark" "Alt" "image" "DisplayXL" "577x" "DisplayLG" "472x" "DisplayMD" "399x") }}
+            <span class="img-text-small">
+              {{ .image_text | markdownify }}
+            </span>
           </div>
           <div
             class="{{ if not (modBool $i 2) }}
               md:order-1
             {{ end }} md:col-7 lg:col-6">
-            <h2 class="mb-4">
+            <h2 class="text-h4 lg:text-h4" style="color: #21918e">
               {{ .title | markdownify }}
             </h2>
+            <p class="subtitle">
+              {{ .subtitle | markdownify }}
+            </p>
             <p class="mb-8 text-lg">
               {{ .content | markdownify }}
             </p>

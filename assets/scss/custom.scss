@@ -11,15 +11,25 @@ a.a1:hover {
   text-decoration: none;  /* Optionally remove underline on hover */
 }
 
+img {
+  pointer-events: none;
+}
+
+p.separator {
+  border-bottom: 2px solid #21918e; /* Accent underline with the warm color */
+  margin-bottom: 1.85rem;
+}
+
 p.subtitle {
-  color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-align: center;
+  color: #21918e;
+  font-size: 0.85rem;
   margin-bottom: 1rem;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #21918e; /* Accent underline with the warm color */
-  padding-bottom: 10px;
+}
+
+span.img-text-small {
+  color: #21918e;
+  font-size: 0.85rem;
+  font-style: italic;
 }
 
 span.title-explanation {
@@ -85,31 +95,15 @@ ul.bullet-list li .bullet-icon {
   vertical-align: middle; /* Adjusts alignment, but now using line-height for better control */
 }
 
-/* Parent bullet color for dark mode */
-@media (prefers-color-scheme: dark) {
-  ul.bullet-list li .bullet-icon {
-    border: 2px solid #21918e;
-  }
-
-  /* Child bullet color for dark mode */
-  ul.bullet-list li .child-list .bullet-icon {
-    border: 2px solid #A0A9B1; 
-  }
+/* Parent bullet color */
+ul.bullet-list li .bullet-icon {
+  border: 2px solid #21918e;
 }
 
-/* Parent bullet color for light Mode
-@media (prefers-color-scheme: light) {
-  ul.bullet-list li .bullet-icon {
-    border: 2px solid #FF8A00;
-  }
-*/
-
-  /*
-  ul.bullet-list li .child-list .bullet-icon {
-    border: 2px solid #6B7B8C;
-  }
+  /* Child bullet color */
+ul.bullet-list li .child-list .bullet-icon {
+  border: 2px solid #A0A9B1; 
 }
-*/
 
 /* Adjusting icon size for parent and child items */
 ul.bullet-list li.parent-item .bullet-icon {
@@ -137,3 +131,54 @@ ul.bullet-list li img {
   padding: 2px 8px;
 }
 */
+
+/* Badges */
+
+ul.bullet-list li .child-item.badges-item .bullet-icon {
+  display: none; /* Hides the bullet icon for the badges item */
+}
+
+ul.bullet-list .child-badge-row {
+  margin-left: 0; /* Remove the left margin */
+  margin-right: 0; /* Remove the right margin */
+  display: block; /* Ensures the badges row is block-level and centered */
+  text-align: center; /* Center the badges */
+  padding-left: 2rem; /* Indentation to match parent item */
+  width: 100%;
+}
+
+ul.bullet-list .child-badge-item {
+  display: inline-block;
+}
+
+/* For various screen sizes, change margin-right */
+@media (min-width: 540px) {  /* SM size */
+  ul.bullet-list .child-badge-item {
+    margin-right: 20px;
+  }
+}
+@media (min-width: 768px) {  /* LG size */
+  ul.bullet-list .child-badge-item {
+    margin-right: 30px;
+  }
+}
+@media (min-width: 1024px) {  /* LG size */
+  ul.bullet-list .child-badge-item {
+    margin-right: 60px;
+  }
+}
+@media (min-width: 1280px) {  /* XL size */
+  ul.bullet-list .child-badge-item {
+    margin-right: 100px;
+  }
+}
+@media (min-width: 1536px) {  /* 2XL size */
+  ul.bullet-list .child-badge-item {
+    margin-right: 130px;
+  }
+}
+
+ul.bullet-list .child-badge-item img {
+  width: auto;  /* Adjust the width to make the badges bigger */
+  height: auto; /* Keep aspect ratio */
+}

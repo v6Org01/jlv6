@@ -19,34 +19,61 @@ introduction:
         - Lambda@Edge Function to modify host header on origin-request to Origin = S3.
         - Custom headers for on-premise routing and showing /index.html location.
         - _Blog entries will be created shortly to describe ingress for this static site and its CI/CD pipeline._ 
-    - point: Website development and deployment are fully driven by Infrastructure as Code (IaC). Project code is stored in GitHub repository <a href="https://github.com/v6Org01/jlv6"><img src="https://img.shields.io/badge/v6Org01%2Fjlv6-%23000000.svg?logo=github&logoColor=white" alt="GitHub/jlv6 Badge"></a>.
+    - point: Website development and deployment are fully driven by Infrastructure as Code (IaC). Project code is stored in GitHub repository <a href="https://github.com/v6Org01/jlv6" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/v6Org01%2Fjlv6-%23000000.svg?logo=github&logoColor=white" alt="GitHub/jlv6 Badge"></a>.
       subpoints:
         - "<u>Main branch</u>: GitHub Action workflows, Terraform config files, Docker files,  ArgoCD application manifests and /public dir."
         - "<u>Development branch</u>: Hugo theme files and script to push /public to main."
-    - point: Not SEO-optimized, no advertisements, no third-party cookies, no user profiling, no data collection. The Private Policy can be found <a href="http://localhost:1313/privacy-policy" class="a1">here</a>.
+      badges: # Rendered after subpoints
+        - badge_url: "https://img.shields.io/github/actions/workflow/status/v6Org01/jlv6/ci-cd-pipeline.yaml?label=wf-ci-cd-pipeline&logo=github"
+          url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
+          label: "wf_ci-cd-pipeline"
+        - badge_url: "https://img.shields.io/github/last-commit/v6Org01/jlv6?branch=main&logo=github"
+          url: ""
+          label: "last-commit"
+        - badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
+          url: ""
+          label: "tag"
+    - point: Not SEO-optimized, no advertisements, no third-party cookies, no user profiling, no data collection. The Private Policy can be found <a href="http://localhost:1313/privacy-policy" class="a1" target="_blank" rel="noopener">here</a>.
     - point: A huge thank you! This website would not have been possible without the incredible contributions to the Hugo framework and the Hugoplate theme, developed by Zeon Studio.
-  github_status:
-    - label: "wf_ci-cd-pipeline"
-      url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
-      badge_url: "https://img.shields.io/github/actions/workflow/status/v6Org01/jlv6/ci-cd-pipeline.yaml?label=wf-ci-cd-pipeline&logo=github"
-    - label: "git-tag"
-      url: ""
-      badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
+#   github_status:
+#     - label: "wf_ci-cd-pipeline"
+#       url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
+#       badge_url: "https://img.shields.io/github/actions/workflow/status/v6Org01/jlv6/ci-cd-pipeline.yaml?label=wf-ci-cd-pipeline&logo=github"
+#     - label: "last-commit"
+#       url: """"
+#       badge_url: "https://img.shields.io/github/last-commit/v6Org01/jlv6?branch=main&logo=github"
+#     - label: "tag"
+#       url: ""
+#       badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
 
 # Sections
 sections:
-  - title: "Dashboard" 
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-
+  - title: "Dashboard"
+    subtitle: "Req. multi-factor authentication | only available on-premise"
+    image_light: "/images/stock_homepage.png"
+    image_dark: "/images/stock_homepage.png"
+    image_text: 'img src: <a href="https://gethomepage.dev" class="a1" target="_blank" rel="noopener">homepage.dev</a>'
+    content: The excellent Homepage.dev dashboard provides quick access to all (self-)hosted applications, presenting their statuses in a single view. Information widgets for Kubernetes, Longhorn & the Unifi Controller provide a quick glance at some of the infrastructure. Additionally, it functions as a simple and efficient bookmark manager.
+    button:
+      enable: true
+      label: "Dashboard"
+      link: "http://localhost:1313/dashboard"
   - title: "Tech Blog"
-    image_light: "/images/diag_network.png"
-    image_dark: "/images/diag_network_darkmode.png"
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    subtitle:  "Documenting Tech, One Post at a Time"
+    image_light: "/images/diag_network_01_light.png"
+    image_dark: "/images/diag_network_01_dark.png"
+    content: "The technology blog serves as a comprehensive resource for in-depth articles, complete with diagrams to enhance understanding. Each post is categorized and tagged, making it easy to navigate and find relevant content."
     button:
       enable: true
       label: "Start Reading"
-      link: "http://localhost:1313/techblog"
-
-  - title: "Tech Wiki"
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+      link: "http://localhost:1313/blog"
+  - title: "Wiki"
+    subtitle: "Req. multi-factor authentication | only available on-premise"
+    image_light: "/images/stock_dokuwiki.png"
+    image_dark: "/images/stock_dokuwiki.png"
+    content: "This private wiki, powered by DokuWiki and its Bootstrap3 template, offers a simple no-database solution for organizing personal notes, project documentation and sensitive data."
+    button:
+      enable: true
+      label: "Enter Wiki"
+      link: "http://localhost:1313/wiki"
 ---

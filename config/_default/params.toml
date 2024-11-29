@@ -1,7 +1,7 @@
 #################### default parameters ############################
 favicon = "images/favicon.png"
-logo = "images/logo.png"
-logo_darkmode = "images/logo_darkmode.png"
+logo = "images/logo_jlv6_light.png"
+logo_darkmode = "images/logo_jlv6_dark.png"
 logo_width = "66px"
 logo_height = "49px"
 # logo text will only show when logo is missing.
