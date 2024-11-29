@@ -10,15 +10,15 @@ introduction:
   image_light: /images/arrow_down_02_light_40x40.webp
   image_dark: /images/arrow_down_02_dark_40x40.webp
   bulletpoints:
-    - point: /index.html has been served directly from <img src="https://img.shields.io/badge/AWS%20S3-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Badge"> .
+    - point: /index.html has been served directly from <img src="https://img.shields.io/badge/Kubernetes%20(onPremise)-326CE5?logo=kubernetes&logoColor=fff" alt="K8S Badge"> .
     - point: <img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"> handles caching and delivery of all other content, with these specific details.. 
       subpoints:
-        - "Distribution pulls content from 2 Origins: An on-premise Kubernetes cluster <br> (primary) or a EU-hosted AWS S3 bucket (secondary)."
+        - "Distribution pulls content from 2 Origins: An on-premise Kubernetes cluster  (primary) or a EU-hosted AWS S3 bucket (secondary)."
         - Function to return 403 Forbidden if user-agent = known AI crawler bot.
         - Function to rewrite URI when Orgin = S3; needed for in-bucket versioning.
         - Lambda@Edge Function to modify host header on origin-request to Origin = S3.
         - Custom headers for on-premise routing and showing /index.html location.
-        - _Blog entries will be created shortly to describe ingress for this static site and its <br> CI/CD pipeline._ 
+        - _Blog entries will be created shortly to describe ingress for this static site and its CI/CD pipeline._ 
     - point: Website development and deployment are fully driven by Infrastructure as Code (IaC). Project code is stored in GitHub repository <a href="https://github.com/v6Org01/jlv6"><img src="https://img.shields.io/badge/v6Org01%2Fjlv6-%23000000.svg?logo=github&logoColor=white" alt="GitHub/jlv6 Badge"></a>.
       subpoints:
         - "<u>Main branch</u>: GitHub Action workflows, Terraform config files, Docker files,  ArgoCD application manifests and /public dir."
@@ -28,7 +28,7 @@ introduction:
   github_status:
     - label: "wf_ci-cd-pipeline"
       url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
-      badge_url: "https://img.shields.io/github/workflow/status/v6Org01/jlv6/ci-cd-pipeline?label=workflow&logo=github"
+      badge_url: "https://img.shields.io/github/actions/workflow/status/v6Org01/jlv6/ci-cd-pipeline.yaml?label=wf-ci-cd-pipeline&logo=github"
     - label: "git-tag"
       url: ""
       badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
