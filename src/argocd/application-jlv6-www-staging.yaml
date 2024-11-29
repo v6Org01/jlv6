@@ -23,7 +23,7 @@ spec:
       # Extra parameters to set (same as setting through values.yaml, but these take precedence)
       parameters:
       - name: "image.tag"
-        value: "v0.1.2"
+        value: "v0.1.3"
 
       # Helm values files for overriding values in the helm chart
       # The path is relative to the spec.source.path directory defined above
