@@ -6,7 +6,7 @@ DEVELOPMENT_BRANCH="development"
 DIR_TO_MERGE="public"
 
 # Prompt for commit message
-echo "help: --skip-build-push-image|-sb, --skip-deploy-aws|-sa, --skip-deploy-k8s|--sk"
+echo "help: --skip-build|-sb, --skip-deploy-aws|-sa, --skip-deploy-k8s|--sk"
 read -p "Enter commit message: " commit_msg
 
 # Kill the npm process for "npm run dev"
@@ -39,6 +39,10 @@ sleep 5
 # Switch to the production branch (main)
 echo "Switching to the production branch..."
 git checkout $PRODUCTION_BRANCH || { echo "Failed to switch to the production branch"; exit 1; }
+
+# Pull the latest changes from the remote production branch (main)
+echo "Pulling the latest changes from the remote production branch..."
+git pull origin $PRODUCTION_BRANCH --rebase || { echo "Failed to rebase the production branch with remote changes. Exiting."; exit 1; }
 
 # Enable sparse-checkout and set it to only include the public directory
 echo "Enabling sparse-checkout for the public directory..."
