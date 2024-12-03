@@ -120,7 +120,9 @@ jobs:
       K8S_SECRET_CERT: ${{ vars.K8S_SECRET_CERT }}
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
       VERSION: ${{ needs.init.outputs.VERSION }}
-    secrets:
+    secrets: 
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       KUBECONFIG_PLUTO_CERT: ${{ secrets.KUBECONFIG_PLUTO_CERT }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
@@ -156,16 +158,29 @@ jobs:
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-  deploy-to-k8s-staging:
+  deploy-to-k8s-shared:
     if: >
       !failure() &&
       !cancelled() &&
       needs.init.outputs.BUILD_IMAGE == 'true' &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: build-push-image
-    uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
+    uses: v6Org01/jlv6/.github/workflows/deployShared2K8S.yaml@main
     with:
       VERSION: ${{ needs.build-push-image.outputs.VERSION }}
+    secrets:
+      KUBECONFIG_PLUTO_CORE: ${{ secrets.KUBECONFIG_PLUTO_CORE }}
+
+  deploy-to-k8s-staging:
+    if: >
+      !failure() &&
+      !cancelled() &&
+      needs.init.outputs.BUILD_IMAGE == 'true' &&
+      needs.init.outputs.DEPLOY_K8S == 'true'
+    needs: deploy-to-k8s-shared
+    uses: v6Org01/jlv6/.github/workflows/deployStaging2K8S.yaml@main
+    with:
+      VERSION: ${{ needs.deploy-to-k8s-shared.outputs.VERSION }}
     secrets:
       DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
       KUBECONFIG_PLUTO_STAGING: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}

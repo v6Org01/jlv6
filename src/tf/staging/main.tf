@@ -2,7 +2,7 @@
 
 resource "aws_iam_role" "iam_role_01" {
   provider = aws.us_east_1
-  name = "lambdaExecRole-httpModifyHeadeHost-jlv6-staging"
+  name = "lambdaExecRole-httpModifyReqForS3Origin-jlv6-staging"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -30,8 +30,8 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyHeaderHost-jlv6-staging:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-staging:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-staging:*.*",
     ]
   }
 }
@@ -53,14 +53,14 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
 
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudwatchLogs-httpModifyHeaderHost-jlv6-staging"
+  name        = "lambda-cloudwatchLogs-httpModifyReqForS3Origin-jlv6-staging"
   description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
   policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
 }
 
 resource "aws_iam_policy" "iam_policy_02" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudfront-httpModifyHeaderHost-jlv6-staging"
+  name        = "lambda-cloudfront-httpModifyReqForS3Origin-jlv6-staging"
   description = "Policy to manage CloudFront distribution for Lambda@Edge"
   policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
 }
@@ -84,7 +84,7 @@ module "cw_logs_01" {
   providers = {
     aws = aws.us_east_1
   }
-  logs_path = "/aws/lambda/httpModifyHeaderHost-jlv6-staging"
+  logs_path = "/aws/lambda/httpModifyReqForS3Origin-jlv6-staging"
   log_group_retention_in_days = 5
 }
 
@@ -291,8 +291,8 @@ module "cf_distribution_01" {
 
 data "archive_file" "archive_01" {
   type        = "zip"
-  source_file = "${path.module}/lambda-httpModifyHeaderHost.mjs"
-  output_path = "${path.module}/lambda-httpModifyHeaderHost.mjs.zip"
+  source_file = "${path.module}/lambda-httpModifyReqForS3Origin.mjs"
+  output_path = "${path.module}/lambda-httpModifyReqForS3Origin.mjs.zip"
 }
 
 module "lambda_at_edge_01" {
@@ -313,9 +313,9 @@ module "lambda_at_edge_01" {
   local_existing_package = data.archive_file.archive_01.output_path
   
   architectures = ["x86_64"]
-  function_name = "httpModifyHeaderHost-jlv6-staging"
+  function_name = "httpModifyReqForS3Origin-jlv6-staging"
   description   = "Sets host header value to Staging S3_bucket when CloudFront origin request to S3.origin"
-  handler       = "lambda-httpModifyHeaderHost.handler"
+  handler       = "lambda-httpModifyReqForS3Origin.handler"
   runtime       = "nodejs20.x"
 
   create_role   = false

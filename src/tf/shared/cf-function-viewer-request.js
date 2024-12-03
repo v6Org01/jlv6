@@ -32,11 +32,4 @@ async function handler(event) {
             };
         }
     }
-    // URL Rewrite to append index.html to failoverS3 origin
-    if (uri.endsWith('/')) {
-        request.uri += 'index.html';
-    } else if (!uri.includes('.')) {
-        request.uri += '/index.html';
-    } 
-    return request;
 }
