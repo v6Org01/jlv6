@@ -35,16 +35,6 @@ introduction:
           label: "tag"
     - point: Not SEO-optimized, no advertisements, no third-party cookies, no user profiling, no data collection. The Private Policy can be found <a href="http://localhost:1313/privacy-policy" class="a1" target="_blank" rel="noopener">here</a>.
     - point: A huge thank you! This website would not have been possible without the incredible contributions to the Hugo framework and the Hugoplate theme, developed by Zeon Studio.
-#   github_status:
-#     - label: "wf_ci-cd-pipeline"
-#       url: "https://github.com/v6Org01/jlv6/actions/workflows/ci-cd-pipeline.yaml"
-#       badge_url: "https://img.shields.io/github/actions/workflow/status/v6Org01/jlv6/ci-cd-pipeline.yaml?label=wf-ci-cd-pipeline&logo=github"
-#     - label: "last-commit"
-#       url: """"
-#       badge_url: "https://img.shields.io/github/last-commit/v6Org01/jlv6?branch=main&logo=github"
-#     - label: "tag"
-#       url: ""
-#       badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
 
 # Sections
 sections:
@@ -53,11 +43,11 @@ sections:
     image_light: "/images/stock_homepage.png"
     image_dark: "/images/stock_homepage.png"
     image_text: 'img src: <a href="https://gethomepage.dev" class="a1" target="_blank" rel="noopener">homepage.dev</a>'
-    content: The excellent Homepage.dev dashboard provides quick access to all (self-)hosted applications, presenting their statuses in a single view. Information widgets for Kubernetes, Longhorn & the Unifi Controller provide a quick glance at some of the infrastructure. Additionally, it functions as a simple and efficient bookmark manager.
+    content: The excellent Homepage.dev dashboard provides quick access to all hosted applications, presenting their statuses in a single view. Information widgets for Kubernetes, Longhorn & the Unifi Controller provide a quick glance at some of the infrastructure. Additionally, it functions as a simple and efficient bookmark manager.
     button:
       enable: true
       label: "Dashboard"
-      link: "http://localhost:1313/dashboard"
+      link: "https://dashboard-www.jlv6.com"
   - title: "Tech Blog"
     subtitle:  "Documenting Tech, One Post at a Time"
     image_light: "/images/diag_network_01_light.png"
@@ -75,5 +65,5 @@ sections:
     button:
       enable: true
       label: "Enter Wiki"
-      link: "http://localhost:1313/wiki"
+      link: "https://wiki-www.jlv6.com"
 ---
