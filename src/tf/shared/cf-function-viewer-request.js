@@ -32,4 +32,5 @@ async function handler(event) {
             };
         }
     }
+    return request;
 }
