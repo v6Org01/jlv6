@@ -63,14 +63,6 @@ module "cf_distribution_01" {
     }
   }
 
-  origin_group = {
-    origGroup01 = {
-      failover_status_codes      = [404, 500, 502, 503, 504]
-      primary_member_origin_id   = "primaryK8S"
-      secondary_member_origin_id = null
-    }
-  }
-  
   default_cache_behavior = {
     target_origin_id       = "origGroup01"
     viewer_protocol_policy = "https-only"
@@ -143,14 +135,6 @@ module "cf_distribution_02" {
     }
   }
 
-  origin_group = {
-    origGroup01 = {
-      failover_status_codes      = [404, 500, 502, 503, 504]
-      primary_member_origin_id   = "primaryK8S"
-      secondary_member_origin_id = null
-    }
-  }
-  
   default_cache_behavior = {
     target_origin_id       = "origGroup01"
     viewer_protocol_policy = "https-only"
