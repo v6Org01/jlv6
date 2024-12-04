@@ -21,7 +21,7 @@ jobs:
     runs-on: gha-runner-scale-set-arm64
     environment: shared
     steps:
-      - name: Update image tag and deploy app with ArgoCD
+      - name: Deploy app with ArgoCD
         uses: v6Org01/.github/actions/deploy-argoApp@main
         with:
           ARGOCD_APPLICATION_FILE: ${{ vars.ARGOCD_APPLICATION_FILE_DASHBOARD }}
