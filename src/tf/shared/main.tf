@@ -64,7 +64,7 @@ module "cf_distribution_01" {
   }
 
   default_cache_behavior = {
-    target_origin_id       = "origGroup01"
+    target_origin_id       = "primaryK8S"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
@@ -136,7 +136,7 @@ module "cf_distribution_02" {
   }
 
   default_cache_behavior = {
-    target_origin_id       = "origGroup01"
+    target_origin_id       = "primaryK8S"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
