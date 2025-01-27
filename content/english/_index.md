@@ -5,7 +5,7 @@ introduction:
   titleP2: Hub
   subtitle: Your hub for services hosted @jlv6.com
   mvp_title: "🚧 This is an MVP 🚧"
-  mvp_text: <span class="title-explanation">Welcome! This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released weekly to fix and improve things.</span>
+  mvp_text: <span class="title-explanation">Welcome! This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released regularly to fix and improve things.</span>
   arrow_text: Features
   image_light: /images/arrow_down_02_light_40x40.webp
   image_dark: /images/arrow_down_02_dark_40x40.webp
@@ -33,8 +33,6 @@ introduction:
         - badge_url: "https://img.shields.io/github/v/tag/v6Org01/jlv6?label=version&color=4c1&logo=github"
           url: ""
           label: "tag"
-    - point: Not SEO-optimized, no advertisements, no third-party cookies, no user profiling, no data collection. The Private Policy can be found <a href="http://localhost:1313/privacy-policy" class="a1" target="_blank" rel="noopener">here</a>.
-    - point: A huge thank you! This website would not have been possible without the incredible contributions to the Hugo framework and the Hugoplate theme, developed by Zeon Studio.
 
 # Sections
 sections:
