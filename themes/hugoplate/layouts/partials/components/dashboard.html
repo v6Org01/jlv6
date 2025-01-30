@@ -1,0 +1,12 @@
+<div class="bg-body dark:bg-darkmode-body">
+  {{ $image:= .Params.image }}
+  {{ if $image }}
+    {{ partial "image" (dict "Src" $image "Context" .Page "Alt" .Title "Class" "mb-6 w-full rounded") }}
+  {{ end }}
+  <h4 class="mb-3">
+    <a href="{{ .Params.grafana_dashboard_url }}" target="_blank" rel="noopener noreferrer">
+      {{ .Title }}
+    </a>
+  </h4>
+  <p class="mb-6">{{ .Content }}</p>
+</div>

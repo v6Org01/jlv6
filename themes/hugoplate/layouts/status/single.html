@@ -1,0 +1,9 @@
+{{ if .Params.grafana_dashboard_url }}
+  <script>
+    window.location.href = "{{ .Params.grafana_dashboard_url }}";
+  </script>
+  <p>Redirecting to external dashboard...</p>
+{{ else }}
+  <h1>{{ .Title }}</h1>
+  <p>No external dashboard URL defined.</p>
+{{ end }}

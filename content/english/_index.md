@@ -4,7 +4,6 @@ introduction:
   titleP1: Host
   titleP2: Hub
   subtitle: Your hub for services hosted @jlv6.com
-  mvp_title: "🚧 This is an MVP 🚧"
   mvp_text: <span class="title-explanation">Welcome! This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released regularly to fix and improve things.</span>
   arrow_text: Features
   image_light: /images/arrow_down_02_light_40x40.webp
@@ -41,15 +40,16 @@ sections:
     image_light: "/images/stock_homepage.png"
     image_dark: "/images/stock_homepage.png"
     image_text: 'img src: <a href="https://gethomepage.dev" class="a1" target="_blank" rel="noopener">homepage.dev</a>'
-    content: The excellent Homepage.dev dashboard provides quick access to all hosted applications, presenting their statuses in a single view. Information widgets for Kubernetes, Longhorn & the Unifi Controller provide a quick glance at some of the infrastructure. Additionally, it functions as a simple and efficient bookmark manager.
+    content: The excellent Homepage.dev dashboard provides quick access to all hosted applications and functions as a simple and efficient bookmark manager. Interested in a personal dashboard? Contact admin@jlv6.com.
     button:
       enable: true
       label: "Dashboard"
       link: "https://dashboard-www.jlv6.com"
-  - title: "Tech Blog"
+  - title: "Blog"
     subtitle:  "Documenting Tech, One Post at a Time"
     image_light: "/images/diag_network_01_light.png"
     image_dark: "/images/diag_network_01_dark.png"
+    image_text: 'diag: network infrastructure'
     content: "The technology blog serves as a comprehensive resource for in-depth articles, complete with diagrams to enhance understanding. Each post is categorized and tagged, making it easy to navigate and find relevant content."
     button:
       enable: true
@@ -59,9 +59,20 @@ sections:
     subtitle: "Req. multi-factor authentication | only available on-premise"
     image_light: "/images/stock_dokuwiki.png"
     image_dark: "/images/stock_dokuwiki.png"
+    image_text: 'img src: <a href="https://www.dokuwiki.org/dokuwiki" class="a1" target="_blank" rel="noopener">dokuwiki.org</a>'
     content: "This private wiki, powered by DokuWiki and its Bootstrap3 template, offers a simple no-database solution for organizing personal notes, project documentation and sensitive data."
     button:
       enable: true
       label: "Enter Wiki"
       link: "https://wiki-www.jlv6.com"
+  - title: "Status Page"
+    subtitle: "Observability at a Glance"
+    image_light: "/images/stock_grafana.png"
+    image_dark: "/images/stock_grafana.png"
+    image_text: 'img src: <a href="https://grafana.com/products/cloud" class="a1" target="_blank" rel="noopener">grafana.com</a>'
+    content: "The status page provides real-time insights into the health and performance of this website, infrastructure and hosted applications. Powered by Grafana Cloud’s free tier, it features multiple dashboards, providing pre-configured visualizations for system metrics, application performance, and network health—ensuring transparency and reliability."
+    button:
+      enable: true
+      label: "Status Page"
+      link: "http://localhost:1313/status"
 ---
