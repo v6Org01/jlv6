@@ -17,6 +17,7 @@ provider "aws" {
       application = "jlv6.com"
       environment = "production"
       managed-by  = "gha"
+      name        = "jlv6-prod"
     }
   }
 }
@@ -29,6 +30,7 @@ provider "aws" {
       application = "jlv6.com"
       environment = "production"
       managed-by  = "gha"
+      name        = "jlv6-prod"
     }
   }
 }

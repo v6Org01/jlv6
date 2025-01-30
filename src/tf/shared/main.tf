@@ -28,6 +28,10 @@ module "cf_distribution_01" {
     aws = aws.us_east_1
   }
 
+  tags = {
+    name = "jlv6-prod-dash"
+  }
+
   aliases = ["${var.ADN-DASHBOARD}"]
 
   comment             = "Shared distribution for ${var.WWW_URI}'s dashboard"
@@ -98,6 +102,10 @@ module "cf_distribution_02" {
   source = "terraform-aws-modules/cloudfront/aws"
   providers = {
     aws = aws.us_east_1
+  }
+
+  tags = {
+    name = "jlv6-prod-wiki"
   }
 
   aliases = ["${var.ADN-WIKI}"]
