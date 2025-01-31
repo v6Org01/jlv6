@@ -29,7 +29,7 @@ module "cf_distribution_01" {
   }
 
   tags = {
-    name = "jlv6-prod-dash"
+    custom-name = "jlv6-prod-dash"
   }
 
   aliases = ["${var.ADN-DASHBOARD}"]
@@ -105,7 +105,7 @@ module "cf_distribution_02" {
   }
 
   tags = {
-    name = "jlv6-prod-wiki"
+    custom-name = "jlv6-prod-wiki"
   }
 
   aliases = ["${var.ADN-WIKI}"]

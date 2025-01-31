@@ -30,7 +30,7 @@ provider "aws" {
       application = "jlv6.com"
       environment = "production"
       managed-by  = "gha"
-      name        = "jlv6-prod"
+      custom-name = "jlv6-prod"
     }
   }
 }
