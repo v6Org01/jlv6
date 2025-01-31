@@ -30,7 +30,7 @@ provider "aws" {
       application = "jlv6.com"
       environment = "staging"
       managed-by  = "gha"
-      name        = "jlv6-staging"
+      custom-name = "jlv6-staging"
     }
   }
 }
