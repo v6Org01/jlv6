@@ -6,7 +6,7 @@ DEVELOPMENT_BRANCH="development"
 DIR_TO_MERGE="public"
 
 # Prompt for commit message
-echo "help: --skip-build|-sb, --skip-deploy-aws|-sa, --skip-deploy-k8s|--sk"
+echo "help: --skip-build|-sb, --skip-deploy-aws|-sa, --skip-deploy-k8s|-sk"
 read -p "Enter commit message: " commit_msg
 
 # Kill the npm process for "npm run dev"
