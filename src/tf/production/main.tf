@@ -588,7 +588,7 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
     access_key         = "${var.OPENOBSERVE_KINESIS_FIREHOSE_ACCESS_KEY}"
     buffering_size     = 5
     buffering_interval = 60
-    role_arn           = aws_iam_role.firehose_role.arn
+    role_arn           = aws_iam_role.iam_role_03.arn
     s3_backup_mode     = "FailedDataOnly"
 
     s3_configuration {
