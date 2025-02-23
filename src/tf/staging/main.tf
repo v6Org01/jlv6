@@ -199,10 +199,6 @@ module "cf_distribution_01" {
         {
           name  = "x-deployment-location"
           value = "k8s"
-        },
-        {
-          name  = "x-deployment-environment"
-          value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
         }
       ]
     }

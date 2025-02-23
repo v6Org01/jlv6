@@ -58,12 +58,6 @@ module "cf_distribution_01" {
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      custom_header = [
-        {
-          name  = "x-deployment-environment"
-          value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
-        }
-      ]
     }
   }
 
@@ -134,12 +128,6 @@ module "cf_distribution_02" {
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      custom_header = [
-        {
-          name  = "x-deployment-environment"
-          value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
-        }
-      ]
     }
   }
 

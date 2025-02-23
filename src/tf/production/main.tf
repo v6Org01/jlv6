@@ -22,6 +22,48 @@ resource "aws_iam_role" "iam_role_01" {
 EOF
 }
 
+resource "aws_iam_role" "iam_role_02" {
+  provider = aws.us_east_1
+  name = "cloudWatchRole-StreamMetrics"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "streams.metrics.cloudwatch.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "iam_role_03" {
+  provider = aws.us_east_1
+  name = "kinesisFirehoseRole"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "firehose.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
 data "aws_iam_policy_document" "iam_doc_policy_01" {
   provider = aws.us_east_1
   statement {
@@ -51,6 +93,38 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
   }
 }
 
+data "aws_iam_policy_document" "iam_doc_policy_03" {
+  depends_on = [
+     aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
+  ]
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "firehose:PutRecord",
+      "firehose:PutRecordBatch"
+    ]
+    resources = [aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01.arn]
+  }
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_04" {
+  depends_on = [
+    module.s3_bucket_03 
+  ]
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetBucketLocation",
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:ListBucketMultipartUploads",
+      "s3:PutObject"
+    ]
+    resources = [module.s3_bucket_03.s3_bucket_arn]
+  }
+}
+
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
   name        = "lambda-cloudwatchLogs-httpModifyReqForS3Origin-jlv6-production"
@@ -65,6 +139,20 @@ resource "aws_iam_policy" "iam_policy_02" {
   policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
 }
 
+resource "aws_iam_policy" "iam_policy_03" {
+  provider    = aws.us_east_1
+  name        = "cloudwatch-metric-stream-01"
+  description = "Policy to allow CloudWatch to stream metrics to Kinesis Firehose"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_03.json
+}
+
+resource "aws_iam_policy" "iam_policy_04" {
+  provider    = aws.us_east_1
+  name        = "kinesis-firehose-stream-01"
+  description = "Policy to allow Kinesis Firehose to manage stream S3 bucket"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_04.json
+}
+
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_01.name
@@ -77,6 +165,18 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
   policy_arn = aws_iam_policy.iam_policy_02.arn
 }
 
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_03" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_02.name
+  policy_arn = aws_iam_policy.iam_policy_03.arn
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_04" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_03.name
+  policy_arn = aws_iam_policy.iam_policy_04.arn
+}
+
 ## CLOUDWATCH ##
 
 module "cw_logs_01" {
@@ -86,6 +186,29 @@ module "cw_logs_01" {
   }
   logs_path = "/aws/lambda/httpModifyReqForS3Origin-jlv6-production"
   log_group_retention_in_days = 14
+}
+
+resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
+  depends_on = [
+    aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
+  ]
+  provider = aws.us_east_1
+
+  name          = "cf-metrics-01"
+  firehose_arn  = aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01.arn
+  role_arn      = aws_iam_role.iam_role_02.arn
+  output_format = "opentelemetry1.0"
+
+  include_filter {
+    namespace = "AWS/CloudFront"
+
+    metric_names = [
+      "Requests",
+      "BytesDownloaded",
+      "4xxErrorRate",
+      "5xxErrorRate"
+    ]
+  }
 }
 
 ## S3 ##
@@ -206,6 +329,71 @@ resource "aws_s3_bucket_policy" "s3_policy_02" {
   policy = data.aws_iam_policy_document.s3_policy_doc_02.json
 }
 
+module "s3_bucket_03" {
+  source   = "terraform-aws-modules/s3-bucket/aws"
+  providers = {
+    aws = aws.us_east_1 
+  }
+  bucket   = var.AWS_S3_BUCKET_03
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  attach_policy = false
+
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm     = "AES256"
+      }
+    }
+  }
+}
+
+data "aws_iam_policy_document" "s3_policy_doc_03" {
+  depends_on = [
+    module.s3_bucket_03,
+    aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
+  ]
+  provider = aws.us_east_1 
+  statement {
+    sid = "AllowKinesisAccess"
+    actions = [
+      "s3:AbortMultipartUpload",
+      "s3:GetBucketLocation",
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:ListBucketMultipartUploads",
+      "s3:PutObject" 
+    ]
+    resources = ["${module.s3_bucket_03.s3_bucket_arn}/*"]
+    principals {
+      type        = "Service"
+      identifiers = ["firehose.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01.arn]
+    }
+    effect = "Allow"
+  }
+}
+
+resource "aws_s3_bucket_policy" "s3_policy_03" {
+  provider = aws.us_east_1
+  depends_on = [
+    data.aws_iam_policy_document.s3_policy_doc_03
+  ]
+  bucket = module.s3_bucket_03.s3_bucket_id
+  policy = data.aws_iam_policy_document.s3_policy_doc_03.json
+}
+
 ## CLOUDFRONT ##
 
 module "cf_distribution_01" {
@@ -262,10 +450,6 @@ module "cf_distribution_01" {
         {
           name  = "X-Deployment-Location"
           value = "k8s"
-        },
-        {
-          name  = "X-Deployment-Environment"
-          value = "${var.X-DEPLOYMENT-ENVIRONMENT}"
         }
       ]
     }
@@ -351,7 +535,7 @@ module "cf_distribution_01" {
   }
 }
 
-# LAMBDA ##
+## LAMBDA ##
 
 data "archive_file" "archive_01" {
   type        = "zip"
@@ -389,4 +573,34 @@ module "lambda_at_edge_01" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
+}
+
+## KINESIS ##
+
+resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
+  provider    = aws.us_east_1
+  name        = "cf-metrics-01"
+  destination = "http_endpoint"
+
+  http_endpoint_configuration {
+    url                = "${var.OPENOBSERVE_URI}/aws/default/cloudwatch_metrics/_kinesis_firehose"
+    name               = "OpenObserve instance on Pluto"
+    access_key         = "${var.OPENOBSERVE_KINESIS_FIREHOSE_ACCESS_KEY}"
+    buffering_size     = 5
+    buffering_interval = 60
+    role_arn           = aws_iam_role.firehose_role.arn
+    s3_backup_mode     = "FailedDataOnly"
+
+    s3_configuration {
+      role_arn           = aws_iam_role.iam_role_03.arn
+      bucket_arn         = module.s3_bucket_03.s3_bucket_arn
+      buffering_size     = 5
+      buffering_interval = 300
+      compression_format = "GZIP"
+    }
+
+    request_configuration {
+      content_encoding = "NONE"  # Can be NONE, GZIP, or other formats
+    }
+  }
 }

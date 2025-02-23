@@ -7,4 +7,3 @@ variable "WWW_URI" {}
 variable "TF_ORG" {}
 variable "TF_WORKSPACE_SHARED" {}
 variable "VERSION" {}
-variable "X-DEPLOYMENT-ENVIRONMENT" {}
