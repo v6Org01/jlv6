@@ -8,12 +8,9 @@
       <div class="container">
         <div class="row justify-center">
           <div class="lg:col-8 md:col-9 mb-8 text-center">
-            <h1>
-              <span class="title-host">Host</span><span class="title-hub">Hub</span>
-            </h1>
-            <h2 class="mb-2 text-h6 lg:text-h6">
-              {{ .subtitle | markdownify }}
-            </h2>
+            <h5 class="mb-2 text-left">
+              {{ .title | markdownify }}
+            </h5>
             <p class="separator"></p>
             <p class="mb-8 text-lg">
               {{ .mvp_text | markdownify }}
@@ -55,9 +52,9 @@
                 </li>
               {{ end }}
             </ul>
-            <h2 class="mb-4 text-h4 lg:text-h4">
+            <h5 class="mb-4">
               {{ .arrow_text | markdownify }}
-            </h2>
+            </h5>
             {{ partial "image" (dict "Src" .image_light "Class" "img-light" "Alt" "arrow_down_light" "DisplayXL" "40x" "DisplayLG" "36x" "DisplayMD" "32x") }}
             {{ partial "image" (dict "Src" .image_dark "Class" "img-dark" "Alt" "arrow_down_dark" "DisplayXL" "40x" "DisplayLG" "36x" "DisplayMD" "32x") }}
           </div>
@@ -86,9 +83,9 @@
             class="{{ if not (modBool $i 2) }}
               md:order-1
             {{ end }} md:col-7 lg:col-6">
-            <h2 class="text-h4 lg:text-h4" style="color: #21918e">
+            <h5 style="color: #21918e">
               {{ .title | markdownify }}
-            </h2>
+            </h5>
             <p class="subtitle">
               {{ .subtitle | markdownify }}
             </p>

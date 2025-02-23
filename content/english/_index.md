@@ -1,10 +1,8 @@
 ---
 # Introduction
 introduction:
-  titleP1: Host
-  titleP2: Hub
-  subtitle: Your hub for services hosted @jlv6.com
-  mvp_text: <span class="title-explanation">Welcome! This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released regularly to fix and improve things.</span>
+  title: Welcome!
+  mvp_text: <span class="title-explanation">This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released regularly to fix and improve things.</span>
   arrow_text: Features
   image_light: /images/arrow_down_02_light_40x40.webp
   image_dark: /images/arrow_down_02_dark_40x40.webp
