@@ -141,14 +141,14 @@ resource "aws_iam_policy" "iam_policy_02" {
 
 resource "aws_iam_policy" "iam_policy_03" {
   provider    = aws.us_east_1
-  name        = "cloudwatch-metric-stream-01"
+  name        = "cloudwatch-metric-stream-jlv6"
   description = "Policy to allow CloudWatch to stream metrics to Kinesis Firehose"
   policy      = data.aws_iam_policy_document.iam_doc_policy_03.json
 }
 
 resource "aws_iam_policy" "iam_policy_04" {
   provider    = aws.us_east_1
-  name        = "kinesis-firehose-stream-01"
+  name        = "kinesis-firehose-stream-jlv6"
   description = "Policy to allow Kinesis Firehose to manage stream S3 bucket"
   policy      = data.aws_iam_policy_document.iam_doc_policy_04.json
 }
@@ -194,7 +194,7 @@ resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
   ]
   provider = aws.us_east_1
 
-  name          = "cf-metrics-01"
+  name          = "cf-metrics-jlv6"
   firehose_arn  = aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01.arn
   role_arn      = aws_iam_role.iam_role_02.arn
   output_format = "opentelemetry1.0"
@@ -579,7 +579,7 @@ module "lambda_at_edge_01" {
 
 resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
   provider    = aws.us_east_1
-  name        = "cf-metrics-01"
+  name        = "cf-metrics-jlv6"
   destination = "http_endpoint"
 
   http_endpoint_configuration {
