@@ -2,7 +2,7 @@
 
 resource "aws_iam_role" "iam_role_01" {
   provider = aws.us_east_1
-  name = "lambdaExecRole-httpModifyReqForS3Origin-jlv6-production"
+  name = "lambdaExecRole-jlv6-production"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -24,7 +24,7 @@ EOF
 
 resource "aws_iam_role" "iam_role_02" {
   provider = aws.us_east_1
-  name = "cloudWatchRole-StreamMetrics"
+  name = "cloudFrontRole-jlv6-production"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -33,7 +33,7 @@ resource "aws_iam_role" "iam_role_02" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
-          "streams.metrics.cloudwatch.amazonaws.com"
+          "cloudfront.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"
@@ -45,7 +45,7 @@ EOF
 
 resource "aws_iam_role" "iam_role_03" {
   provider = aws.us_east_1
-  name = "kinesisFirehoseRole"
+  name = "kinesisFirehoseRole-jlv6-production"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -65,6 +65,9 @@ EOF
 }
 
 data "aws_iam_policy_document" "iam_doc_policy_01" {
+  depends_on = [
+
+   ]
   provider = aws.us_east_1
   statement {
     actions = [
@@ -74,6 +77,8 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/transformCloudfrontAccessLogs-jlv6-production:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/transformCloudfrontAccessLogs-jlv6-production:*.*"
     ]
   }
 }
@@ -95,19 +100,38 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
 
 data "aws_iam_policy_document" "iam_doc_policy_03" {
   depends_on = [
-     aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
+    aws_kinesis_stream.kinesis_stream_01
   ]
   provider = aws.us_east_1
   statement {
     actions = [
-      "firehose:PutRecord",
-      "firehose:PutRecordBatch"
+      "kinesis:DescribeStreamSummary",
+      "kinesis:DescribeStream",
+      "kinesis:PutRecord",
+      "kinesis:PutRecords"
     ]
-    resources = [aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01.arn]
+    resources = [aws_kinesis_stream.kinesis_stream_01.arn]
   }
 }
 
 data "aws_iam_policy_document" "iam_doc_policy_04" {
+  depends_on = [
+    aws_kinesis_stream.kinesis_stream_01
+  ]
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "kinesis:GetRecords",
+      "kinesis:GetShardIterator",
+      "kinesis:DescribeStreamSummary",
+      "kinesis:DescribeStream",
+      "kinesis:ListShards"
+    ]
+    resources = [aws_kinesis_stream.kinesis_stream_01.arn]
+  }
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_05" {
   depends_on = [
     module.s3_bucket_03 
   ]
@@ -128,6 +152,20 @@ data "aws_iam_policy_document" "iam_doc_policy_04" {
   }
 }
 
+data "aws_iam_policy_document" "iam_doc_policy_06" {
+  depends_on = [
+    module.lambda_01
+  ]
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "lambda:InvokeFunction",
+      "lambda:GetFunctionConfiguration"
+    ]
+    resources = [module.lambda_01.lambda_function_qualified_arn]
+  }
+}
+
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
   name        = "lambda-cloudwatchLogs-httpModifyReqForS3Origin-jlv6-production"
@@ -144,16 +182,30 @@ resource "aws_iam_policy" "iam_policy_02" {
 
 resource "aws_iam_policy" "iam_policy_03" {
   provider    = aws.us_east_1
-  name        = "cloudwatch-metric-stream-jlv6"
-  description = "Policy to allow CloudWatch to stream metrics to Kinesis Firehose"
+  name        = "cloudfront-kinesis-stream-jlv6"
+  description = "Policy to allow CloudFront to send logs to a Kinesis Stream"
   policy      = data.aws_iam_policy_document.iam_doc_policy_03.json
 }
 
 resource "aws_iam_policy" "iam_policy_04" {
   provider    = aws.us_east_1
   name        = "kinesis-firehose-stream-jlv6"
-  description = "Policy to allow Kinesis Firehose to manage stream S3 bucket"
+  description = "Policy to allow Kinesis Firehose to read logs from Kinesis Data Stream"
   policy      = data.aws_iam_policy_document.iam_doc_policy_04.json
+}
+
+resource "aws_iam_policy" "iam_policy_05" {
+  provider    = aws.us_east_1
+  name        = "kinesis-firehose-s3-jlv6"
+  description = "Policy to allow Kinesis Firehose to manage stream S3 bucket"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_05.json
+}
+
+resource "aws_iam_policy" "iam_policy_06" {
+  provider    = aws.us_east_1
+  name        = "kinesis-firehose-lambda-jlv6"
+  description = "Policy to allow Kinesis Firehose to invoke lambda function to transform CloudFront (access) logs"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_06.json
 }
 
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
@@ -180,6 +232,18 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_04" {
   policy_arn = aws_iam_policy.iam_policy_04.arn
 }
 
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_05" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_03.name
+  policy_arn = aws_iam_policy.iam_policy_05.arn
+}
+
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_06" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_03.name
+  policy_arn = aws_iam_policy.iam_policy_06.arn
+}
+
 ## CLOUDWATCH ##
 
 module "cw_logs_01" {
@@ -188,10 +252,19 @@ module "cw_logs_01" {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/httpModifyReqForS3Origin-jlv6-production"
-  log_group_retention_in_days = 14
+  log_group_retention_in_days = 7
 }
 
-resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
+module "cw_logs_02" {
+  source = "cn-terraform/cloudwatch-logs/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+  logs_path = "/aws/lambda/transformCloudfrontAccessLogs-jlv6-production"
+  log_group_retention_in_days = 7 
+}
+
+/* resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
   depends_on = [
     aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
   ]
@@ -212,7 +285,7 @@ resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
       "5xxErrorRate"
     ]
   }
-}
+} */
 
 ## S3 ##
 
@@ -402,6 +475,39 @@ resource "aws_s3_bucket_policy" "s3_policy_03" {
 
 ## CLOUDFRONT ##
 
+resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
+  provider = aws.us_east_1
+  depends_on = [
+    aws_iam_role.iam_role_02,
+    aws_kinesis_stream.kinesis_stream_01
+  ]
+
+  name          = "jlv6-www"
+  sampling_rate = 100
+
+  fields = [
+    "timestamp",
+    "c-ip",
+    "cs-method",
+    "cs-uri-stem",
+    "sc-status",
+    "x-edge-result-type",
+    "x-edge-response-result-type",
+    "x-edge-location",
+    "cs-user-agent",
+    "cs-referer"
+  ]
+
+  endpoint {
+    stream_type = "Kinesis"
+
+    kinesis_stream_config {
+      role_arn   = aws_iam_role.iam_role_02.arn
+      stream_arn = aws_kinesis_stream.kinesis_stream_01.arn
+    }
+  }
+}
+
 module "cf_distribution_01" {
   depends_on = [
    module.s3_bucket_01,
@@ -493,6 +599,8 @@ module "cf_distribution_01" {
       cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
       origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
+      realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
+
       function_association = {
         # Valid keys: viewer-request, viewer-response
         viewer-request = {
@@ -518,6 +626,8 @@ module "cf_distribution_01" {
     use_forwarded_values         = false
     cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
+
+    realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
 
     function_association = {
       # Valid keys: viewer-request, viewer-response
@@ -547,6 +657,12 @@ data "archive_file" "archive_01" {
   type        = "zip"
   source_file = "${path.module}/lambda-httpModifyReqForS3Origin.mjs"
   output_path = "${path.module}/lambda-httpModifyReqForS3Origin.mjs.zip"
+}
+
+data "archive_file" "archive_02" {
+  type        = "zip"
+  source_file = "${path.module}/lambda-transformCloudfrontAccessLogs.py"
+  output_path = "${path.module}/lambda-transformCloudfrontAccessLogs.py.zip"
 }
 
 module "lambda_at_edge_01" {
@@ -581,18 +697,69 @@ module "lambda_at_edge_01" {
   logging_log_group                  = module.cw_logs_01.log_group_name
 }
 
+module "lambda_01" {
+  depends_on = [
+    data.archive_file.archive_02,
+    module.cw_logs_02
+  ]
+
+  source = "terraform-aws-modules/lambda/aws"
+  providers = {
+    aws = aws.us_east_1
+  }
+
+  lambda_at_edge = false
+  publish        = true
+
+  create_package         = false
+  local_existing_package = data.archive_file.archive_02.output_path
+  
+  architectures = ["x86_64"]
+  function_name = "transformCloudfrontAccessLogs-jlv6-production"
+  description   = "Transform CloudFront (Access) logs into a format suitable for ingestion and analysis in OpenObserve"
+  handler       = "lambda-transformCloudfrontAccessLogs.handler"
+  runtime       = "python3.13"
+
+  create_role   = false
+  lambda_role   = aws_iam_role.iam_role_01.arn
+  
+  use_existing_cloudwatch_log_group  = true
+  attach_cloudwatch_logs_policy      = false
+  attach_create_log_group_permission = false
+  logging_log_group                  = module.cw_logs_02.log_group_name
+}
+
 ## KINESIS ##
+
+resource "aws_kinesis_stream" "kinesis_stream_01" {
+  provider         = aws.us_east_1
+  name             = "cf-logs-jlv6-production"
+
+  stream_mode_details {
+    stream_mode = "ON_DEMAND"
+  }
+}
 
 resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
   provider    = aws.us_east_1
-  name        = "cf-metrics-jlv6"
+  depends_on = [
+    aws_iam_role.iam_role_03,
+    aws_kinesis_stream.kinesis_stream_01,
+    module.lambda_01
+  ]
+  name        = "cf-logs-jlv6-production"
   destination = "http_endpoint"
+
+  kinesis_source_configuration {
+    role_arn           = aws_iam_role.iam_role_03.arn
+    kinesis_stream_arn = aws_kinesis_stream.kinesis_stream_01.arn
+  }
 
   http_endpoint_configuration {
     url                = "${var.OPENOBSERVE_URI}/aws/default/cloudwatch_metrics/_kinesis_firehose"
     name               = "OpenObserve instance on Pluto"
     access_key         = "${var.OPENOBSERVE_KINESIS_FIREHOSE_ACCESS_KEY}"
-    buffering_size     = 5
+    buffering_size     = 1
     buffering_interval = 60
     role_arn           = aws_iam_role.iam_role_03.arn
     s3_backup_mode     = "FailedDataOnly"
@@ -605,6 +772,24 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
       compression_format = "GZIP"
     }
 
+    processing_configuration {
+      enabled = "true"
+      processors {
+        type = "Lambda"
+        parameters {
+          parameter_name  = "LambdaArn"
+          parameter_value = "${module.lambda_01.lambda_function_qualified_arn}:$LATEST"
+        }
+        parameters {
+          parameter_name  = "BufferSizeInMBs"
+          parameter_value = "3"
+        }
+        parameters {
+          parameter_name  = "BufferIntervalInSeconds"
+          parameter_value = "45"
+        }
+      }
+    }
     request_configuration {
       content_encoding = "NONE"  # Can be NONE, GZIP, or other formats
     }
