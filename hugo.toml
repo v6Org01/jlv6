@@ -26,6 +26,12 @@ defaultContentLanguageInSubdir = false
 ## [services.disqus]
 ## shortname = ''
 
+########################## Taxonomies ############################
+[taxonomies]
+  category = "categories"  # Built-in taxonomy
+  tag = "tags"  # Built-in taxonomy
+  resources = "resources"  # Custom taxonomy
+
 ########################## Permalinks ############################
 [permalinks.page]
 "pages" = "/:slugorfilename/"

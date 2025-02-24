@@ -1,24 +1,71 @@
 {{ define "main" }}
-
-  <!-- {{ partial "page-header" . }} -->
-
   <section class="section">
     <div class="container">
       <div class="row gx-5">
-        <!-- blog posts -->
-        <div class="lg:col-8">
-          <div class="row">
-            {{ $paginator:= .Paginate .RegularPages }}
-            {{ range $paginator.Pages }}
-              <div class="md:col-6 mb-14">
-                {{ partial "components/dashboard" . }}
-              </div>
-            {{ end }}
+        <!-- Main Content: Resource Content Area -->
+        <div class="lg:col-8" id="resource-content">
+          <!-- Default content or message when no resource is selected -->
+          <p>Select a resource from the sidebar to view its details.</p>
+        </div>
+
+        <!-- Sidebar: Resources List -->
+        <div class="lg:col-4">
+          <div class="sidebar">
+            <h4>Resources</h4>
+            <ul>
+              {{ range $term, $pages := .Site.Taxonomies.resources }}
+                <!-- Loop through each resource term and get its pages -->
+                <li>
+                  <a href="javascript:void(0)" class="resource-link" data-resource="{{ with index $pages 0 }}{{ .Permalink }}{{ end }}">
+                    {{ $term }}
+                  </a>
+                </li>
+              {{ end }}
+            </ul>
           </div>
-          {{ partial "components/pagination.html" . }}
         </div>
       </div>
     </div>
   </section>
+
+  <!-- JavaScript to handle AJAX content loading -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const resourceLinks = document.querySelectorAll(".resource-link");
+
+      resourceLinks.forEach(function(link) {
+        link.addEventListener("click", function() {
+          const resourceUrl = link.getAttribute("data-resource");
+
+          // Fetch the resource content dynamically using AJAX
+          fetch(resourceUrl)
+            .then(response => response.text())
+            .then(data => {
+              // Parse the fetched HTML
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(data, 'text/html');
+              
+              // Extract the title and content from the fetched page
+              const resourceTitle = doc.querySelector("h1, h2, .resource-title") ? doc.querySelector("h1, h2, .resource-title").innerText : "Untitled";
+              const resourceContent = doc.querySelector(".main-content") ? doc.querySelector(".main-content").innerHTML : "<p>No content available for this resource.</p>";
+              const grafanaDashboardUrl = doc.querySelector("h3") ? doc.querySelector("h3").innerHTML : "<p>No graph available.</p>";
+
+              // Inject the title and content into the current page
+              document.getElementById("resource-content").innerHTML = `
+                <h2>${resourceTitle}</h2>
+                <div class="resource-description">${resourceContent}</div>
+                <div class="grafana-iframe-container">
+                  <iframe id="grafanaDashboard" width="100%" height="600" frameborder="0" src="${grafanaDashboardUrl}"></iframe>
+                </div>
+              `;
+            })
+            .catch(error => {
+              console.error('Error fetching resource:', error);
+              alert("Failed to load resource content.");
+            });
+        });
+      });
+    });
+  </script>
 
 {{ end }}

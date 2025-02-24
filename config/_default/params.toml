@@ -76,6 +76,9 @@ enable = false
 [widgets]
 sidebar = ["categories", "tags"]
 
+[widgets2]
+sidebar = ["resources"]
+
 # google map
 [google_map]
 enable = false
