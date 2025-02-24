@@ -2,7 +2,7 @@
 title: "Grafana dashboard - This website"
 meta_title: ""
 description: "this is meta description"
-resources: ["This website"]
+resources: ["jlv6.com"]
 draft: false
 ---
 

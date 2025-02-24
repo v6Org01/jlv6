@@ -1,5 +1,5 @@
 {{ define "main" }}
-  <section class="section">
+  <section class="section pt-12">
     <div class="container">
       <div class="row gx-5">
         <!-- Main Content: Resource Content Area -->
@@ -11,8 +11,9 @@
         <!-- Sidebar: Resources List -->
         <div class="lg:col-4">
           <div class="sidebar">
-            <h4>Resources</h4>
-            <ul>
+            <h5 class="mb-6">Resources</h5>
+            <div class="bg-theme-light dark:bg-darkmode-theme-light rounded p-8">
+            <ul class="space-y-4">
               {{ range $term, $pages := .Site.Taxonomies.resources }}
                 <!-- Loop through each resource term and get its pages -->
                 <li>
@@ -22,6 +23,7 @@
                 </li>
               {{ end }}
             </ul>
+            </div>
           </div>
         </div>
       </div>
