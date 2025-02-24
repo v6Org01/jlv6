@@ -121,7 +121,10 @@ data "aws_iam_policy_document" "iam_doc_policy_04" {
       "s3:ListBucketMultipartUploads",
       "s3:PutObject"
     ]
-    resources = [module.s3_bucket_03.s3_bucket_arn]
+    resources = [
+      "${module.s3_bucket_03.s3_bucket_arn}",
+      "${module.s3_bucket_03.s3_bucket_arn}/*"
+    ]
   }
 }
 
@@ -362,7 +365,7 @@ data "aws_iam_policy_document" "s3_policy_doc_03" {
   ]
   provider = aws.us_east_1 
   statement {
-    sid = "AllowKinesisAccess"
+    sid = "AllowS3Access"
     actions = [
       "s3:AbortMultipartUpload",
       "s3:GetBucketLocation",
@@ -371,7 +374,10 @@ data "aws_iam_policy_document" "s3_policy_doc_03" {
       "s3:ListBucketMultipartUploads",
       "s3:PutObject" 
     ]
-    resources = ["${module.s3_bucket_03.s3_bucket_arn}/*"]
+    resources = [
+      "${module.s3_bucket_03.s3_bucket_arn}",
+      "${module.s3_bucket_03.s3_bucket_arn}/*"
+    ]
     principals {
       type        = "Service"
       identifiers = ["firehose.amazonaws.com"]
