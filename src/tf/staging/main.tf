@@ -85,7 +85,7 @@ module "cw_logs_01" {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/httpModifyReqForS3Origin-jlv6-staging"
-  log_group_retention_in_days = 5
+  log_group_retention_in_days = 7
 }
 
 ## S3 ##

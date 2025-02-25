@@ -486,16 +486,96 @@ resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
   sampling_rate = 100
 
   fields = [
+    # Standard CloudFront Fields
     "timestamp",
     "c-ip",
+    "sc-status",
     "cs-method",
     "cs-uri-stem",
-    "sc-status",
-    "x-edge-result-type",
-    "x-edge-response-result-type",
     "x-edge-location",
     "cs-user-agent",
-    "cs-referer"
+    "cs-referer",
+    "x-edge-response-result-type",
+    "x-edge-result-type",
+    
+    # CMCD Fields
+    "cmcd-encoded-bitrate",
+    "cmcd-buffer-length",
+    "cmcd-buffer-starvation",
+    "cmcd-content-id",
+    "cmcd-object-duration",
+    "cmcd-deadline",
+    "cmcd-measured-throughput",
+    "cmcd-next-object-request",
+    "cmcd-next-range-request",
+    "cmcd-object-type",
+    "cmcd-playback-rate",
+    "cmcd-requested-max-throughput",
+    "cmcd-streaming-format",
+    "cmcd-session-id",
+    "cmcd-stream-type",
+    "cmcd-startup",
+    "cmcd-top-bitrate",
+    "cmcd-version",
+    
+    # Edge and Request Fields
+    "x-edge-mqcs",
+    "sr-reason",
+    "r-host",
+    "x-host-header",
+    "x-forwarded-for",
+    "x-edge-request-id",
+    "x-edge-detailed-result-type",
+    
+    # Timing and Performance Fields
+    "time-to-first-byte",
+    "time-taken",
+    
+    # SSL/TLS Fields
+    "ssl-protocol",
+    "ssl-cipher",
+    
+    # Content Range and Type Fields
+    "sc-range-start",
+    "sc-range-end",
+    "sc-content-type",
+    "sc-content-len",
+    
+    # Byte Transfer Fields
+    "sc-bytes",
+    "s-ip",
+    
+    # Distribution Fields
+    "primary-distribution-id",
+    "primary-distribution-dns-name",
+    
+    # Origin Fields
+    "origin-lbl",
+    "origin-fbl",
+    
+    # Field Level Encryption Fields
+    "fle-status",
+    "fle-encrypted-fields",
+    
+    # Request Details Fields
+    "cs-uri-query",
+    "cs-protocol-version",
+    "cs-protocol",
+    "cs-host",
+    "cs-headers-count",
+    "cs-headers",
+    "cs-header-names",
+    "cs-cookie",
+    "cs-bytes",
+    "cs-accept-encoding",
+    "cs-accept",
+    
+    # Cache and Client Fields
+    "cache-behavior-path-pattern",
+    "c-port",
+    "c-ip-version",
+    "c-country",
+    "asn"
   ]
 
   endpoint {
