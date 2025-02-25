@@ -1,5 +1,5 @@
 ---
-title: "Grafana dashboard - Applications"
+title: "Applications"
 meta_title: ""
 description: "this is meta description"
 resources: ["Applications"]

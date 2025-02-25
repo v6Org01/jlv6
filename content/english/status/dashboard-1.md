@@ -1,5 +1,5 @@
 ---
-title: "Grafana dashboard - This website"
+title: "This website"
 meta_title: ""
 description: "this is meta description"
 resources: ["jlv6.com"]
