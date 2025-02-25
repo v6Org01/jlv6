@@ -3,16 +3,16 @@
     <div class="container">
       <div class="row gx-5">
         <!-- Main Content: Resource Content Area -->
-        <div class="lg:col-8" id="resource-content">
+        <div class="lg:col-9" id="resource-content">
           <!-- Default content or message when no resource is selected -->
-          <p>Select a resource from the sidebar to view its details.</p>
+          <h5>Select a resource from the sidebar to view its details.</h5>
         </div>
 
         <!-- Sidebar: Resources List -->
-        <div class="lg:col-4">
+        <div class="lg:col-3">
           <div class="sidebar">
             <h5 class="mb-6">Resources</h5>
-            <div class="bg-theme-light dark:bg-darkmode-theme-light rounded p-8">
+            <div class="bg-theme-light dark:bg-darkmode-theme-light rounded p-6">
             <ul class="space-y-4">
               {{ range $term, $pages := .Site.Taxonomies.resources }}
                 <!-- Loop through each resource term and get its pages -->
@@ -54,7 +54,7 @@
 
               // Inject the title and content into the current page
               document.getElementById("resource-content").innerHTML = `
-                <h2>${resourceTitle}</h2>
+                <h4>${resourceTitle}</h4>
                 <div class="resource-description">${resourceContent}</div>
                 <div class="grafana-iframe-container">
                   <iframe id="grafanaDashboard" width="100%" height="600" frameborder="0" src="${grafanaDashboardUrl}"></iframe>
