@@ -2,4 +2,5 @@
  &lt;div class="resource-description">
  &lt;p>This is the description of the Grafana dashboard for this website.&lt;/p></description></item><item><title>This website</title><link>{{BASE_URL}}/status/dashboard-1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>{{BASE_URL}}/status/dashboard-1/</guid><description>&lt;div class="main-content">
  &lt;div class="resource-description">
- &lt;p>This is the description of the Grafana dashboard for this website.&lt;/p></description></item></channel></rss>
+ &lt;p>This is the dashboard for this website.&lt;/p>
+ &lt;p>Here you can describe the purpose of the dashboard, how to interpret the metrics, and any other relevant information.&lt;/p></description></item></channel></rss>
