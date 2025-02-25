@@ -26,7 +26,7 @@ def process_field(value):
    """Helper function to process field values, converting '-' to None"""
    return None if value == "-" else value
 
-def lambda_handler(event, context):
+def handler(event, context):
    output = []
   
    for record in event['records']:
