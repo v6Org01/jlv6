@@ -510,7 +510,7 @@ resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
     "cmcd-next-range-request",
     "cmcd-object-type",
     "cmcd-playback-rate",
-    "cmcd-requested-max-throughput",
+    "cmcd-requested-maximum-throughput",
     "cmcd-streaming-format",
     "cmcd-session-id",
     "cmcd-stream-type",
