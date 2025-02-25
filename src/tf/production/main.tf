@@ -778,7 +778,7 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
         type = "Lambda"
         parameters {
           parameter_name  = "LambdaArn"
-          parameter_value = "${module.lambda_01.lambda_function_qualified_arn}:$LATEST"
+          parameter_value = "${module.lambda_01.lambda_function_qualified_arn}"
         }
         parameters {
           parameter_name  = "BufferSizeInMBs"
