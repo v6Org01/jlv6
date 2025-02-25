@@ -44,7 +44,7 @@ def handler(event, context):
                         log_line = gz.read().decode('utf-8').strip()
           
             # Debug line to output raw log_line
-            logger.debug(f"Raw log line: {log_line}")
+            logger.info(f"Raw log line: {log_line}")
             
             # Skip header lines
             if log_line.startswith('#'):
