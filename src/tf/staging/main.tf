@@ -191,7 +191,7 @@ module "cf_distribution_01" {
   }
 
   logging_config = {
-    bucket = module.s3_bucket_02.s3_bucket_bucket_domain_name
+    bucket = data.terraform_remote_state.shared.outputs.module_s3_bucket_01_s3_bucket_bucket_domain_name
     prefix = "cf_staging"
   }
 
