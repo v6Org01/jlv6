@@ -84,8 +84,8 @@ jobs:
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Transform lambda-viewerReq-Bots-Logs.mjs
         run : |
-          sed -i "s/PLACEHOLDER_URL/${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}/g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-Logs.mjs"
-          sed -i "s/PLACEHOLDER_TOKEN/${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_TOKEN }}/g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-Logs.mjs"
+          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-Logs.mjs"
+          sed -i "s|PLACEHOLDER_TOKEN|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_TOKEN }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-Logs.mjs"
       - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         id: tf-apply
