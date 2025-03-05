@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Status Page on .com</title><link>{{BASE_URL}}/status/</link><description>Recent content in Status Page on .com</description><generator>Hugo</generator><language>en-us</language><atom:link href="{{BASE_URL}}/status/index.xml" rel="self" type="application/rss+xml"/><item><title>Applications</title><link>{{BASE_URL}}/status/dashboard-2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>{{BASE_URL}}/status/dashboard-2/</guid><description>&lt;div class="main-content">
  &lt;div class="resource-description">
- &lt;p>This is the description of the Grafana dashboard for this website.&lt;/p></description></item><item><title>Kubernetes</title><link>{{BASE_URL}}/status/dashboard-3/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>{{BASE_URL}}/status/dashboard-3/</guid><description>&lt;div class="main-content">
- &lt;div class="resource-description">
  &lt;p>This is the description of the Grafana dashboard for this website.&lt;/p></description></item><item><title>This website</title><link>{{BASE_URL}}/status/dashboard-1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>{{BASE_URL}}/status/dashboard-1/</guid><description>&lt;div class="main-content">
  &lt;div class="resource-description">
  &lt;p>This is the dashboard for this website.&lt;/p>
