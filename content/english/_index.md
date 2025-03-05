@@ -68,7 +68,7 @@ sections:
     image_light: "/images/stock_grafana.png"
     image_dark: "/images/stock_grafana.png"
     image_text: 'img src: <a href="https://grafana.com/products/cloud" class="a1" target="_blank" rel="noopener">grafana.com</a>'
-    content: "The status page provides real-time insights into the health and performance of this website, infrastructure and hosted applications. Powered by Grafana Cloud’s free tier, it features multiple dashboards, providing pre-configured visualizations for system metrics, application performance, and network health—ensuring transparency and reliability."
+    content: "The status page provides real-time insights into the health and performance of this website, infrastructure and hosted applications. Powered by OpenObserve and Grafana, it features multiple dashboards, providing pre-configured visualizations for system metrics, application performance, and network health—ensuring transparency and reliability."
     button:
       enable: true
       label: "Status Page"
