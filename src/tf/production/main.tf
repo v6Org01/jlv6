@@ -22,7 +22,7 @@ resource "aws_iam_role" "iam_role_01" {
 EOF
 }
 
-resource "aws_iam_role" "iam_role_02" {
+/* resource "aws_iam_role" "iam_role_02" {
   provider = aws.us_east_1
   name = "cloudFrontRole-jlv6-production"
   assume_role_policy = <<EOF
@@ -41,9 +41,9 @@ resource "aws_iam_role" "iam_role_02" {
   ]
 }
 EOF
-}
+} */
 
-resource "aws_iam_role" "iam_role_03" {
+/* resource "aws_iam_role" "iam_role_03" {
   provider = aws.us_east_1
   name = "kinesisFirehoseRole-jlv6-production"
   assume_role_policy = <<EOF
@@ -62,12 +62,9 @@ resource "aws_iam_role" "iam_role_03" {
   ]
 }
 EOF
-}
+} */
 
 data "aws_iam_policy_document" "iam_doc_policy_01" {
-  depends_on = [
-
-   ]
   provider = aws.us_east_1
   statement {
     actions = [
@@ -77,8 +74,10 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*.*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/transformCloudfrontAccessLogs-jlv6-production:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/transformCloudfrontAccessLogs-jlv6-production:*.*"
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*.*"
     ]
   }
 }
@@ -98,7 +97,7 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
   }
 }
 
-data "aws_iam_policy_document" "iam_doc_policy_03" {
+/* data "aws_iam_policy_document" "iam_doc_policy_03" {
   depends_on = [
     aws_kinesis_stream.kinesis_stream_01
   ]
@@ -112,9 +111,9 @@ data "aws_iam_policy_document" "iam_doc_policy_03" {
     ]
     resources = [aws_kinesis_stream.kinesis_stream_01.arn]
   }
-}
+} */
 
-data "aws_iam_policy_document" "iam_doc_policy_04" {
+/* data "aws_iam_policy_document" "iam_doc_policy_04" {
   depends_on = [
     aws_kinesis_stream.kinesis_stream_01
   ]
@@ -129,9 +128,9 @@ data "aws_iam_policy_document" "iam_doc_policy_04" {
     ]
     resources = [aws_kinesis_stream.kinesis_stream_01.arn]
   }
-}
+} */
 
-data "aws_iam_policy_document" "iam_doc_policy_05" {
+/* data "aws_iam_policy_document" "iam_doc_policy_05" {
   depends_on = [
     module.s3_bucket_03 
   ]
@@ -150,9 +149,9 @@ data "aws_iam_policy_document" "iam_doc_policy_05" {
       "${module.s3_bucket_03.s3_bucket_arn}/*"
     ]
   }
-}
+} */
 
-data "aws_iam_policy_document" "iam_doc_policy_06" {
+/* data "aws_iam_policy_document" "iam_doc_policy_06" {
   depends_on = [
     module.lambda_01
   ]
@@ -164,49 +163,49 @@ data "aws_iam_policy_document" "iam_doc_policy_06" {
     ]
     resources = [module.lambda_01.lambda_function_qualified_arn]
   }
-}
+} */
 
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudwatchLogs-httpModifyReqForS3Origin-jlv6-production"
+  name        = "lambda-cloudwatchLogs-jlv6-production"
   description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
   policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
 }
 
 resource "aws_iam_policy" "iam_policy_02" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudfront-httpModifyReqForS3Origin-jlv6-production"
+  name        = "lambda-cloudfront-jlv6-production"
   description = "Policy to manage CloudFront distribution for Lambda@Edge"
   policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
 }
 
-resource "aws_iam_policy" "iam_policy_03" {
+/* resource "aws_iam_policy" "iam_policy_03" {
   provider    = aws.us_east_1
   name        = "cloudfront-kinesis-stream-jlv6"
   description = "Policy to allow CloudFront to send logs to a Kinesis Stream"
   policy      = data.aws_iam_policy_document.iam_doc_policy_03.json
-}
+} */
 
-resource "aws_iam_policy" "iam_policy_04" {
+/* resource "aws_iam_policy" "iam_policy_04" {
   provider    = aws.us_east_1
   name        = "kinesis-firehose-stream-jlv6"
   description = "Policy to allow Kinesis Firehose to read logs from Kinesis Data Stream"
   policy      = data.aws_iam_policy_document.iam_doc_policy_04.json
-}
+} */
 
-resource "aws_iam_policy" "iam_policy_05" {
+/* resource "aws_iam_policy" "iam_policy_05" {
   provider    = aws.us_east_1
   name        = "kinesis-firehose-s3-jlv6"
   description = "Policy to allow Kinesis Firehose to manage stream S3 bucket"
   policy      = data.aws_iam_policy_document.iam_doc_policy_05.json
-}
+} */
 
-resource "aws_iam_policy" "iam_policy_06" {
+/* resource "aws_iam_policy" "iam_policy_06" {
   provider    = aws.us_east_1
   name        = "kinesis-firehose-lambda-jlv6"
   description = "Policy to allow Kinesis Firehose to invoke lambda function to transform CloudFront (access) logs"
   policy      = data.aws_iam_policy_document.iam_doc_policy_06.json
-}
+} */
 
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
   provider   = aws.us_east_1
@@ -220,29 +219,29 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
   policy_arn = aws_iam_policy.iam_policy_02.arn
 }
 
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_03" {
+/* resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_03" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_02.name
   policy_arn = aws_iam_policy.iam_policy_03.arn
-}
+} */
 
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_04" {
+/* resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_04" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_03.name
   policy_arn = aws_iam_policy.iam_policy_04.arn
-}
+} */
 
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_05" {
+/* resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_05" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_03.name
   policy_arn = aws_iam_policy.iam_policy_05.arn
-}
+} */
 
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_06" {
+/* resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_06" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_03.name
   policy_arn = aws_iam_policy.iam_policy_06.arn
-}
+} */
 
 ## CLOUDWATCH ##
 
@@ -255,14 +254,14 @@ module "cw_logs_01" {
   log_group_retention_in_days = 7
 }
 
-module "cw_logs_02" {
+/* module "cw_logs_02" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/transformCloudfrontAccessLogs-jlv6-production"
   log_group_retention_in_days = 7 
-}
+} /*
 
 /* resource "aws_cloudwatch_metric_stream" "cf_metric_stream_01" {
   depends_on = [
@@ -347,65 +346,7 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
   policy = data.aws_iam_policy_document.s3_policy_doc_01.json
 }
 
-module "s3_bucket_02" {
-  source   = "terraform-aws-modules/s3-bucket/aws"
-  providers = {
-    aws = aws.eu_central_1
-  }
-  bucket   = var.AWS_S3_BUCKET_02
-
-  control_object_ownership = true
-  object_ownership         = "BucketOwnerPreferred"
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  attach_policy = false
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm     = "AES256"
-      }
-    }
-  }
-}
-
-data "aws_iam_policy_document" "s3_policy_doc_02" {
-  depends_on = [
-    module.s3_bucket_02,
-    module.cf_distribution_01
-  ]
-  provider = aws.eu_central_1
-  statement {
-    sid = "AllowCloudFrontAccess"
-    actions = ["s3:PutObject"]
-    resources = ["${module.s3_bucket_02.s3_bucket_arn}/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [module.cf_distribution_01.cloudfront_distribution_arn]
-    }
-    effect = "Allow"
-  }
-}
-
-resource "aws_s3_bucket_policy" "s3_policy_02" {
-  provider = aws.eu_central_1
-  depends_on = [
-    data.aws_iam_policy_document.s3_policy_doc_02
-  ]
-  bucket = module.s3_bucket_02.s3_bucket_id
-  policy = data.aws_iam_policy_document.s3_policy_doc_02.json
-}
-
-module "s3_bucket_03" {
+/* module "s3_bucket_03" {
   source   = "terraform-aws-modules/s3-bucket/aws"
   providers = {
     aws = aws.us_east_1 
@@ -429,9 +370,9 @@ module "s3_bucket_03" {
       }
     }
   }
-}
+} */
 
-data "aws_iam_policy_document" "s3_policy_doc_03" {
+/* data "aws_iam_policy_document" "s3_policy_doc_03" {
   depends_on = [
     module.s3_bucket_03,
     aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream_01
@@ -462,20 +403,20 @@ data "aws_iam_policy_document" "s3_policy_doc_03" {
     }
     effect = "Allow"
   }
-}
+} */
 
-resource "aws_s3_bucket_policy" "s3_policy_03" {
+/* resource "aws_s3_bucket_policy" "s3_policy_03" {
   provider = aws.us_east_1
   depends_on = [
     data.aws_iam_policy_document.s3_policy_doc_03
   ]
   bucket = module.s3_bucket_03.s3_bucket_id
   policy = data.aws_iam_policy_document.s3_policy_doc_03.json
-}
+} */
 
 ## CLOUDFRONT ##
 
-resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
+/* resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
   provider = aws.us_east_1
   depends_on = [
     aws_iam_role.iam_role_02,
@@ -586,12 +527,12 @@ resource "aws_cloudfront_realtime_log_config" "cf_realtime_log_config_01" {
       stream_arn = aws_kinesis_stream.kinesis_stream_01.arn
     }
   }
-}
+} */
 
 module "cf_distribution_01" {
   depends_on = [
-   module.s3_bucket_01,
-   module.s3_bucket_02
+   module.lambda_at_edge_01,
+   module.s3_bucket_01
   ]
 
   source = "terraform-aws-modules/cloudfront/aws"
@@ -626,7 +567,7 @@ module "cf_distribution_01" {
 
   logging_config = {
     bucket = module.s3_bucket_02.s3_bucket_bucket_domain_name
-    prefix = "cloudfront"
+    prefix = "cf_production"
   }
 
   origin = {
@@ -679,15 +620,20 @@ module "cf_distribution_01" {
       cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
       origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
-      realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
+      # realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
 
-      function_association = {
+      /* function_association = {
         # Valid keys: viewer-request, viewer-response
         viewer-request = {
           function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
         }
-      }
+      } */
+
       lambda_function_association = {
+        viewer-request = {
+          include_body = false
+          lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn
+        }
         origin-request = {
           include_body = false
           lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
@@ -707,15 +653,20 @@ module "cf_distribution_01" {
     cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
-    realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
+    # realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
 
-    function_association = {
+    /* function_association = {
       # Valid keys: viewer-request, viewer-response
       viewer-request = {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
-    }
+    } */
+    
     lambda_function_association = {
+      viewer-request = {
+        include_body = false
+        lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn
+      }
       origin-request = {
         include_body = false
         lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
@@ -739,11 +690,11 @@ data "archive_file" "archive_01" {
   output_path = "${path.module}/lambda-httpModifyReqForS3Origin.mjs.zip"
 }
 
-data "archive_file" "archive_02" {
+/* data "archive_file" "archive_02" {
   type        = "zip"
   source_file = "${path.module}/lambda-transformCloudfrontAccessLogs.py"
   output_path = "${path.module}/lambda-transformCloudfrontAccessLogs.py.zip"
-}
+} */
 
 module "lambda_at_edge_01" {
   depends_on = [
@@ -777,7 +728,7 @@ module "lambda_at_edge_01" {
   logging_log_group                  = module.cw_logs_01.log_group_name
 }
 
-module "lambda_01" {
+/* module "lambda_01" {
   depends_on = [
     data.archive_file.archive_02,
     module.cw_logs_02
@@ -807,20 +758,22 @@ module "lambda_01" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_02.log_group_name
-}
+} */
 
 ## KINESIS ##
 
-resource "aws_kinesis_stream" "kinesis_stream_01" {
+/* resource "aws_kinesis_stream" "kinesis_stream_01" {
   provider         = aws.us_east_1
   name             = "cf-logs-jlv6-production"
+  shard_count      = 1
+  retention_period = 48
 
   stream_mode_details {
-    stream_mode = "ON_DEMAND"
+    stream_mode = "PROVISIONED"
   }
-}
+} */
 
-resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
+/* resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
   provider    = aws.us_east_1
   depends_on = [
     aws_iam_role.iam_role_03,
@@ -874,4 +827,4 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream_01" {
       content_encoding = "NONE"  # Can be NONE, GZIP, or other formats
     }
   }
-}
+} */

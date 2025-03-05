@@ -2,7 +2,7 @@
 
 resource "aws_iam_role" "iam_role_01" {
   provider = aws.us_east_1
-  name = "lambdaExecRole-httpModifyReqForS3Origin-jlv6-staging"
+  name = "lambdaExecRole-jlv6-staging"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -32,6 +32,10 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-staging:*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-staging:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*.*"
     ]
   }
 }
@@ -53,14 +57,14 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
 
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudwatchLogs-httpModifyReqForS3Origin-jlv6-staging"
+  name        = "lambda-cloudwatchLogs-jlv6-staging"
   description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
   policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
 }
 
 resource "aws_iam_policy" "iam_policy_02" {
   provider    = aws.us_east_1
-  name        = "lambda-cloudfront-httpModifyReqForS3Origin-jlv6-staging"
+  name        = "lambda-cloudfront-jlv6-staging"
   description = "Policy to manage CloudFront distribution for Lambda@Edge"
   policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
 }
@@ -186,6 +190,11 @@ module "cf_distribution_01" {
     }
   }
 
+  logging_config = {
+    bucket = module.s3_bucket_02.s3_bucket_bucket_domain_name
+    prefix = "cf_staging"
+  }
+
   origin = {
     primaryK8S = {
       domain_name = var.AWS_CF_ORIGIN_JLV6_URI
@@ -236,13 +245,17 @@ module "cf_distribution_01" {
       cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
       origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
-      function_association = {
-        # Valid keys: viewer-request, viewer-response
+      /* function_association = {
         viewer-request = {
           function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
         }
-      }
+      } */
+
       lambda_function_association = {
+        viewer-request = {
+          include_body = false
+          lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
+        }
         origin-request = {
           include_body = false
           lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
@@ -262,15 +275,20 @@ module "cf_distribution_01" {
     cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
 
-    function_association = {
+    /* function_association = {
       viewer-request = {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
-    }
+    } */
+
     lambda_function_association = {
+      viewer-request = {
+        include_body = false
+        lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
+      }
       origin-request = {
         include_body = false
-        lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+        lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
     }
   }
