@@ -34,8 +34,6 @@ export const handler = async (event) => {
             };
         }
 
-        const response = event.Records[0].cf.response;
-
         // Create log entry
         const logEntry = {
             timestamp: new Date().toISOString(),
@@ -49,18 +47,20 @@ export const handler = async (event) => {
             edge_response_result_type: response.status >= 200 && response.status < 300 ? "Hit" : "Miss"
         };
 
-        // Attempt to send log entry to OpenObserve but do not block request
-        try {
-            await sendToOpenObserve([logEntry]);
-        } catch (logError) {
-            console.error(`Failed to send logs to OpenObserve: ${logError}`);
-        }
-    
+        // Send log entry asynchronously but don't block request processing
+        sendToOpenObserve([logEntry]).catch(error => console.error(`Failed to send logs: ${error}`));
+
+        return request;
+
     } catch (error) {
         console.error(`Error processing request: ${error}`);
+
+        return {
+            status: "500",
+            statusDescription: "Internal Server Error",
+            body: "An unexpected error occurred"
+        };
     }
-    
-    return event.Records[0].cf.request;
 };
 
 const sendToOpenObserve = async (logs) => {
