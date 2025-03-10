@@ -32,8 +32,8 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
     resources = [
       "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*.*"
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*.*"
     ]
   }
 }
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
   name        = "lambda-cloudwatchLogs-jlv6-shared"
-  description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
+  description = "Policy to allow logging to CloudWatch log groups for Lambda@Edge functions"
   policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
 }
 
@@ -99,7 +99,7 @@ module "cw_logs_02" {
   providers = {
     aws = aws.us_east_1
   }
-  logs_path = "/aws/lambda/viewerReq-Bots-Logs-jlv6-shared"
+  logs_path = "/aws/lambda/originResp-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
 }
 
@@ -357,8 +357,8 @@ data "archive_file" "archive_01" {
 
 data "archive_file" "archive_02" {
   type        = "zip"
-  source_file = "${path.module}/lambda-viewerReq-Bots-Logs.mjs"
-  output_path = "${path.module}/lambda-viewerReq-Bots-Logs.mjs.zip"
+  source_file = "${path.module}/lambda-originResp-OpenObserve.mjs"
+  output_path = "${path.module}/lambda-originResp-OpenObserve.mjs.zip"
 }
 
 module "lambda_at_edge_01" {
@@ -411,9 +411,9 @@ module "lambda_at_edge_02" {
   local_existing_package = data.archive_file.archive_02.output_path
   
   architectures = ["x86_64"]
-  function_name = "viewerReq-Bots-Logs-jlv6-shared"
-  description   = "Ban AI crawler bots and ship logs to OpenObserve"
-  handler       = "lambda-viewerReq-Bots-Logs.handler"
+  function_name = "originResp-OpenObserve-jlv6-shared"
+  description   = "Ship logs to OpenObserve"
+  handler       = "lambda-originResp-OpenObserve.handler"
   runtime       = "nodejs20.x"
 
   create_role   = false

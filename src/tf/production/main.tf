@@ -72,12 +72,12 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/httpModifyReqForS3Origin-jlv6-production:*.*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-Logs-jlv6-shared:*.*"
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-production:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-production:*.*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*.*"
     ]
   }
 }
@@ -168,7 +168,7 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
 resource "aws_iam_policy" "iam_policy_01" {
   provider    = aws.us_east_1
   name        = "lambda-cloudwatchLogs-jlv6-production"
-  description = "Policy to allow logging to CloudWatch log group for Lambda@Edge function"
+  description = "Policy to allow logging to CloudWatch log groups for Lambda@Edge functions"
   policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
 }
 
@@ -250,7 +250,7 @@ module "cw_logs_01" {
   providers = {
     aws = aws.us_east_1
   }
-  logs_path = "/aws/lambda/httpModifyReqForS3Origin-jlv6-production"
+  logs_path = "/aws/lambda/originReq-S3-jlv6-production"
   log_group_retention_in_days = 7
 }
 
@@ -632,11 +632,15 @@ module "cf_distribution_01" {
       lambda_function_association = {
         viewer-request = {
           include_body = false
-          lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn
+          lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
         }
         origin-request = {
           include_body = false
           lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+        }
+        origin-response = {
+          include_body  = false
+          lambda_arn    = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn 
         }
       }
     }
@@ -665,11 +669,15 @@ module "cf_distribution_01" {
     lambda_function_association = {
       viewer-request = {
         include_body = false
-        lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn
+        lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
       }
       origin-request = {
         include_body = false
         lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
+      }
+      origin-response = {
+        include_body  = false
+        lambda_arn    = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn 
       }
     }
   }
@@ -686,8 +694,8 @@ module "cf_distribution_01" {
 
 data "archive_file" "archive_01" {
   type        = "zip"
-  source_file = "${path.module}/lambda-httpModifyReqForS3Origin.mjs"
-  output_path = "${path.module}/lambda-httpModifyReqForS3Origin.mjs.zip"
+  source_file = "${path.module}/lambda-originReq-S3.mjs"
+  output_path = "${path.module}/lambda-originReq-S3.mjs.zip"
 }
 
 /* data "archive_file" "archive_02" {
@@ -714,9 +722,9 @@ module "lambda_at_edge_01" {
   local_existing_package = data.archive_file.archive_01.output_path
   
   architectures = ["x86_64"]
-  function_name = "httpModifyReqForS3Origin-jlv6-production"
+  function_name = "originReq-S3-jlv6-production"
   description   = "Sets host header value to Production S3_bucket when CloudFront origin request to S3.origin"
-  handler       = "lambda-httpModifyReqForS3Origin.handler"
+  handler       = "lambda-originReq-S3.handler"
   runtime       = "nodejs20.x"
 
   create_role   = false
