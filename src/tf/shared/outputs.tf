@@ -1,3 +1,10 @@
+## IAM ##
+
+output "aws_iam_role_iam_role_01_arn" {
+  description = "The ARN of the LambdaExecution role"
+  value = try(aws_iam_role.iam_role_01.arn)
+}
+
 ## S3 ##
 
 output "module_s3_bucket_01_s3_bucket_bucket_domain_name" {

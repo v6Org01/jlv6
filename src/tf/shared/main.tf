@@ -2,7 +2,7 @@
 
 resource "aws_iam_role" "iam_role_01" {
   provider = aws.us_east_1
-  name = "lambdaExecRole-jlv6-shared"
+  name = "lambdaExecRole-jlv6"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -30,19 +30,17 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*.*"
+      "arn:aws:logs:*:*:log-group:*" # All Log Groups in the account
     ]
+    condition {
+      test     = "StringEquals" # Ensure tag key EXISTS
+      variable = "aws:ResourceTag/${var.WWW_URI}" # Check if the tag KEY "WWW_URI" EXISTS
+      values   = ["true"] # Value doesn't matter; the key must exist.
+    }
   }
 }
 
 data "aws_iam_policy_document" "iam_doc_policy_02" {
-  depends_on = [
-    module.cf_distribution_01,
-    module.cf_distribution_02
-  ]
   provider = aws.us_east_1
   statement {
     actions = [
@@ -51,9 +49,13 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
       "cloudfront:CreateInvalidation"
     ]
     resources = [
-      module.cf_distribution_01.cloudfront_distribution_arn,
-      module.cf_distribution_02.cloudfront_distribution_arn
+      "arn:aws:cloudfront:::distribution/*",  # Allow access to ALL distributions
     ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/${var.WWW_URI}"
+      values   = ["true"]
+    }
   }
 }
 

@@ -1,82 +1,3 @@
-## IAM ##
-
-resource "aws_iam_role" "iam_role_01" {
-  provider = aws.us_east_1
-  name = "lambdaExecRole-jlv6-staging"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": [
-          "lambda.amazonaws.com",
-          "edgelambda.amazonaws.com"
-        ]
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-data "aws_iam_policy_document" "iam_doc_policy_01" {
-  provider = aws.us_east_1
-  statement {
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-staging:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-staging:*.*"
-    ]
-  }
-}
-
-data "aws_iam_policy_document" "iam_doc_policy_02" {
-  depends_on = [
-    module.cf_distribution_01
-  ]
-  provider = aws.us_east_1
-  statement {
-    actions = [
-      "cloudfront:UpdateDistribution",
-      "cloudfront:GetDistribution",
-      "cloudfront:CreateInvalidation"
-    ]
-    resources = [module.cf_distribution_01.cloudfront_distribution_arn]
-  }
-}
-
-resource "aws_iam_policy" "iam_policy_01" {
-  provider    = aws.us_east_1
-  name        = "lambda-cloudwatchLogs-jlv6-staging"
-  description = "Policy to allow logging to CloudWatch log groups for Lambda@Edge functions"
-  policy      = data.aws_iam_policy_document.iam_doc_policy_01.json
-}
-
-resource "aws_iam_policy" "iam_policy_02" {
-  provider    = aws.us_east_1
-  name        = "lambda-cloudfront-jlv6-staging"
-  description = "Policy to manage CloudFront distribution for Lambda@Edge"
-  policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
-}
-
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
-  provider   = aws.us_east_1
-  role       = aws_iam_role.iam_role_01.name
-  policy_arn = aws_iam_policy.iam_policy_01.arn
-}
-
-resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
-  provider   = aws.us_east_1
-  role       = aws_iam_role.iam_role_01.name
-  policy_arn = aws_iam_policy.iam_policy_02.arn
-}
-
 ## CLOUDWATCH ##
 
 module "cw_logs_01" {
@@ -329,7 +250,7 @@ module "lambda_at_edge_01" {
   runtime       = "nodejs20.x"
 
   create_role   = false
-  lambda_role   = aws_iam_role.iam_role_01.arn
+  lambda_role   = data.terraform_remote_state.shared.outputs.aws_iam_role_iam_role_01_arn
   
   use_existing_cloudwatch_log_group  = true
   attach_cloudwatch_logs_policy      = false
