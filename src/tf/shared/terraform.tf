@@ -14,8 +14,8 @@ provider "aws" {
     tags = {
       application = "jlv6.com"
       environment = "production"
-      managed-by  = "gha"
       jlv6-com    = "no_value"
+      managed-by  = "gha"
     }
   }
 }
@@ -27,8 +27,8 @@ provider "aws" {
     tags = {
       application = "jlv6.com"
       environment = "production"
-      managed-by  = "gha"
       jlv6-com    = "no_value"
+      managed-by  = "gha"
     }
   }
 }

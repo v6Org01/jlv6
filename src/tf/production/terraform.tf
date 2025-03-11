@@ -15,9 +15,10 @@ provider "aws" {
   default_tags {
     tags = {
       application = "jlv6.com"
+      custom-name = "jlv6-prod"
       environment = "production"
-      managed-by  = "gha"
       jlv6-com    = "no_value"
+      managed-by  = "gha"
     }
   }
 }
@@ -28,9 +29,10 @@ provider "aws" {
   default_tags {
     tags = {
       application = "jlv6.com"
+      custom-name = "jlv6-prod"
       environment = "production"
-      managed-by  = "gha"
       jlv6-com    = "no_value"
+      managed-by  = "gha"
     }
   }
 }

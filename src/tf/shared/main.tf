@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
     ]
     condition {
       test     = "StringEquals" # Ensure tag key EXISTS
-      variable = "aws:ResourceTag/${var.WWW_URI}" # Check if the tag KEY "WWW_URI" EXISTS
+      variable = "aws:ResourceTag/jlv6-com" # Check if the tag KEY "WWW_URI" EXISTS
       values   = ["true"] # Value doesn't matter; the key must exist.
     }
   }
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
     ]
     condition {
       test     = "StringEquals"
-      variable = "aws:ResourceTag/${var.WWW_URI}"
+      variable = "aws:ResourceTag/jlv6-com"
       values   = ["true"]
     }
   }
