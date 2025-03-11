@@ -1,7 +1,7 @@
 'use strict';
 
-import https from 'https';
-import { Buffer } from 'buffer';
+const https = require('https');
+const { URL } = require('url'); // Use the built-in URL class
 
 // OpenObserve configuration
 const CONFIG = {
@@ -29,40 +29,48 @@ export const handler = async (event) => {
         };
 
         await sendToOpenObserve([logEntry]);
+        return response;
 
     } catch (error) {
         console.error('Error logging to OpenObserve:', error);
+        // Return an error response to prevent further processing
+        return {
+            status: '500',
+            statusDescription: 'Internal Server Error',
+            body: 'Failed to log to OpenObserve',
+            headers: { 'content-type': [{ key: 'Content-Type', value: 'text/plain' }] },
+        };
     }
-
-    return response;
 };
 
 const sendToOpenObserve = async (logs) => {
-    return new Promise((resolve, reject) => {
-        const url = new URL(CONFIG.url);
-        const jsonData = JSON.stringify(logs);
-        const options = {
-            hostname: url.hostname,
-            path: url.pathname + url.search,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CONFIG.token}`
-            }
-        };
+    const url = new URL(CONFIG.url);
+    const jsonData = JSON.stringify(logs);
 
-        const req = https.request(options, (res) => {
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${CONFIG.token}`
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(url, options, (res) => { // Pass the URL directly
             let responseBody = '';
+
             res.on('data', (chunk) => {
                 responseBody += chunk;
             });
+
             res.on('end', () => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     console.log('Successfully sent logs to OpenObserve');
                     resolve();
                 } else {
-                    console.error(`OpenObserve returned status code ${res.statusCode}: ${responseBody}`);
-                    reject(new Error(`Failed to log: ${responseBody}`));
+                    const errorMessage = `OpenObserve returned status code ${res.statusCode}: ${responseBody}`;
+                    console.error(errorMessage);
+                    reject(new Error(`Failed to log: ${errorMessage}`));
                 }
             });
         });
@@ -70,6 +78,12 @@ const sendToOpenObserve = async (logs) => {
         req.on('error', (error) => {
             console.error('Error sending logs to OpenObserve:', error);
             reject(error);
+        });
+
+        req.setTimeout(5000, () => { // Set a timeout
+            console.error('Request to OpenObserve timed out');
+            req.destroy(new Error('Request timed out')); // Terminate the request
+            reject(new Error('Request timed out'));
         });
 
         req.write(jsonData);

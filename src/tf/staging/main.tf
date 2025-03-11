@@ -30,12 +30,8 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/viewerReq-Bots-jlv6-shared:*.*",
       "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-staging:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-staging:*.*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*",
-      "arn:aws:logs:*:*:log-group:/aws/lambda/originResp-OpenObserve-jlv6-shared:*.*"
+      "arn:aws:logs:*:*:log-group:/aws/lambda/originReq-S3-jlv6-staging:*.*"
     ]
   }
 }
