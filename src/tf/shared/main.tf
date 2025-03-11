@@ -30,7 +30,8 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:*" # All Log Groups in the account
+      "arn:aws:logs:*:*:log-group:*",
+      "arn:aws:logs:*:*:log-group:*.*" 
     ]
     condition {
       test     = "StringEquals" # Ensure tag key EXISTS

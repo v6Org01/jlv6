@@ -1,12 +1,13 @@
 'use strict';
 
-const https = require('https');
-const { URL } = require('url'); // Use the built-in URL class
+import https from 'https';
+import { URL } from 'url';
 
 // OpenObserve configuration
 const CONFIG = {
     url: "PLACEHOLDER_URL",
-    token: "PLACEHOLDER_TOKEN"
+    username: "PLACEHOLDER_USERNAME",
+    password: "PLACEHOLDER_PASSWORD"
 };
 
 export const handler = async (event) => {
@@ -47,11 +48,14 @@ const sendToOpenObserve = async (logs) => {
     const url = new URL(CONFIG.url);
     const jsonData = JSON.stringify(logs);
 
+    // Create the Authorization header
+    const auth = 'Basic ' + Buffer.from(CONFIG.username + ':' + CONFIG.password).toString('base64');
+
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${CONFIG.token}`
+            'Authorization': auth
         }
     };
 
