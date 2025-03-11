@@ -417,6 +417,7 @@ module "lambda_at_edge_02" {
   description   = "Ship logs to OpenObserve"
   handler       = "lambda-originResp-OpenObserve.handler"
   runtime       = "nodejs20.x"
+  timeout       = 5
 
   create_role   = false
   lambda_role   = aws_iam_role.iam_role_01.arn
