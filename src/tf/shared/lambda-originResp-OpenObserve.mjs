@@ -24,13 +24,12 @@ export const handler = async (event) => {
         const response = event.Records[0].cf.response;
 
         // Extract headers once and reuse.
+        const host = getHeaderValue(request.headers, 'host');
         const userAgent = getHeaderValue(request.headers, 'user-agent');
         const referer = getHeaderValue(request.headers, 'referer');
-        const pop = getHeaderValue(request.headers, 'x-amz-cf-pop');
+        const edgeLocation = getHeaderValue(request.headers, 'x-amz-cf-pop');
         const contentLength = getHeaderValue(response.headers, 'content-length');
-        const xCache = getHeaderValue(response.headers, 'x-cache'); // Cache hit/miss status
         const viewerCountry = getHeaderValue(request.headers, 'cloudfront-viewer-country');
-        const viewerRegion = getHeaderValue(request.headers, 'cloudfront-viewer-region');
         const viewerCity = getHeaderValue(request.headers, 'cloudfront-viewer-city');
         const isMobileViewer = getHeaderValue(request.headers, 'cloudfront-is-mobile-viewer');
         const isTabletViewer = getHeaderValue(request.headers, 'cloudfront-is-tablet-viewer');
@@ -41,26 +40,22 @@ export const handler = async (event) => {
 
         // Additional headers for performance insights:
         const acceptEncoding = getHeaderValue(request.headers, 'accept-encoding');
-        const connectionType = getHeaderValue(request.headers, 'connection');
         const age = getHeaderValue(response.headers, 'age');
         const cacheControl = getHeaderValue(response.headers, 'cache-control');
-
-        const responseSizeBytes = parseInt(contentLength || '0', 10);
-        const approximateBytesSent = responseSizeBytes;  // Approximation, does not include header size
 
         const logEntry = {
             timestamp: new Date().toISOString(),
             client_ip: request.clientIp || '-',
             uri: request.uri || '-',
             method: request.method || '-',
+            host: host,
             status_code: parseInt(response.status, 10) || 0,
             user_agent: userAgent,
             referer: referer,
-            edge_location: pop,  // Using POP as edge location
-            x_cache: xCache,     // CloudFront cache status (HIT/MISS) - CRUCIAL!
+            edge_location: edgeLocation,
+            edge_response_result_type: response.status >= 200 && response.status < 300 ? 'Hit' : 'Miss', // Infer from status code
             content_length: contentLength, //Bandwidth info
             cloudfront_viewer_country: viewerCountry,
-            cloudfront_viewer_region: viewerRegion,
             cloudfront_viewer_city: viewerCity,
             cloudfront_is_mobile_viewer: isMobileViewer,
             cloudfront_is_tablet_viewer: isTabletViewer,
@@ -69,10 +64,8 @@ export const handler = async (event) => {
             cloudfront_viewer_tls: viewerTls,
             cookie: cookie, // ***HANDLE WITH EXTREME CARE!***
             accept_encoding: acceptEncoding,
-            connection: connectionType,
             age: age,
             cache_control: cacheControl,
-            approximate_bytes_sent: approximateBytesSent // Does not include header size
         };
 
         await sendToOpenObserve([logEntry]);
