@@ -10,6 +10,12 @@ const CONFIG = {
     password: "PLACEHOLDER_PASSWORD"
 };
 
+// Helper function to safely extract header values
+const getHeaderValue = (headers, headerName, defaultValue = '-') => {
+    const header = headers[headerName];
+    return header && header[0] && header[0].value ? header[0].value : defaultValue;
+};
+
 export const handler = async (event) => {
     console.log('Lambda@Edge Origin Response Triggered');
 
@@ -17,16 +23,56 @@ export const handler = async (event) => {
         const request = event.Records[0].cf.request;
         const response = event.Records[0].cf.response;
 
+        // Extract headers once and reuse.
+        const userAgent = getHeaderValue(request.headers, 'user-agent');
+        const referer = getHeaderValue(request.headers, 'referer');
+        const pop = getHeaderValue(request.headers, 'x-amz-cf-pop');
+        const contentLength = getHeaderValue(response.headers, 'content-length');
+        const xCache = getHeaderValue(response.headers, 'x-cache'); // Cache hit/miss status
+        const viewerCountry = getHeaderValue(request.headers, 'cloudfront-viewer-country');
+        const viewerRegion = getHeaderValue(request.headers, 'cloudfront-viewer-region');
+        const viewerCity = getHeaderValue(request.headers, 'cloudfront-viewer-city');
+        const isMobileViewer = getHeaderValue(request.headers, 'cloudfront-is-mobile-viewer');
+        const isTabletViewer = getHeaderValue(request.headers, 'cloudfront-is-tablet-viewer');
+        const isDesktopViewer = getHeaderValue(request.headers, 'cloudfront-is-desktop-viewer');
+        const forwardedProto = getHeaderValue(request.headers, 'x-forwarded-proto');
+        const viewerTls = getHeaderValue(request.headers, 'cloudfront-viewer-tls');
+        const cookie = getHeaderValue(request.headers, 'cookie'); // Get the cookie
+
+        // Additional headers for performance insights:
+        const acceptEncoding = getHeaderValue(request.headers, 'accept-encoding');
+        const connectionType = getHeaderValue(request.headers, 'connection');
+        const age = getHeaderValue(response.headers, 'age');
+        const cacheControl = getHeaderValue(response.headers, 'cache-control');
+
+        const responseSizeBytes = parseInt(contentLength || '0', 10);
+        const approximateBytesSent = responseSizeBytes;  // Approximation, does not include header size
+
         const logEntry = {
             timestamp: new Date().toISOString(),
             client_ip: request.clientIp || '-',
             uri: request.uri || '-',
             method: request.method || '-',
             status_code: parseInt(response.status, 10) || 0,
-            user_agent: request.headers['user-agent'] ? request.headers['user-agent'][0].value : '-',
-            edge_location: request.headers['host'] ? request.headers['host'][0].value : '-',
-            referer: request.headers['referer'] ? request.headers['referer'][0].value : '-',
-            edge_response_result_type: response.status >= 200 && response.status < 300 ? 'Hit' : 'Miss'
+            user_agent: userAgent,
+            referer: referer,
+            edge_location: pop,  // Using POP as edge location
+            x_cache: xCache,     // CloudFront cache status (HIT/MISS) - CRUCIAL!
+            content_length: contentLength, //Bandwidth info
+            cloudfront_viewer_country: viewerCountry,
+            cloudfront_viewer_region: viewerRegion,
+            cloudfront_viewer_city: viewerCity,
+            cloudfront_is_mobile_viewer: isMobileViewer,
+            cloudfront_is_tablet_viewer: isTabletViewer,
+            cloudfront_is_desktop_viewer: isDesktopViewer,
+            x_forwarded_proto: forwardedProto,
+            cloudfront_viewer_tls: viewerTls,
+            cookie: cookie, // ***HANDLE WITH EXTREME CARE!***
+            accept_encoding: acceptEncoding,
+            connection: connectionType,
+            age: age,
+            cache_control: cacheControl,
+            approximate_bytes_sent: approximateBytesSent // Does not include header size
         };
 
         await sendToOpenObserve([logEntry]);
