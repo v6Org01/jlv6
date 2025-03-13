@@ -1,20 +1,22 @@
 ---
 # Introduction
 introduction:
-  title: Welcome!
-  mvp_text: <span class="title-explanation">This is the early version of the site. Most features are broken and pratically all content is missing. New builds are being released regularly to fix and improve things.</span>
+  title: Welcome to my hobby site!
+  subtitle: <span class="title-explanation">Technical Specs. Scroll down for an overview of the site's features.</span>
   arrow_text: Features
   image_light: /images/arrow_down_02_light_40x40.webp
   image_dark: /images/arrow_down_02_dark_40x40.webp
   bulletpoints:
-    - point: /index.html has been served directly from <img src="https://img.shields.io/badge/Kubernetes%20(onPremise)-326CE5?logo=kubernetes&logoColor=fff" alt="K8S Badge"> .
-    - point: <img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"> handles caching and delivery of all other content, with these specific details... 
+    - point: Built using the <a href="https://gohugo.io/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Hugo-FF4088?logo=hugo&logoColor=white" alt="Hugo Badge"></a> framework and a forked version of the <a href="https://github.com/zeon-studio/hugoplate" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Hugoplate-%23000000.svg?logo=github&logoColor=white" alt="GitHub/Hugoplate Badge"></a> theme by <a href="https://zeon.studio/" class="a1" target="_blank" rel="noopener">Zeon Studio</a>.
+    - point: New builds and AWS/Kubernetes infrastructure deployed with <a href="https://github.com/features/actions" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white" alt="Github Actions Badge"></a>, <a href="https://www.terraform.io/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Terraform-844FBA?&logo=Terraform&logoColor=white" alt="Terraform Badge"></a> and <a href="https://argo-cd.readthedocs.io/en/stable/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/ArgoCD-EF7B4D?&logo=Argo&logoColor=white" alt="Argo Badge"></a>.
+    - point: Hosted on geo-redundant <a href="https://kubernetes.io/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff" alt="Kubernetes Badge"></a> clusters, on <a href="https://static-web-server.net/" class="a1" target="_blank" rel="noopener">Static Web Server</a> pods fronted by <a href="https://traefik.io/traefik/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Traefik%20Proxy-24A1C1?logo=traefikproxy&logoColor=fff" alt="Traefik Badge"></a>.
+    - point: <a href="https://aws.amazon.com/cloudfront/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"></a> handles caching and delivery of all content, with these specific details... 
       subpoints:
-        - "Distribution pulls content from 2 Origins: An on-premise Kubernetes cluster  (primary) or a EU-hosted AWS S3 bucket (secondary)."
-        - Function to return 403 Forbidden if user-agent = known AI crawler bot.
-        - Function to rewrite URI when Orgin = S3; needed for in-bucket versioning.
-        - Lambda@Edge Function to modify host header on origin-request to Origin = S3.
-        - Custom headers for on-premise routing and showing /index.html location.
+        - "Distributions: Staging(S), Production(P), Dashboard(D), Grafana(G), Wiki(W)."
+        - "Geographic restrictions (limited to): BE, CA, FR, DE, LU, NL, UK, US."
+        - Lambda@Edge Function to return 403 Forbidden on viewer-request if user-agent = bot.
+        - Lambda@Edge Function to ship logs in real-time to OpenObserve on origin-response of P,D,W distributions.
+        - Standard access logs for all distributions stored in jlv6-logs S3 bucket with prefix /{distribution_name}.
         - _Blog entries will be created shortly to describe ingress for this static site and its CI/CD pipeline._ 
     - point: Website development and deployment are fully driven by Infrastructure as Code (IaC). Project code is stored in GitHub repository <a href="https://github.com/v6Org01/jlv6" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/v6Org01%2Fjlv6-%23000000.svg?logo=github&logoColor=white" alt="GitHub/jlv6 Badge"></a>.
       subpoints:
@@ -34,7 +36,7 @@ introduction:
 # Sections
 sections:
   - title: "Dashboard"
-    subtitle: "Req. multi-factor authentication | only available on-premise"
+    subtitle: "Req. multi-factor authentication"
     image_light: "/images/stock_homepage.png"
     image_dark: "/images/stock_homepage.png"
     image_text: 'img src: <a href="https://gethomepage.dev" class="a1" target="_blank" rel="noopener">homepage.dev</a>'
@@ -54,7 +56,7 @@ sections:
       label: "Start Reading"
       link: "http://localhost:1313/blog"
   - title: "Wiki"
-    subtitle: "Req. multi-factor authentication | only available on-premise"
+    subtitle: "Req. multi-factor authentication"
     image_light: "/images/stock_dokuwiki.png"
     image_dark: "/images/stock_dokuwiki.png"
     image_text: 'img src: <a href="https://www.dokuwiki.org/dokuwiki" class="a1" target="_blank" rel="noopener">dokuwiki.org</a>'
