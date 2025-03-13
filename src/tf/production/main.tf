@@ -1,13 +1,13 @@
 ## CLOUDWATCH ##
 
-module "cw_logs_01" {
+/* module "cw_logs_01" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/originReq-S3-jlv6-production"
   log_group_retention_in_days = 7
-}
+} */
 
 /* module "cw_logs_02" {
   source = "cn-terraform/cloudwatch-logs/aws"
@@ -43,7 +43,7 @@ module "cw_logs_01" {
 
 ## S3 ##
 
-module "s3_bucket_01" {
+/* module "s3_bucket_01" {
   source   = "terraform-aws-modules/s3-bucket/aws"
   providers = {
     aws = aws.eu_central_1
@@ -67,9 +67,9 @@ module "s3_bucket_01" {
       }
     }
   }
-}
+} */
 
-data "aws_iam_policy_document" "s3_policy_doc_01" {
+/* data "aws_iam_policy_document" "s3_policy_doc_01" {
   depends_on = [
     module.s3_bucket_01,
     module.cf_distribution_01
@@ -90,16 +90,16 @@ data "aws_iam_policy_document" "s3_policy_doc_01" {
     }
     effect = "Allow"
   }
-}
+} */
 
-resource "aws_s3_bucket_policy" "s3_policy_01" {
+/* resource "aws_s3_bucket_policy" "s3_policy_01" {
   provider = aws.eu_central_1
   depends_on = [
     data.aws_iam_policy_document.s3_policy_doc_01
   ]
   bucket = module.s3_bucket_01.s3_bucket_id
   policy = data.aws_iam_policy_document.s3_policy_doc_01.json
-}
+} */
 
 /* module "s3_bucket_03" {
   source   = "terraform-aws-modules/s3-bucket/aws"
@@ -285,10 +285,10 @@ resource "aws_s3_bucket_policy" "s3_policy_01" {
 } */
 
 module "cf_distribution_01" {
-  depends_on = [
+/*  depends_on = [
    module.lambda_at_edge_01,
    module.s3_bucket_01
-  ]
+  ] */
 
   source = "terraform-aws-modules/cloudfront/aws"
   providers = {
@@ -310,15 +310,15 @@ module "cf_distribution_01" {
   }
 
   create_origin_access_identity = false
-  create_origin_access_control = true
-  origin_access_control = {
+  create_origin_access_control = false
+/*  origin_access_control = {
     s3_oac_02 = {
       description      = "OAC for ${module.s3_bucket_01.s3_bucket_id} bucket"
       origin_type      = "s3"
       signing_behavior = "always"
       signing_protocol = "sigv4"
     }
-  }
+  } */
 
   logging_config = {
     bucket = data.terraform_remote_state.shared.outputs.module_s3_bucket_01_s3_bucket_bucket_domain_name
@@ -334,14 +334,14 @@ module "cf_distribution_01" {
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      custom_header = [
+/*      custom_header = [
         {
           name  = "X-Deployment-Location"
           value = "k8s"
         }
-      ]
+      ] */
     }
-    failoverS3 = {
+/*    failoverS3 = {
       domain_name           = module.s3_bucket_01.s3_bucket_bucket_regional_domain_name
       origin_access_control = "s3_oac_02"
       origin_path           = "/${var.VERSION}"
@@ -351,18 +351,18 @@ module "cf_distribution_01" {
           value = "aws"
         }
       ]
-    }
+    } */
   }
 
-  origin_group = {
+/*  origin_group = {
     origGroup01 = {
       failover_status_codes      = [404, 500, 502, 503, 504]
       primary_member_origin_id   = "primaryK8S"
       secondary_member_origin_id = "failoverS3"
     }
-  }
+  } */
 
-  ordered_cache_behavior = [
+/*  ordered_cache_behavior = [
     {
       path_pattern     = "/index.html"
       target_origin_id = "origGroup01"
@@ -376,15 +376,7 @@ module "cf_distribution_01" {
       origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
       response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
-
       # realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
-
-      /* function_association = {
-        # Valid keys: viewer-request, viewer-response
-        viewer-request = {
-          function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
-        }
-      } */
 
       lambda_function_association = {
         viewer-request = {
@@ -401,10 +393,10 @@ module "cf_distribution_01" {
         }
       }
     }
-  ]
+  ] */
   
   default_cache_behavior = {
-    target_origin_id       = "origGroup01"
+    target_origin_id       = "primaryK8S"
     viewer_protocol_policy = "https-only"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
@@ -416,23 +408,16 @@ module "cf_distribution_01" {
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
     # realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
-
-    /* function_association = {
-      # Valid keys: viewer-request, viewer-response
-      viewer-request = {
-        function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
-      }
-    } */
     
     lambda_function_association = {
       viewer-request = {
         include_body = false
         lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
       }
-      origin-request = {
+ /*     origin-request = {
         include_body = false
         lambda_arn = module.lambda_at_edge_01.lambda_function_qualified_arn
-      }
+      } */
       origin-response = {
         include_body  = false
         lambda_arn    = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn 
@@ -450,11 +435,11 @@ module "cf_distribution_01" {
 
 ## LAMBDA ##
 
-data "archive_file" "archive_01" {
+/* data "archive_file" "archive_01" {
   type        = "zip"
   source_file = "${path.module}/lambda-originReq-S3.mjs"
   output_path = "${path.module}/lambda-originReq-S3.mjs.zip"
-}
+} */
 
 /* data "archive_file" "archive_02" {
   type        = "zip"
@@ -462,7 +447,7 @@ data "archive_file" "archive_01" {
   output_path = "${path.module}/lambda-transformCloudfrontAccessLogs.py.zip"
 } */
 
-module "lambda_at_edge_01" {
+/* module "lambda_at_edge_01" {
   depends_on = [
     data.archive_file.archive_01,
     module.cw_logs_01
@@ -492,7 +477,7 @@ module "lambda_at_edge_01" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
-}
+} */
 
 /* module "lambda_01" {
   depends_on = [

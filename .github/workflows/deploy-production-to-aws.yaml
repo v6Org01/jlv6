@@ -42,7 +42,7 @@ jobs:
     outputs:
       CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
       CLOUDFRONT_DISTRIBUTION_01_ID: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_ID }}
-      S3_BUCKET_01_ID: ${{ steps.tfc-workspace-output.outputs.S3_BUCKET_01_ID }}
+#     S3_BUCKET_01_ID: ${{ steps.tfc-workspace-output.outputs.S3_BUCKET_01_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,8 +61,8 @@ jobs:
           echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" >> $GITHUB_OUTPUT
           CLOUDFRONT_DISTRIBUTION_01_ID=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_id") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
           echo "CLOUDFRONT_DISTRIBUTION_01_ID=$CLOUDFRONT_DISTRIBUTION_01_ID" >> $GITHUB_OUTPUT
-          S3_BUCKET_01_ID=$(jq -r '.[] | select(.name=="module_s3_bucket_01_s3_bucket_id") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-          echo "S3_BUCKET_01_ID=$S3_BUCKET_01_ID" >> $GITHUB_OUTPUT
+#         S3_BUCKET_01_ID=$(jq -r '.[] | select(.name=="module_s3_bucket_01_s3_bucket_id") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+#         echo "S3_BUCKET_01_ID=$S3_BUCKET_01_ID" >> $GITHUB_OUTPUT
 
   update-cloudfare-dns-alias:
     runs-on: gha-runner-scale-set-arm64
@@ -78,27 +78,27 @@ jobs:
           CF_RECORD_VALUE: ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
-  cp-public-to-s3:
-    runs-on: gha-runner-scale-set-amd64
-    environment: production
-    needs: tf-production-apply-run
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install aws cli and auth
-        uses: v6Org01/.github/actions/install-cli-login-AWS@main
-        with:
-          AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
-          AWS_ROLE_ARN: "${{ secrets.AWS_ROLE_ARN }}"
-      - name: Replace BASE_URL
-        run: |
-          find ./public -type f -exec sed -i "s|{{BASE_URL}}|${{ vars.HUGO_BASE_URL }}|g" {} +
-      - name: Copy to S3
-        run: |
-          aws s3 sync ./public "s3://${{ needs.tf-production-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }}" --delete
-      - name: Invalidate cloudfront cache
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_ID }} --paths "/*"
+#  cp-public-to-s3:
+#    runs-on: gha-runner-scale-set-amd64
+#    environment: production
+#    needs: tf-production-apply-run
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#      - name: Install aws cli and auth
+#        uses: v6Org01/.github/actions/install-cli-login-AWS@main
+#        with:
+#          AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
+#          AWS_ROLE_ARN: "${{ secrets.AWS_ROLE_ARN }}"
+#      - name: Replace BASE_URL
+#        run: |
+#          find ./public -type f -exec sed -i "s|{{BASE_URL}}|${{ vars.HUGO_BASE_URL }}|g" {} +
+#      - name: Copy to S3
+#        run: |
+#          aws s3 sync ./public "s3://${{ needs.tf-production-apply-run.outputs.S3_BUCKET_01_ID }}/${{ inputs.VERSION }}" --delete
+#      - name: Invalidate cloudfront cache
+#        run: |
+#          aws cloudfront create-invalidation --distribution-id ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_ID }} --paths "/*"
 
   forward-var-version:
     runs-on: gha-runner-scale-set-arm64

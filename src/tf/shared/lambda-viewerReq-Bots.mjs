@@ -1,12 +1,12 @@
 // Banned AI User Agents
 const BANNED_AGENTS = [
     'AdsBot-Google', 'AI2Bot', 'Amazonbot', 'anthropic-ai', 'Applebot', 'AwarioRssBot',
-    'AwarioSmartBot', 'Bytespider', 'CCBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-Web',
+    'AwarioSmartBot', 'bingbot', 'Bytespider', 'CCBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-Web',
     'cohere-ai', 'DataForSeoBot', 'Diffbot', 'FacebookBot', 'FriendlyCrawler',
     'Google-Extended', 'GoogleOther', 'GPTBot', 'img2dataset', 'ImagesiftBot',
     'magpie-crawler', 'Meltwater', 'Meta-ExternalAgent', 'Meta-ExternalFetcher', 'omgili',
-    'omgilibot', 'peer39_crawler', 'peer39_crawler/1.0', 'PerplexityBot', 'PiplBot',
-    'scoop.it', 'Seekr', 'YouBot'
+    'omgilibot', 'peer39_crawler', 'peer39_crawler/1.0', 'PerplexityBot', 'PiplBot', 
+    'SemrushBot', 'scoop.it', 'Seekr', 'YouBot'
 ];
 
 export const handler = async (event) => {
