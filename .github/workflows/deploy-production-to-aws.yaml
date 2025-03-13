@@ -78,6 +78,22 @@ jobs:
           CF_RECORD_VALUE: ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
+  invalidate-cf-cache:
+    runs-on: gha-runner-scale-set-amd64
+    environment: production
+    needs: tf-production-apply-run
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install aws cli and auth
+        uses: v6Org01/.github/actions/install-cli-login-AWS@main
+        with:
+          AWS_REGION: ${{ vars.AWS_S3_BUCKET_01_REGION }}
+          AWS_ROLE_ARN: "${{ secrets.AWS_ROLE_ARN }}"
+      - name: Invalidate cloudfront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ needs.tf-production-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_ID }} --paths "/*"
+
 #  cp-public-to-s3:
 #    runs-on: gha-runner-scale-set-amd64
 #    environment: production
