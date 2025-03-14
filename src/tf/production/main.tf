@@ -409,13 +409,17 @@ module "cf_distribution_01" {
 
     # realtime_log_config_arn = aws_cloudfront_realtime_log_config.cf_realtime_log_config_01.arn
 
-    function_association = {
+/*    function_association = {
       viewer-request = {
         function_arn = data.terraform_remote_state.shared.outputs.aws_cloudfront_function_cf_function_01_arn
       }
-    }
+    } */
 
     lambda_function_association = {
+      viewer-request = {
+        include_body = false
+        lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_01_lambda_function_qualified_arn
+      }
       viewer-response = {
         include_body = false
         lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn

@@ -175,19 +175,19 @@ resource "aws_acm_certificate" "cert01" {
 
 ## CLOUDFRONT ##
 
-resource "aws_cloudfront_function" "cf_function_01" {
+/* resource "aws_cloudfront_function" "cf_function_01" {
   provider = aws.us_east_1
   name     = "viewerReq-Bots-jlv6-shared"
   comment  = "Ban AI crawlers and other bots"
   runtime  = "cloudfront-js-2.0"
   code     = file("${path.module}/cf-function-viewerReq-Bots.js")
   publish  = true
-}
+} */
 
 module "cf_distribution_01" {
   depends_on = [
    aws_acm_certificate.cert01,
-   aws_cloudfront_function.cf_function_01,
+   module.lambda_at_edge_01, 
    module.s3_bucket_01
   ]
 
@@ -246,18 +246,18 @@ module "cf_distribution_01" {
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
-    function_association = {
+/*    function_association = {
       viewer-request = {
         function_arn = aws_cloudfront_function.cf_function_01.arn
       }
-    }
+    } */
 
-/*    lambda_function_association = {
+    lambda_function_association = {
       viewer-request = {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
-    } */
+    }
   }
 
   viewer_certificate = {
@@ -271,7 +271,7 @@ module "cf_distribution_01" {
 module "cf_distribution_02" {
   depends_on = [
    aws_acm_certificate.cert01,
-   aws_cloudfront_function.cf_function_01,
+   module.lambda_at_edge_01,
    module.s3_bucket_01
   ]
 
@@ -330,18 +330,18 @@ module "cf_distribution_02" {
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
-    function_association = {
+/*    function_association = {
       viewer-request = {
         function_arn = aws_cloudfront_function.cf_function_01.arn
       }
-    }
+    } */
 
-/*    lambda_function_association = {
+    lambda_function_association = {
       viewer-request = {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
-    } */
+    }
   }
 
   viewer_certificate = {
@@ -354,11 +354,11 @@ module "cf_distribution_02" {
 
 ## LAMBDA ##
 
-/* data "archive_file" "archive_01" {
+data "archive_file" "archive_01" {
   type        = "zip"
   source_file = "${path.module}/lambda-viewerReq-Bots.mjs"
   output_path = "${path.module}/lambda-viewerReq-Bots.mjs.zip"
-} */
+}
 
 data "archive_file" "archive_02" {
   type        = "zip"
@@ -366,7 +366,7 @@ data "archive_file" "archive_02" {
   output_path = "${path.module}/lambda-viewerResp-OpenObserve.mjs.zip"
 }
 
-/* module "lambda_at_edge_01" {
+module "lambda_at_edge_01" {
   depends_on = [
     data.archive_file.archive_01,
     module.cw_logs_01
@@ -396,7 +396,7 @@ data "archive_file" "archive_02" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
-} */
+}
 
 module "lambda_at_edge_02" {
   depends_on = [
