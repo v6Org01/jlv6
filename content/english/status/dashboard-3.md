@@ -8,7 +8,7 @@ draft: false
 
 <div class="main-content">
   <div class="resource-description">
-    <p>This is the description 0f the Grafana dashboard for this website.</p>
+    <p>This is the description of the Grafana dashboard for this website.</p>
     <p>Here you can describe the purpose of the dashboard, how to interpret the metrics, and any other relevant information.</p>
   </div>
 </div>
