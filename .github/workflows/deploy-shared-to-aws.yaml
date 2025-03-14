@@ -86,9 +86,9 @@ jobs:
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Transform lambda-viewerReq-Bots-Logs.mjs
         run : |
-          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerResp-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerResp-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerResp-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
       - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         id: tf-apply

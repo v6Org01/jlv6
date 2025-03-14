@@ -3,7 +3,7 @@ const BANNED_AGENTS = [
     'AdsBot-Google', 'AI2Bot', 'Amazonbot', 'anthropic-ai', 'Applebot', 'AwarioRssBot',
     'AwarioSmartBot', 'bingbot', 'Bytespider', 'CCBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-Web',
     'cohere-ai', 'DataForSeoBot', 'Diffbot', 'FacebookBot', 'FriendlyCrawler',
-    'Google-Extended', 'Googlebot', 'GoogleOther', 'GPTBot', 'img2dataset', 'ImagesiftBot',
+    'Google-Extended', 'GoogleOther', 'GPTBot', 'img2dataset', 'ImagesiftBot',
     'magpie-crawler', 'Meltwater', 'Meta-ExternalAgent', 'Meta-ExternalFetcher', 'omgili',
     'omgilibot', 'peer39_crawler', 'peer39_crawler/1.0', 'PerplexityBot', 'PiplBot', 
     'SemrushBot', 'scoop.it', 'Seekr', 'YouBot'

@@ -1,21 +1,18 @@
 async function handler(event) {
-
     var request = event.request;
     var uri = request.uri;
     var headers = request.headers;
-
-    // Block AI crawlers and other bots
+    // Block AI Crawler
     // https://www.andrlik.org/dispatches/til-block-ai-bots-cloudfront-function/
     const banned_agents = [
         'AdsBot-Google', 'AI2Bot', 'Amazonbot', 'anthropic-ai', 'Applebot', 'AwarioRssBot', 
         'AwarioSmartBot', 'Bytespider', 'CCBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-Web', 
         'cohere-ai', 'DataForSeoBot', 'Diffbot', 'FacebookBot', 'FriendlyCrawler', 
-        'Google-Extended', 'Googlebot', 'GoogleOther', 'GPTBot', 'img2dataset', 'ImagesiftBot', 
+        'Google-Extended', 'GoogleOther', 'GPTBot', 'img2dataset', 'ImagesiftBot', 
         'magpie-crawler', 'Meltwater', 'Meta-ExternalAgent', 'Meta-ExternalFetcher', 'omgili', 
         'omgilibot', 'peer39_crawler', 'peer39_crawler/1.0', 'PerplexityBot', 'PiplBot', 
-        'SemrushBot', 'scoop.it', 'Seekr', 'YouBot'
+        'scoop.it', 'Seekr', 'YouBot'
     ];
-    
     const user_agent = headers['user-agent'] ? headers['user-agent'].value : '';
     for (var i = 0; i < banned_agents.length; i++) {
         var agent = banned_agents[i];
