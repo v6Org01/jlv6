@@ -21,6 +21,11 @@ output "aws_acm_certificate_cert01_arn" {
 
 ## CLOUDFRONT ##
 
+output "aws_cloudfront_function_cf_function_01_arn" {
+  description = "The ARN of the CloudFront function to block bots."
+  value = try(aws_cloudfront_function.cf_function_01.arn, "")
+}
+
 output "module_cf_distribution_01_cloudfront_distribution_domain_name" {
   description = "The domain name corresponding to Cloudfront distribution 01"
   value = try(module.cf_distribution_01.cloudfront_distribution_domain_name, "")
@@ -43,10 +48,10 @@ output "module_cf_distribution_02_cloudfront_distribution_id" {
 
 ## LAMBDA ##
 
-output "module_lambda_at_edge_01_lambda_function_qualified_arn" {
+/* output "module_lambda_at_edge_01_lambda_function_qualified_arn" {
   description = "The qualified arn of lambda@edge function to ban AI crawler bots"
   value =  try(module.lambda_at_edge_01.lambda_function_qualified_arn, "")
-}
+} */
 
 output "module_lambda_at_edge_02_lambda_function_qualified_arn" {
   description = "The qualified arn of lambda@edge function to ship logs to OpenObserve"
