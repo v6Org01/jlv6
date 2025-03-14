@@ -20,9 +20,9 @@ export const handler = async (event) => {
         // Access useful headers (Viewer-Response specific)
         const cacheStatus = response.headers['x-cache'] ? response.headers['x-cache'][0].value : '-';
         const contentLength = response.headers['content-length'] ? response.headers['content-length'][0].value : '-';
-        const cacheControl = headers['cache-control'] ? headers['cache-control'][0].value : '-';
-        const age = headers['age'] ? headers['age'][0].value : '-';
-        const edgeLocation = headers['x-amz-cf-pop'] ? headers['x-amz-cf-pop'][0].value : '-';
+        const cacheControl = response.headers['cache-control'] ? response.headers['cache-control'][0].value : '-';
+        const age = response.headers['age'] ? response.headers['age'][0].value : '-';
+        const edgeLocation = response.headers['x-amz-cf-pop'] ? response.headers['x-amz-cf-pop'][0].value : '-';
 
         // Access useful headers (Viewer-Request) - INLINED for performance!
         const uri = request.uri || '-';
