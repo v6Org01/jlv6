@@ -27,20 +27,18 @@ export const handler = async (event) => {
         const host = getHeaderValue(request.headers, 'host');
         const userAgent = getHeaderValue(request.headers, 'user-agent');
         const referer = getHeaderValue(request.headers, 'referer');
-        const edgeLocation = getHeaderValue(request.headers, 'x-amz-cf-pop');
         const contentLength = getHeaderValue(response.headers, 'content-length');
         const viewerCountry = getHeaderValue(request.headers, 'cloudfront-viewer-country');
         const viewerCity = getHeaderValue(request.headers, 'cloudfront-viewer-city');
         const isMobileViewer = getHeaderValue(request.headers, 'cloudfront-is-mobile-viewer');
         const isTabletViewer = getHeaderValue(request.headers, 'cloudfront-is-tablet-viewer');
         const isDesktopViewer = getHeaderValue(request.headers, 'cloudfront-is-desktop-viewer');
-        const forwardedProto = getHeaderValue(request.headers, 'x-forwarded-proto');
+        const forwardedProto = getHeaderValue(request.headers, 'cloudFront-forwarded-proto');
         const viewerTls = getHeaderValue(request.headers, 'cloudfront-viewer-tls');
         const cookie = getHeaderValue(request.headers, 'cookie'); // Get the cookie
 
         // Additional headers for performance insights:
         const acceptEncoding = getHeaderValue(request.headers, 'accept-encoding');
-        const age = getHeaderValue(response.headers, 'age');
         const cacheControl = getHeaderValue(response.headers, 'cache-control');
 
         const logEntry = {
@@ -52,19 +50,16 @@ export const handler = async (event) => {
             status_code: parseInt(response.status, 10) || 0,
             user_agent: userAgent,
             referer: referer,
-            edge_location: edgeLocation,
-            edge_response_result_type: response.status >= 200 && response.status < 300 ? 'Hit' : 'Miss', // Infer from status code
             content_length: contentLength, //Bandwidth info
             cloudfront_viewer_country: viewerCountry,
             cloudfront_viewer_city: viewerCity,
             cloudfront_is_mobile_viewer: isMobileViewer,
             cloudfront_is_tablet_viewer: isTabletViewer,
             cloudfront_is_desktop_viewer: isDesktopViewer,
-            x_forwarded_proto: forwardedProto,
+            cloudfront_forwarded_proto: forwardedProto,
             cloudfront_viewer_tls: viewerTls,
             cookie: cookie, // ***HANDLE WITH EXTREME CARE!***
             accept_encoding: acceptEncoding,
-            age: age,
             cache_control: cacheControl,
         };
 
