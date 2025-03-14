@@ -194,16 +194,16 @@ module "cf_distribution_01" {
       }
     }
 
-    lambda_function_association = {
+/*  lambda_function_association = {
       viewer-response = {
         include_body = false
         lambda_arn   = data.terraform_remote_state.shared.outputs.module_lambda_at_edge_02_lambda_function_qualified_arn
       }
-/*      origin-request = {
+      origin-request = {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
-      } */
-    }
+      } 
+    } */
   }
 
   viewer_certificate = {
