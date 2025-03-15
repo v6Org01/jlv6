@@ -33,9 +33,7 @@ export const handler = async (event) => {
         const isMobileViewer = getHeaderValue(request.headers, 'cloudfront-is-mobile-viewer');
         const isTabletViewer = getHeaderValue(request.headers, 'cloudfront-is-tablet-viewer');
         const isDesktopViewer = getHeaderValue(request.headers, 'cloudfront-is-desktop-viewer');
-        const forwardedProto = getHeaderValue(request.headers, 'cloudFront-forwarded-proto');
         const viewerTls = getHeaderValue(request.headers, 'cloudfront-viewer-tls');
-        const cookie = getHeaderValue(request.headers, 'cookie'); // Get the cookie
 
         // Additional headers for performance insights:
         const acceptEncoding = getHeaderValue(request.headers, 'accept-encoding');
@@ -56,11 +54,9 @@ export const handler = async (event) => {
             cloudfront_is_mobile_viewer: isMobileViewer,
             cloudfront_is_tablet_viewer: isTabletViewer,
             cloudfront_is_desktop_viewer: isDesktopViewer,
-            cloudfront_forwarded_proto: forwardedProto,
             cloudfront_viewer_tls: viewerTls,
-            cookie: cookie, // ***HANDLE WITH EXTREME CARE!***
             accept_encoding: acceptEncoding,
-            cache_control: cacheControl,
+            cache_control: cacheControl
         };
 
         await sendToOpenObserve([logEntry]);

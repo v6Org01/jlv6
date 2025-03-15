@@ -252,6 +252,10 @@ module "cf_distribution_01" {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
+      origin-response = {
+        include_body  = false
+        lambda_arn    = module.lambda_at_edge_02.lambda_function_qualified_arn
+      }
     }
   }
 
@@ -335,6 +339,10 @@ module "cf_distribution_02" {
       viewer-request = {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
+      }
+      origin-response = {
+        include_body  = false
+        lambda_arn    = module.lambda_at_edge_02.lambda_function_qualified_arn
       }
     } 
   }
