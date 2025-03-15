@@ -26,18 +26,13 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
   provider = aws.us_east_1
   statement {
     actions = [
+      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:*",
-      "arn:aws:logs:*:*:log-group:*.*" 
+      "arn:aws:logs:*:*:*",
     ]
-    condition {
-      test     = "StringEquals" # Ensure tag key EXISTS
-      variable = "aws:ResourceTag/jlv6-com" # Check if the tag KEY "WWW_URI" EXISTS
-      values   = ["true"] # Value doesn't matter; the key must exist.
-    }
   }
 }
 
@@ -242,7 +237,7 @@ module "cf_distribution_01" {
     compress               = true
 
     use_forwarded_values         = false
-    cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
@@ -326,7 +321,7 @@ module "cf_distribution_02" {
     compress               = true
 
     use_forwarded_values         = false
-    cache_policy_id              = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    cache_policy_id              = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
