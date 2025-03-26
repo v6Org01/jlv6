@@ -73,9 +73,9 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
-    outputs:
-      CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
-      CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
+#   outputs:
+#     CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+#     CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,43 +95,43 @@ jobs:
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
-      - name: Terraform Cloud - Get workspace output(s)
-        id: tfc-workspace-output
-        run: |
-          echo "Parsing TFC JSON outputs..."
-          DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
-          CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-          echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" >> $GITHUB_OUTPUT
-          CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_02_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-          echo "CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME" >> $GITHUB_OUTPUT
+#     - name: Terraform Cloud - Get workspace output(s)
+#       id: tfc-workspace-output
+#       run: |
+#         echo "Parsing TFC JSON outputs..."
+#         DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
+#         CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+#         echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" >> $GITHUB_OUTPUT
+#         CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_02_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
+#         echo "CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME" >> $GITHUB_OUTPUT
 
-  update-cloudfare-dns-alias-dashboard:
-    runs-on: gha-runner-scale-set-arm64
-    environment: shared
-    needs: tf-shared-apply-run
-    steps:
-      - name: Update DNS record
-        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
-        with:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_DASHBOARD }}
-          CF_RECORD_TYPE: CNAME
-          CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
-          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+# update-cloudfare-dns-alias-dashboard:
+#   runs-on: gha-runner-scale-set-arm64
+#   environment: shared
+#   needs: tf-shared-apply-run
+#   steps:
+#     - name: Update DNS record
+#       uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
+#       with:
+#         CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+#         CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_DASHBOARD }}
+#         CF_RECORD_TYPE: CNAME
+#         CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
+#         CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
-  update-cloudfare-dns-alias-grafana:
-    runs-on: gha-runner-scale-set-arm64
-    environment: shared
-    needs: tf-shared-apply-run
-    steps:
-      - name: Update DNS record
-        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
-        with:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_GRAFANA }}
-          CF_RECORD_TYPE: CNAME
-          CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
-          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+#  update-cloudfare-dns-alias-grafana:
+#    runs-on: gha-runner-scale-set-arm64
+#    environment: shared
+#    needs: tf-shared-apply-run
+#    steps:
+#      - name: Update DNS record
+#        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
+#        with:
+#          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+#          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_GRAFANA }}
+#          CF_RECORD_TYPE: CNAME
+#          CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
+#          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
   forward-var-version:
     runs-on: gha-runner-scale-set-arm64

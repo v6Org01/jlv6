@@ -179,7 +179,7 @@ resource "aws_acm_certificate" "cert01" {
   publish  = true
 } */
 
-module "cf_distribution_01" {
+/* module "cf_distribution_01" {
   depends_on = [
    aws_acm_certificate.cert01,
    module.lambda_at_edge_01,
@@ -241,11 +241,11 @@ module "cf_distribution_01" {
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
-    /* function_association = {
+    function_association = {
       viewer-request = {
         function_arn = aws_cloudfront_function.cf_function_01.arn
       }
-    } */
+    }
 
     lambda_function_association = {
       viewer-request = {
@@ -261,9 +261,9 @@ module "cf_distribution_01" {
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
   }
-}
+} */
 
-module "cf_distribution_02" {
+/* module "cf_distribution_02" {
   depends_on = [
    aws_acm_certificate.cert01,
    module.lambda_at_edge_01,
@@ -325,11 +325,11 @@ module "cf_distribution_02" {
     origin_request_policy_id     = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # Managed-AllViewerAndCloudFrontHeaders-2022-06
     response_headers_policy_id   = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
-    /* function_association = {
+    function_association = {
       viewer-request = {
         function_arn = aws_cloudfront_function.cf_function_01.arn
       }
-    } */
+    }
 
     lambda_function_association = {
       viewer-request = {
@@ -345,7 +345,7 @@ module "cf_distribution_02" {
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
   }
-}
+} */
 
 ## LAMBDA ##
 
