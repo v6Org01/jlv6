@@ -1,1 +1,56 @@
-{"name":".com","short_name":".com","lang":"en-us","display":"fullscreen","orientation":"portrait","start_url":"http://localhost:1313/?utm_source=web_app_manifest","background_color":"#fff","theme_color":"#000","icons":[{"src":"/images/favicon_hu_4fcb9bf63e3e20c7.png","sizes":"48x48","type":"image/png"},{"src":"/images/favicon_hu_da93d06eedbbe0b8.png","sizes":"72x72","type":"image/png"},{"src":"/images/favicon_hu_e4453a66c6c23ebe.png","sizes":"96x96","type":"image/png"},{"src":"/images/favicon_hu_81a76174f1698ad6.png","sizes":"144x144","type":"image/png"},{"src":"/images/favicon_hu_329094a5e05cf703.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"/images/favicon_hu_1a2de3795e4ebd98.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": ".com",
+  "short_name": ".com",
+  "lang": "en-us",
+  "display": "fullscreen",
+  "orientation" : "portrait",
+  "start_url": "http://localhost:1313/?utm_source=web_app_manifest",
+  "background_color": "#fff",
+  "theme_color": "#000",
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  "icons": [
+    {
+      "src": "/images/favicon_hu_4fcb9bf63e3e20c7.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon_hu_da93d06eedbbe0b8.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon_hu_e4453a66c6c23ebe.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon_hu_81a76174f1698ad6.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon_hu_329094a5e05cf703.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/favicon_hu_1a2de3795e4ebd98.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+  
+  
+}

@@ -1,23 +1,35 @@
 <div class="bg-body dark:bg-darkmode-body">
-  {{ $image:= .Params.image }}
-  {{ if $image }}
-    {{ partial "image" (dict "Src" $image "Context" .Page "Alt" .Title "Class" "mb-6 w-full rounded") }}
+  {{ $image_light := .Params.image_light }}
+  {{ $image_dark := .Params.image_dark }}
+  
+  {{ if or $image_light $image_dark }}
+    <div class="relative">
+      <!-- Light & Dark Mode Images -->
+      {{ if $image_light }}
+        {{ partial "image" (dict "Src" $image_light "Class" "post-image img-light mb-6 w-full rounded" "Alt" .Title) }}
+      {{ end }}
+      {{ if $image_dark }}
+        {{ partial "image" (dict "Src" $image_dark "Class" "post-image img-dark mb-6 w-full rounded hidden" "Alt" .Title) }}
+      {{ end }}
+    </div>
   {{ end }}
-  <h4 class="mb-3">
+
+  <h5 class="mb-3">
     <a href="{{ .RelPermalink }}">
       {{ .Title }}
     </a>
-  </h4>
-  {{ $categories:= .Params.categories }}
+  </h5>
+  {{ $categories := .Params.categories }}
   {{ if $categories }}
     <ul class="mb-4">
       <li class="mr-4 inline-block">
         <i class="fa-regular fa-folder mr-1"></i>
-        {{ range $i,$p:= $categories }}
+        {{ range $i, $p := $categories }}
           <a
             href="{{ `categories/` | relLangURL }}{{ . | urlize | lower }}/"
             class="ms-1"
-            >{{ . | humanize }}{{ if ne $i (sub (len $categories) 1) }}
+          >
+            {{ . | humanize }}{{ if ne $i (sub (len $categories) 1) }}
               {{ "," }}
             {{ end }}
           </a>
@@ -25,8 +37,30 @@
       </li>
     </ul>
   {{ end }}
-  <p class="mb-6">{{ .Summary }}</p>
-  <a class="btn btn-outline-primary btn-sm" href="{{ .RelPermalink }}">
-    {{ T "read_more" }}
-  </a>
 </div>
+
+<!-- JavaScript for Theme-based Image Switching -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Select the images (light and dark) using the 'post-image' class
+    var lightImage = document.querySelector(".post-image.img-light");
+    var darkImage = document.querySelector(".post-image.img-dark");
+
+    // Function to update image display based on the current theme
+    function updateImageDisplay() {
+      var isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (isDarkMode) {
+        if (lightImage) lightImage.classList.add("hidden");
+        if (darkImage) darkImage.classList.remove("hidden");
+      } else {
+        if (lightImage) lightImage.classList.remove("hidden");
+        if (darkImage) darkImage.classList.add("hidden");
+      }
+    }
+
+    // Run on load and listen for changes to the theme
+    updateImageDisplay();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateImageDisplay);
+  });
+</script>

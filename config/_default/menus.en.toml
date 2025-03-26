@@ -12,11 +12,6 @@ url = "/blog"
 weight = 2
 
 [[main]]
-name = "Wiki"
-url = "https://wiki-www.jlv6.com"
-weight = 3
-
-[[main]]
 name = "Status"
 url = "/status"
 weight = 4

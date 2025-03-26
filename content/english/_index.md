@@ -12,10 +12,9 @@ introduction:
     - point: Hosted on geo-redundant <a href="https://kubernetes.io/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff" alt="Kubernetes Badge"></a> clusters, on <a href="https://static-web-server.net/" class="a1" target="_blank" rel="noopener">Static Web Server</a> pods fronted by <a href="https://traefik.io/traefik/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Traefik%20Proxy-24A1C1?logo=traefikproxy&logoColor=fff" alt="Traefik Badge"></a>.
     - point: <a href="https://aws.amazon.com/cloudfront/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"></a> handles caching and delivery of all content, with these specific details... 
       subpoints:
-        - "Distributions: Staging(S), Production(P), Dashboard(D), Grafana(G), Wiki(W)."
+        - "Distributions: Staging(S), Production(P), Dashboard(D), Grafana(G)."
         - "Geographic restrictions (limited to): BE, CA, FR, DE, LU, NL, UK, US."
-        - Lambda@Edge Function to return 403 Forbidden on viewer-request if user-agent = bot.
-        - Lambda@Edge Function to ship logs in real-time to OpenObserve on origin-response of P,D,W distributions.
+        - Lambda@Edge Function to return 403 Forbidden on viewer-request if user-agent = bot and ship logs in real-time with a unique identifier to OpenObserve for the production distribution.
         - Standard access logs for all distributions stored in jlv6-logs S3 bucket with prefix /{distribution_name}.
         - _Blog entries will be created shortly to describe ingress for this static site and its CI/CD pipeline._ 
     - point: Website development and deployment are fully driven by Infrastructure as Code (IaC). Project code is stored in GitHub repository <a href="https://github.com/v6Org01/jlv6" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/v6Org01%2Fjlv6-%23000000.svg?logo=github&logoColor=white" alt="GitHub/jlv6 Badge"></a>.
@@ -44,7 +43,7 @@ sections:
     button:
       enable: true
       label: "Dashboard"
-      link: "https://dashboard-www.jlv6.com"
+      link: "https://dashboard.jlv6.com"
   - title: "Blog"
     subtitle:  "Documenting Tech, One Post at a Time"
     image_light: "/images/diag_network_01_light.png"
@@ -55,16 +54,6 @@ sections:
       enable: true
       label: "Start Reading"
       link: "http://localhost:1313/blog"
-  - title: "Wiki"
-    subtitle: "Req. multi-factor authentication"
-    image_light: "/images/stock_dokuwiki.png"
-    image_dark: "/images/stock_dokuwiki.png"
-    image_text: 'img src: <a href="https://www.dokuwiki.org/dokuwiki" class="a1" target="_blank" rel="noopener">dokuwiki.org</a>'
-    content: "This private wiki, powered by DokuWiki and its Bootstrap3 template, offers a simple no-database solution for organizing personal notes, project documentation and sensitive data."
-    button:
-      enable: true
-      label: "Enter Wiki"
-      link: "https://wiki-www.jlv6.com"
   - title: "Status Page"
     subtitle: "Observability at a Glance"
     image_light: "/images/stock_grafana.png"

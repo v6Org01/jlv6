@@ -1,6 +1,15 @@
 // table of contents
 .table-of-content {
   @apply overflow-hidden rounded;
+  // Remove numbers for H2 (##) and H3 (###)
+  ol > li {
+    list-style-type: none;
+  }
+
+  // Re-enable numbers starting from H5 (#####) and beyond
+  ol > li > ol > li {
+    list-style-type: decimal;
+  }
 }
 
 // share icons

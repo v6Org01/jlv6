@@ -8,8 +8,6 @@ draft: false
 
 <div class="main-content">
   <div class="resource-description">
-    <p>This is the dashboard for this website.</p>
-    <p>Here you can describe the purpose of the dashboard, how to interpret the metrics, and any other relevant information.</p>
   </div>
 </div>
-<h3>https://graflfd31.grafana.net/public-dashboards/c28d7a7678e9477887041f8ac48fe988</h3
+<h3>https://grafana.jlv6.com/public-dashboards/394c2721502f4b70bb39f35a58feed64</h3>

@@ -1,0 +1,136 @@
+{{ define "main" }}
+  <section class="section pt-7">
+    <div class="container">
+      <div class="row justify-center">
+        <article class="lg:col-10">
+          {{ $image:= .Params.image }}
+          {{ if $image }}
+          <div class="mb-10 relative">
+            {{ partial "image" (dict "Src" $image "Context" .Page "Alt" .Title "Class" "w-full rounded") }}
+        
+            <!-- Fullscreen link (target only this $image) -->
+            <a 
+              href="javascript:void(0);" 
+              class="absolute bottom-2 right-2 bg-black text-white px-3 py-1 text-sm rounded opacity-75 hover:opacity-100"
+              data-image="{{ $image }}" 
+              onclick="openFullscreen(this)">
+              Fullscreen
+            </a>
+          </div>
+        
+          <!-- Fullscreen Overlay (Initially Hidden) -->
+          <div id="fullscreen-overlay" class="fixed inset-0 bg-black bg-opacity-90 hidden flex items-center justify-center z-50">
+            <img id="fullscreen-image" class="max-w-full max-h-full">
+            <a 
+              href="javascript:void(0);" 
+              class="absolute top-5 right-5 text-white text-3xl"
+              onclick="closeFullscreen()">
+              ✖
+            </a>
+          </div>
+        {{ end }}
+        
+          <h4 class="h4 mb-4">
+            {{ .Title }}
+          </h4>
+          <ul class="mb-4">
+            {{ $categories:= .Params.categories }}
+            {{ if $categories }}
+              <li class="mr-4 inline-block">
+                <i class="fa-regular fa-folder mr-2"></i>
+                {{ range $i,$p:= $categories }}
+                  <a
+                    href="{{ `categories/` | relLangURL }}{{ . | urlize | lower }}/"
+                    class=""
+                    >{{ . | humanize }}{{ if ne $i (sub (len $categories) 1) }}
+                      {{ "," }}
+                    {{ end }}
+                  </a>
+                {{ end }}
+              </li>
+            {{ end }}
+            <li class="mr-4 inline-block">
+              <i class="fa-regular fa-clock mr-2"></i>
+              {{ time.Format ":date_long" .PublishDate }}
+            </li>
+          </ul>
+          <div class="content mb-10">
+            {{ partial "toc.html" (dict "Class" "blog" "Collapsed" false "TableOfContents" .TableOfContents ) }}
+            {{ .Content }}
+          </div>
+          <div class="row items-start justify-between">
+            {{ $tags:= .Params.tags }}
+            {{ if $tags }}
+              <div class="lg:col-5 mb-10 flex items-center lg:mb-0">
+                <h6 class="mr-3">{{ T "tags" }}:</h6>
+                <ul>
+                  {{ range $i,$p:= $tags }}
+                    <li class="inline-block">
+                      <a
+                        class="bg-theme-light hover:bg-primary dark:bg-darkmode-theme-light dark:hover:bg-darkmode-primary dark:hover:text-dark m-1 block rounded px-3 py-1 hover:text-white"
+                        href="{{ `tags/` | relLangURL }}{{ . | urlize | lower }}/">
+                        {{ . | humanize }}
+                      </a>
+                    </li>
+                  {{ end }}
+                </ul>
+              </div>
+            {{ end }}
+          </div>
+          <!-- comments -->
+          {{ if site.Config.Services.Disqus.Shortname }}
+            <div class="mt-20">
+              {{ template "_internal/disqus.html" . }}
+            </div>
+          {{ end }}
+        </article>
+      </div>
+
+      <!-- Related posts -->
+      {{ $related := (where site.RegularPages "Section" "in" site.Params.mainSections) | intersect (where site.RegularPages ".Title" "!=" .Title) | union (site.RegularPages.Related . ) }}
+      {{ $related = $related | shuffle | first 3 }}
+      {{ with $related }}
+        <div class="section pb-0">
+          <h2 class="h3 mb-12">{{ T "related_posts" }}</h2>
+          <div class="row">
+            {{ range . }}
+              <div class="lg:col-4 md:col-6 mb-14">
+                {{ partial "components/blog-card" . }}
+              </div>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+    </div>
+  </section>
+
+  <!-- JavaScript to handle $image.fullscreen -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      function openFullscreen(linkElement) {
+        // Get the image URL from the data-image attribute of the clicked link
+        var imageSrc = linkElement.getAttribute("data-image");
+        var overlay = document.getElementById("fullscreen-overlay");
+        var image = document.getElementById("fullscreen-image");
+  
+        if (overlay && image && imageSrc) {
+          // Set the fullscreen image source
+          image.src = imageSrc;
+          overlay.classList.remove("hidden"); // Show overlay
+        }
+      }
+  
+      function closeFullscreen() {
+        var overlay = document.getElementById("fullscreen-overlay");
+        if (overlay) {
+          overlay.classList.add("hidden"); // Hide overlay
+        }
+      }
+  
+      // Attach functions to the window object to make them available globally
+      window.openFullscreen = openFullscreen;
+      window.closeFullscreen = closeFullscreen;
+    });
+  </script>
+
+{{ end }}

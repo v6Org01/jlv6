@@ -11,8 +11,22 @@ a.a1:hover {
   text-decoration: none;  /* Optionally remove underline on hover */
 }
 
+.active-resource {
+  font-weight: bold;
+  color: #21918e;
+  /* text-decoration: underline; */
+}
+
 img {
   pointer-events: none;
+}
+
+img[alt=img-50per] { 
+  width: 50%;
+}
+
+img[alt=img-75per] { 
+  width: 75%;
 }
 
 p.separator {
@@ -43,6 +57,10 @@ span.title-hub {
   font-size: 2.25rem;
   font-weight: 600;
   text-align: center;
+}
+
+summary.s1 {
+  color: #21918e;
 }
 
 /* Bullet point list */

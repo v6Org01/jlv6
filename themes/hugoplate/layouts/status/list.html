@@ -5,7 +5,6 @@
         <!-- Main Content: Resource Content Area -->
         <div class="lg:col-9" id="resource-content">
           <!-- Default content or message when no resource is selected -->
-          <h5>Select a resource from the sidebar to view its details.</h5>
         </div>
 
         <!-- Sidebar: Resources List -->
@@ -34,37 +33,90 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const resourceLinks = document.querySelectorAll(".resource-link");
-
-      resourceLinks.forEach(function(link) {
+    
+      function loadResource(resourceUrl, clickedLink = null) {
+        if (!resourceUrl) {
+          console.error("No resource URL found.");
+          return;
+        }
+    
+        console.log("Fetching resource from:", resourceUrl); // Debugging line
+    
+        // Remove active class from all resource links
+        resourceLinks.forEach(l => l.classList.remove("active-resource"));
+    
+        // Add active class to the clicked link (or default link on page load)
+        if (clickedLink) {
+          clickedLink.classList.add("active-resource");
+        }
+    
+        fetch(resourceUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.text();
+          })
+          .then(data => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, "text/html");
+    
+            const resourceSections = doc.querySelectorAll(".main-content");
+            const grafanaUrls = doc.querySelectorAll("h3");
+    
+            let contentHtml = "";
+    
+            resourceSections.forEach((section, index) => {
+              const sectionContent = section.innerHTML.trim();
+              const grafanaUrl = grafanaUrls[index] ? grafanaUrls[index].innerText.trim() : "";
+    
+              contentHtml += `<div class="resource-section">`;
+    
+              if (sectionContent) {
+                contentHtml += `<div class="resource-description">${sectionContent}</div><br />`;
+              }
+    
+              if (grafanaUrl) {
+                contentHtml += `
+                  <div class="grafana-iframe-container">
+                    <iframe width="100%" height="600" frameborder="0" src="${grafanaUrl}"></iframe>
+                  </div>
+                `;
+              }
+    
+              contentHtml += `</div><br />`;
+            });
+    
+            document.getElementById("resource-content").innerHTML = contentHtml || "<p>No content available for this resource.</p>";
+          })
+          .catch(error => {
+            console.error("Error fetching resource:", error);
+            alert("Failed to load resource content.");
+          });
+      }
+    
+      // Find the resource link for "jlv6.com"
+      let defaultResource = null;
+    
+      resourceLinks.forEach(link => {
+        if (link.textContent.trim() === "jlv6.com") {
+          defaultResource = link;
+        }
+      });
+    
+      // If "jlv6.com" exists, use it; otherwise, use the first resource
+      const initialResource = defaultResource || resourceLinks[0];
+    
+      if (initialResource) {
+        const initialResourceUrl = initialResource.getAttribute("data-resource");
+        loadResource(initialResourceUrl, initialResource);
+      }
+    
+      // Attach click events to each resource link
+      resourceLinks.forEach(link => {
         link.addEventListener("click", function() {
           const resourceUrl = link.getAttribute("data-resource");
-
-          // Fetch the resource content dynamically using AJAX
-          fetch(resourceUrl)
-            .then(response => response.text())
-            .then(data => {
-              // Parse the fetched HTML
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(data, 'text/html');
-              
-              // Extract the title and content from the fetched page
-              const resourceTitle = doc.querySelector("h1, h2, .resource-title") ? doc.querySelector("h1, h2, .resource-title").innerText : "Untitled";
-              const resourceContent = doc.querySelector(".main-content") ? doc.querySelector(".main-content").innerHTML : "<p>No content available for this resource.</p>";
-              const grafanaDashboardUrl = doc.querySelector("h3") ? doc.querySelector("h3").innerHTML : "<p>No graph available.</p>";
-
-              // Inject the title and content into the current page
-              document.getElementById("resource-content").innerHTML = `
-                <h4>${resourceTitle}</h4>
-                <div class="resource-description">${resourceContent}</div>
-                <div class="grafana-iframe-container">
-                  <iframe id="grafanaDashboard" width="100%" height="600" frameborder="0" src="${grafanaDashboardUrl}"></iframe>
-                </div>
-              `;
-            })
-            .catch(error => {
-              console.error('Error fetching resource:', error);
-              alert("Failed to load resource content.");
-            });
+          loadResource(resourceUrl, link);
         });
       });
     });

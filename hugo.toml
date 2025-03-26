@@ -111,8 +111,8 @@ unsafe = true
 style = 'monokai' # see https://xyproto.github.io/splash/docs/all.html
 
 [markup.tableOfContents]
-startLevel = 2
-endLevel = 5
+startLevel = 4
+endLevel = 6
 ordered = true
 
 

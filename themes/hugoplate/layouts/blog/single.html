@@ -3,15 +3,24 @@
     <div class="container">
       <div class="row justify-center">
         <article class="lg:col-10">
-          {{ $image:= .Params.image }}
-          {{ if $image }}
-            <div class="mb-10">
-              {{ partial "image" (dict "Src" $image "Context" .Page "Alt" .Title "Class" "w-full rounded") }}
+          {{ $image_light := .Params.image_light }}
+          {{ $image_dark := .Params.image_dark }}
+
+          {{ if or $image_light $image_dark }}
+            <div class="mb-10 relative">
+              <!-- Light & Dark Mode Images with unique class for the blog post -->
+              {{ if $image_light }}
+                {{ partial "image" (dict "Src" $image_light "Class" "post-image img-light w-full rounded" "Alt" .Title "DisplayXL" "2000x" "DisplayLG" "1500x" "DisplayMD" "1200x") }}
+              {{ end }}
+              {{ if $image_dark }}
+                {{ partial "image" (dict "Src" $image_dark "Class" "post-image img-dark w-full rounded hidden" "Alt" .Title "DisplayXL" "2000x" "DisplayLG" "1500x" "DisplayMD" "1200x") }}
+              {{ end }}
             </div>
           {{ end }}
-          <h1 class="h2 mb-4">
+
+          <h4 class="h4 mb-4">
             {{ .Title }}
-          </h1>
+          </h4>
           <ul class="mb-4">
             {{ $categories:= .Params.categories }}
             {{ if $categories }}
@@ -34,30 +43,8 @@
             </li>
           </ul>
           <div class="content mb-10">
-            {{ partial "toc.html" (dict "Class" "blog" "Collapsed" false "TableOfContents" .TableOfContents ) }}
+          <!-- {{ partial "toc.html" (dict "Class" "blog" "Collapsed" true "TableOfContents" .TableOfContents ) }} -->
             {{ .Content }}
-          </div>
-          <div class="row items-start justify-between">
-            {{ $tags:= .Params.tags }}
-            {{ if $tags }}
-              <div class="lg:col-5 mb-10 flex items-center lg:mb-0">
-                <h5 class="mr-3">{{ T "tags" }} :</h5>
-                <ul>
-                  {{ range $i,$p:= $tags }}
-                    <li class="inline-block">
-                      <a
-                        class="bg-theme-light hover:bg-primary dark:bg-darkmode-theme-light dark:hover:bg-darkmode-primary dark:hover:text-dark m-1 block rounded px-3 py-1 hover:text-white"
-                        href="{{ `tags/` | relLangURL }}{{ . | urlize | lower }}/">
-                        {{ . | humanize }}
-                      </a>
-                    </li>
-                  {{ end }}
-                </ul>
-              </div>
-            {{ end }}
-            <div class="lg:col-4 flex items-center">
-              {{ partial "social-share" (dict "Context" . "Class" "share-icons" "Title" (T "share") "Whatsapp" false "Telegram" false "Linkedin" false "Pinterest" false "Tumblr" false "Vk" false) }}
-            </div>
           </div>
           <!-- comments -->
           {{ if site.Config.Services.Disqus.Shortname }}
@@ -85,4 +72,38 @@
       {{ end }}
     </div>
   </section>
+
+  <!-- JavaScript for Theme-based Image Switching -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Target the specific images for the post
+      var lightImage = document.querySelector(".post-image.img-light");
+      var darkImage = document.querySelector(".post-image.img-dark");
+
+      // Function to get the active image (visible one based on current theme)
+      function getActiveImage() {
+        var isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // If dark mode, return dark image, otherwise return light image
+        return isDarkMode ? darkImage : lightImage;
+      }
+
+      // Function to update image display when the theme changes
+      function updateImageDisplay() {
+        var isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode) {
+          if (lightImage) lightImage.classList.add("hidden");
+          if (darkImage) darkImage.classList.remove("hidden");
+        } else {
+          if (lightImage) lightImage.classList.remove("hidden");
+          if (darkImage) darkImage.classList.add("hidden");
+        }
+
+      // Update images on page load and when theme changes
+      updateImageDisplay();
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateImageDisplay);
+      }
+    });
+  </script>
 {{ end }}
