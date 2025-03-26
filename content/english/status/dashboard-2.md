@@ -1,7 +1,7 @@
 ---
 title: "Applications"
 meta_title: ""
-description: "this is meta description"
+description: ""
 resources: ["applications"]
 draft: false
 ---
