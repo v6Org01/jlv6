@@ -86,9 +86,9 @@ jobs:
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Transform lambda-viewerReq-Bots-Logs.mjs
         run : |
-          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-originResp-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
       - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         id: tf-apply
@@ -119,7 +119,7 @@ jobs:
           CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
-  update-cloudfare-dns-alias-wiki:
+  update-cloudfare-dns-alias-grafana:
     runs-on: gha-runner-scale-set-arm64
     environment: shared
     needs: tf-shared-apply-run
@@ -128,7 +128,7 @@ jobs:
         uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
         with:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_WIKI }}
+          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_GRAFANA }}
           CF_RECORD_TYPE: CNAME
           CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}

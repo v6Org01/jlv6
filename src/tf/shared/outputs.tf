@@ -44,11 +44,11 @@ output "module_cf_distribution_02_cloudfront_distribution_id" {
 ## LAMBDA ##
 
 output "module_lambda_at_edge_01_lambda_function_qualified_arn" {
-  description = "The qualified arn of lambda@edge function to ban AI crawler bots"
+  description = "The qualified arn of lambda@edge function to ban crawler bots and ship logs to OpenObserve"
   value =  try(module.lambda_at_edge_01.lambda_function_qualified_arn, "")
 }
 
-output "module_lambda_at_edge_02_lambda_function_qualified_arn" {
+/* output "module_lambda_at_edge_02_lambda_function_qualified_arn" {
   description = "The qualified arn of lambda@edge function to ship logs to OpenObserve"
   value =  try(module.lambda_at_edge_02.lambda_function_qualified_arn, "")
-}
+} */

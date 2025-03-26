@@ -88,18 +88,18 @@ module "cw_logs_01" {
   providers = {
     aws = aws.us_east_1
   }
-  logs_path = "/aws/lambda/viewerReq-Bots-jlv6-shared"
+  logs_path = "/aws/lambda/viewerReq-Bots-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
 }
 
-module "cw_logs_02" {
+/* module "cw_logs_02" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/originResp-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
-}
+} */
 
 ## S3 ##
 
@@ -252,10 +252,6 @@ module "cf_distribution_01" {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
-      origin-response = {
-        include_body  = false
-        lambda_arn    = module.lambda_at_edge_02.lambda_function_qualified_arn
-      }
     }
   }
 
@@ -280,12 +276,12 @@ module "cf_distribution_02" {
   }
 
   tags = {
-    custom-name = "jlv6-prod-wiki"
+    custom-name = "jlv6-prod-grafana"
   }
 
-  aliases = ["${var.ADN-WIKI}"]
+  aliases = ["${var.ADN-GRAFANA}"]
 
-  comment             = "Shared distribution for ${var.WWW_URI}'s wiki"
+  comment             = "Shared distribution for ${var.WWW_URI}'s grafana dashboards"
   enabled             = true
   is_ipv6_enabled     = false
   price_class         = "PriceClass_100"
@@ -302,12 +298,12 @@ module "cf_distribution_02" {
 
   logging_config = {
     bucket = module.s3_bucket_01.s3_bucket_bucket_domain_name
-    prefix = "cf_wiki"
+    prefix = "cf_grafana"
   }
 
   origin = {
     primaryK8S = {
-      domain_name = var.AWS_CF_ORIGIN_JLV6_URI_WIKI
+      domain_name = var.AWS_CF_ORIGIN_JLV6_URI_GRAFANA
       custom_origin_config = {
         http_port              = 80
         https_port             = 443
@@ -340,10 +336,6 @@ module "cf_distribution_02" {
         include_body = false
         lambda_arn   = module.lambda_at_edge_01.lambda_function_qualified_arn
       }
-      origin-response = {
-        include_body  = false
-        lambda_arn    = module.lambda_at_edge_02.lambda_function_qualified_arn
-      }
     } 
   }
 
@@ -359,15 +351,15 @@ module "cf_distribution_02" {
 
 data "archive_file" "archive_01" {
   type        = "zip"
-  source_file = "${path.module}/lambda-viewerReq-Bots.mjs"
-  output_path = "${path.module}/lambda-viewerReq-Bots.mjs.zip"
+  source_file = "${path.module}/lambda-viewerReq-Bots-OpenObserve.mjs"
+  output_path = "${path.module}/lambda-viewerReq-Bots-OpenObserve.mjs.zip"
 }
 
-data "archive_file" "archive_02" {
+/* data "archive_file" "archive_02" {
   type        = "zip"
   source_file = "${path.module}/lambda-originResp-OpenObserve.mjs"
   output_path = "${path.module}/lambda-originResp-OpenObserve.mjs.zip"
-}
+} */
 
 module "lambda_at_edge_01" {
   depends_on = [
@@ -387,9 +379,9 @@ module "lambda_at_edge_01" {
   local_existing_package = data.archive_file.archive_01.output_path
   
   architectures = ["x86_64"]
-  function_name = "viewerReq-Bots-jlv6-shared"
-  description   = "Ban AI crawler bots"
-  handler       = "lambda-viewerReq-Bots.handler"
+  function_name = "viewerReq-Bots-OpenObserve-jlv6-shared"
+  description   = "Ban crawler bots and ship logs to OpenObserve"
+  handler       = "lambda-viewerReq-Bots-OpenObserve.handler"
   runtime       = "nodejs20.x"
 
   create_role   = false
@@ -401,7 +393,7 @@ module "lambda_at_edge_01" {
   logging_log_group                  = module.cw_logs_01.log_group_name
 }
 
-module "lambda_at_edge_02" {
+/* module "lambda_at_edge_02" {
   depends_on = [
     data.archive_file.archive_02,
     module.cw_logs_02
@@ -432,4 +424,4 @@ module "lambda_at_edge_02" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_02.log_group_name
-}
+} */
