@@ -33,6 +33,8 @@ export const handler = async (event) => {
         const request = event.Records[0].cf.request;
         const headers = request.headers || {};
         const userAgent = headers["user-agent"] ? headers["user-agent"][0].value : "";
+        const hostHeader = headers["host"] ? headers["host"][0].value : ""; 
+        const refererHeader = headers["referer"] ? headers["referer"][0].value : ""; // Extract Referer
 
         const requestId = generateRequestId();
         request.headers['x-request-id'] = [{ key: 'x-request-id', value: requestId }];
@@ -46,6 +48,8 @@ export const handler = async (event) => {
             client_ip: request.clientIp || '-',
             method: request.method || '-',
             uri: request.uri || '-',
+            host: hostHeader || '-', 
+            referer: refererHeader || '-',
             user_agent: userAgent || '-',
             bot_blocked: isBotRequest
         };
