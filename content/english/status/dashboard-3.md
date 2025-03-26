@@ -1,7 +1,7 @@
 ---
 title: "Kubernetes"
 meta_title: ""
-description: ""
+description: " "
 resources: ["kubernetes"]
 draft: false
 ---
