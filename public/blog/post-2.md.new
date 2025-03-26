@@ -1,0 +1,68 @@
+---
+title: "Tracking Website Performance and Availability Metrics"
+meta_title: ""
+description: ""
+date: 2025-03-21T05:00:00Z
+image: "/images/image-placeholder.png"
+categories: ["Observability"]
+tags: ["Grafana", "OpenObserve", "OpenTelemetry"]
+draft: false
+---
+
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo vel ad consectetur ut aperiam. Itaque eligendi natus aperiam? Excepturi repellendus consequatur quibusdam optio expedita praesentium est adipisci dolorem ut eius!
+
+##### Creative Design
+
+Nam ut rutrum ex, venenatis sollicitudin urna. Aliquam erat volutpat. Integer eu ipsum sem. Ut bibendum lacus vestibulum maximus suscipit. Quisque vitae nibh iaculis neque blandit euismod.
+
+> Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo vel ad consectetur ut aperiam. Itaque eligendi natus aperiam? Excepturi repellendus consequatur quibusdam optio expedita praesentium est adipisci dolorkkem ut eius!
+
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo vel ad consectetur ut aperiam. Itaque eligendi natus aperiam? Excepturi repellendus consequatur quibusdam optio expedita praesentium est adipisci dolorem ut eius!
+
+```yaml {style=nordic}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector-httpchecks
+  namespace: example
+spec:
+  mode: deployment
+  replicas: 1
+  image: "registry.example.com:3443/otel/opentelemetry-collector-contrib:latest"
+  env:
+    - name: OPENOBSERVE_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: opentelemetry-o2token
+          key: o2token
+  config:
+    receivers:
+      httpcheck:
+        collection_interval: 30s
+        targets:
+          - method: "GET"
+            endpoints:
+              - "https://www.jlv6.com"
+    processors:
+      resource:
+        attributes:
+          - key: "otel.collector.name"
+            value: "otel-collector-httpchecks"
+            action: upsert
+      batch:
+        timeout: 10s
+    exporters:
+      otlp/openobserve:
+        endpoint: openobserve-router.example.svc.cluster.local:5081
+        headers:
+          Authorization: "Basic ${env:OPENOBSERVE_TOKEN}"
+          organization: default
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        metrics:
+          receivers: [httpcheck]
+          processors: [resource, batch]
+          exporters: [otlp/openobserve]
+```
