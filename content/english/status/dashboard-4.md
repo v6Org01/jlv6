@@ -1,8 +1,8 @@
 ---
-title: "Applications"
+title: "ArgoCD"
 meta_title: ""
-description: ""
-resources: ["applications"]
+description: " "
+resources: ["argocd"]
 draft: false
 ---
 

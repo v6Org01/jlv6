@@ -1,7 +1,7 @@
 ---
 title: "jlv6.com"
 meta_title: ""
-description: " "
+description: ""
 resources: ["jlv6.com"]
 draft: false
 ---
