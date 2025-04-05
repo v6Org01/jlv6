@@ -1,4 +1,4 @@
-name: deploy-staging-to-k8s
+name: deploy-production-to-k8s-pluto
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ on:
     secrets:
       DEPLOY_PRIVATE_KEY:
         required: true
-      KUBECONFIG_PLUTO_STAGING:
+      KUBECONFIG_PLUTO_PROD:
         required: true
     outputs:
       VERSION:
@@ -21,14 +21,14 @@ jobs:
 
   update-argocd-app:
     runs-on: gha-runner-scale-set-arm64
-    environment: staging
+    environment: production
     steps:
       - name: Update image tag and deploy app with ArgoCD
         uses: v6Org01/.github/actions/update-imageTag-argoDeploy@main
         with:
           ARGOCD_APPLICATION_FILE: ${{ vars.ARGOCD_APPLICATION_FILE }}
           DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG_PLUTO_PROD }}
           NAMESPACE: ${{ vars.K8S_NAMESPACE }}
           VERSION: ${{ inputs.VERSION }}
 

@@ -48,7 +48,6 @@ jobs:
 
           if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-k8s|-sk"; then
             echo "DEPLOY_K8S=false" >> $GITHUB_OUTPUT
-          else
             echo "DEPLOY_K8S=true" >> $GITHUB_OUTPUT
           fi
       - name: Debug
@@ -152,7 +151,7 @@ jobs:
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-  deploy-to-k8s-staging:
+  deploy-to-k8s-pluto-staging:
     if: >
       !failure() &&
       !cancelled() &&
@@ -160,21 +159,21 @@ jobs:
     needs:
       - build-push-image
       - deploy-to-aws-shared
-    uses: v6Org01/jlv6/.github/workflows/deploy-staging-to-k8s.yaml@main
+    uses: v6Org01/jlv6/.github/workflows/deploy-staging-to-k8s-pluto.yaml@main
     with:
       VERSION: ${{ needs.deploy-to-aws-shared.outputs.VERSION }}
     secrets:
       DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
       KUBECONFIG_PLUTO_STAGING: ${{ secrets.KUBECONFIG_PLUTO_STAGING }}
 
-  deploy-to-k8s-production:
+  deploy-to-k8s-pluto-production:
     if: >
       !failure() &&
       !cancelled()
-    needs: deploy-to-k8s-staging
-    uses: v6Org01/jlv6/.github/workflows/deploy-production-to-k8s.yaml@main
+    needs: deploy-to-k8s-pluto-staging
+    uses: v6Org01/jlv6/.github/workflows/deploy-production-to-k8s-pluto.yaml@main
     with:
-      VERSION: ${{ needs.deploy-to-k8s-staging.outputs.VERSION }}
+      VERSION: ${{ needs.deploy-to-k8s-pluto-staging.outputs.VERSION }}
     secrets:
       DEPLOY_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
       KUBECONFIG_PLUTO_PROD: ${{ secrets.KUBECONFIG_PLUTO_PROD }}
