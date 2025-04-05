@@ -12,7 +12,7 @@ introduction:
     - point: Hosted on geo-redundant <a href="https://kubernetes.io/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=fff" alt="Kubernetes Badge"></a> clusters, on <a href="https://static-web-server.net/" class="a1" target="_blank" rel="noopener">Static Web Server</a> pods fronted by <a href="https://traefik.io/traefik/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Traefik%20Proxy-24A1C1?logo=traefikproxy&logoColor=fff" alt="Traefik Badge"></a>.
     - point: <a href="https://aws.amazon.com/cloudfront/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/AWS%20CloudFront-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="AWS Cloudfront Badge"></a> handles caching and delivery of all content, with these specific details... 
       subpoints:
-        - "Distributions: Staging(S), Production(P), Dashboard(D), Grafana(G)."
+        - Staging and Production distributions.
         - "Geographic restrictions (limited to): BE, CA, FR, DE, LU, NL, UK, US."
         - Lambda@Edge Function to return 403 Forbidden on viewer-request if user-agent = bot and ship logs in real-time with a unique identifier to OpenObserve for the production distribution.
         - Standard access logs for all distributions stored in jlv6-logs S3 bucket with prefix /{distribution_name}.
