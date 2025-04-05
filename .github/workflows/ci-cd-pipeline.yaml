@@ -18,7 +18,6 @@ jobs:
   init:
     runs-on: gha-runner-scale-set-arm64
     outputs:
-      BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}
       DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}
       DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}
       VERSION: ${{ steps.check-commit.outputs.VERSION }}
@@ -41,12 +40,6 @@ jobs:
             echo "CREATE_TFC_VAR=false" >> $GITHUB_ENV
           fi
 
-          if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-build|-sb"; then
-            echo "BUILD_IMAGE=false" >> $GITHUB_OUTPUT
-          else
-            echo "BUILD_IMAGE=true" >> $GITHUB_OUTPUT
-          fi
-
           if echo "${{ github.event.head_commit.message }}" | grep -q -E -- "--skip-deploy-aws|-sa"; then
             echo "DEPLOY_AWS=false" >> $GITHUB_OUTPUT
           else
@@ -63,7 +56,6 @@ jobs:
           echo "COMMIT_MSG: ${{ github.event.head_commit.message }}"
           echo "CREATE_GIT_TAG: ${{ env.CREATE_GIT_TAG }}"
           echo "CREATE_TFC_VAR: ${{ env.CREATE_TFC_VAR }}"
-          echo "BUILD_IMAGE: ${{ steps.check-commit.outputs.BUILD_IMAGE }}"
           echo "DEPLOY_AWS: ${{ steps.check-commit.outputs.DEPLOY_AWS }}"
           echo "DEPLOY_K8S: ${{ steps.check-commit.outputs.DEPLOY_K8S }}"
       - name: Update git tag
@@ -88,7 +80,7 @@ jobs:
     if: >
       !failure() && 
       !cancelled() &&
-      needs.init.outputs.BUILD_IMAGE == 'true'
+      needs.init.outputs.DEPLOY_K8S == 'true'
     needs: init
     uses: v6Org01/.github/.github/workflows/buildPushImage.yaml@main
     with:
@@ -111,7 +103,8 @@ jobs:
   deploy-to-aws-shared:
     if: >
       !failure() &&
-      !cancelled()
+      !cancelled() &&
+      (needs.init.outputs.DEPLOY_AWS == 'true' || needs.init.outputs.DEPLOY_K8S == 'true')
     needs: init
     uses: v6Org01/jlv6/.github/workflows/deploy-shared-to-aws.yaml@main
     with:
@@ -147,8 +140,7 @@ jobs:
   deploy-to-aws-production:
     if: >
       !failure() &&
-      !cancelled() &&
-      needs.init.outputs.DEPLOY_AWS == 'true'
+      !cancelled()
     needs: deploy-to-aws-staging
     uses: v6Org01/jlv6/.github/workflows/deploy-production-to-aws.yaml@main
     with:
@@ -160,26 +152,14 @@ jobs:
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
 
-#  deploy-to-k8s-shared:
-#    if: >
-#      !failure() &&
-#      !cancelled() &&
-#      needs.init.outputs.BUILD_IMAGE == 'true' &&
-#      needs.init.outputs.DEPLOY_K8S == 'true'
-#    needs: build-push-image
-#    uses: v6Org01/jlv6/.github/workflows/deploy-shared-to-k8s.yaml@main
-#    with:
-#      VERSION: ${{ needs.build-push-image.outputs.VERSION }}
-#    secrets:
-#      KUBECONFIG_PLUTO_CORE: ${{ secrets.KUBECONFIG_PLUTO_CORE }}
-
   deploy-to-k8s-staging:
     if: >
       !failure() &&
       !cancelled() &&
-      needs.init.outputs.BUILD_IMAGE == 'true' &&
       needs.init.outputs.DEPLOY_K8S == 'true'
-    needs: deploy-to-aws-shared
+    needs:
+      - build-push-image
+      - deploy-to-aws-shared
     uses: v6Org01/jlv6/.github/workflows/deploy-staging-to-k8s.yaml@main
     with:
       VERSION: ${{ needs.deploy-to-aws-shared.outputs.VERSION }}
@@ -190,9 +170,7 @@ jobs:
   deploy-to-k8s-production:
     if: >
       !failure() &&
-      !cancelled() &&
-      needs.init.outputs.BUILD_IMAGE == 'true' &&
-      needs.init.outputs.DEPLOY_K8S == 'true'
+      !cancelled()
     needs: deploy-to-k8s-staging
     uses: v6Org01/jlv6/.github/workflows/deploy-production-to-k8s.yaml@main
     with:
