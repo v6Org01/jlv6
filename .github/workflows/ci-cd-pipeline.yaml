@@ -170,7 +170,7 @@ jobs:
   deploy-to-k8s-pluto-production:
     if: >
       !failure() &&
-      !cancelled()
+      !cancelled() &&
       needs.init.outputs.DEPLOY_K8S == 'true'
     needs: deploy-to-k8s-pluto-staging
     uses: v6Org01/jlv6/.github/workflows/deploy-production-to-k8s-pluto.yaml@main
