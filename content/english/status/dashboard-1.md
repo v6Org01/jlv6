@@ -10,4 +10,4 @@ draft: false
   <div class="resource-description">
   </div>
 </div>
-<h3>https://grafana.jlv6.com/public-dashboards/394c2721502f4b70bb39f35a58feed64</h3>
+<h3>https://grafana.jlv6.com/public-dashboards/39c7275430394351843ee72f5f27b572</h3>
