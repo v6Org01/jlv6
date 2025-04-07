@@ -11,8 +11,16 @@ on:
         description: 'TLS cert secret name'
         required: true
         type: string
-      OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL:
-        description: 'OpenObserve url for log ingestion'
+      OPENOBSERVE_AWS_CLOUDFRONT_01_URL:
+        description: 'OpenObserve 01 url for CloudFront log ingestion'
+        required: true
+        type: string
+      OPENOBSERVE_AWS_LAMBDA_01_URL:
+        description: 'OpenObserve 01 url for Lambda log ingestion'
+        required: true
+        type: string
+      OPENOBSERVE_AWS_LAMBDA_URLS_TO_MONITOR:
+        description: 'URLs to monitor in Lambda function'
         required: true
         type: string
       TF_CLOUD_ORGANIZATION:
@@ -30,9 +38,9 @@ on:
         required: true
       KUBECONFIG_PLUTO_CERT:
         required: true
-      OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME:
+      OPENOBSERVE_AWS_01_USERNAME:
         required: true
-      OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD:
+      OPENOBSERVE_AWS_01_PASSWORD:
         required: true
       TF_API_TOKEN:
         required: true
@@ -73,9 +81,6 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_LOG: DEBUG
       TF_MAX_TIMEOUT: "30m"
-#   outputs:
-#     CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
-#     CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME: ${{ steps.tfc-workspace-output.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,52 +91,21 @@ jobs:
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Transform lambda-viewerReq-Bots-Logs.mjs
         run : |
-          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_CLOUDFRONT_E1X5F6M6SYF1BV_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_01_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+      - name: Transform lambda-httpCheck-OpenObserve.mjs
+        run: |
+          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_LAMBDA_01_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
+          sed -i "s|PLACEHOLDER_URLS_TO_MONITOR|${{ inputs.OPENOBSERVE_AWS_LAMBDA_URLS_TO_MONITOR }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
       - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         id: tf-apply
         with:
           DIRECTORY: ${{ vars.TF_CONFIG_DIRECTORY }}
           WORKSPACE: ${{ vars.TF_WORKSPACE }}
-#     - name: Terraform Cloud - Get workspace output(s)
-#       id: tfc-workspace-output
-#       run: |
-#         echo "Parsing TFC JSON outputs..."
-#         DEBUG_TF_OUTPUTS=${{ steps.tf-apply.outputs.TF_OUTPUT }}
-#         CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_01_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-#         echo "CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME" >> $GITHUB_OUTPUT
-#         CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$(jq -r '.[] | select(.name=="module_cf_distribution_02_cloudfront_distribution_domain_name") | .value' <<< '${{ steps.tf-apply.outputs.TF_OUTPUT }}')
-#         echo "CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME=$CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME" >> $GITHUB_OUTPUT
-
-# update-cloudfare-dns-alias-dashboard:
-#   runs-on: gha-runner-scale-set-arm64
-#   environment: shared
-#   needs: tf-shared-apply-run
-#   steps:
-#     - name: Update DNS record
-#       uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
-#       with:
-#         CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-#         CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_DASHBOARD }}
-#         CF_RECORD_TYPE: CNAME
-#         CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_01_DOMAIN_NAME }}
-#         CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-
-#  update-cloudfare-dns-alias-grafana:
-#    runs-on: gha-runner-scale-set-arm64
-#    environment: shared
-#    needs: tf-shared-apply-run
-#    steps:
-#      - name: Update DNS record
-#        uses: v6Org01/.github/actions/update-Cloudflare-dnsRecord@main
-#        with:
-#          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-#          CF_RECORD_NAME: ${{ vars.CF_RECORD_NAME_ALIAS_GRAFANA }}
-#          CF_RECORD_TYPE: CNAME
-#          CF_RECORD_VALUE: ${{ needs.tf-shared-apply-run.outputs.CLOUDFRONT_DISTRIBUTION_02_DOMAIN_NAME }}
-#          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
 
   forward-var-version:
     runs-on: gha-runner-scale-set-arm64

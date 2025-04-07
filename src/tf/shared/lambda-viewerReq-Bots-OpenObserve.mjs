@@ -33,7 +33,8 @@ export const handler = async (event) => {
         const request = event.Records[0].cf.request;
         const headers = request.headers || {};
         const userAgent = headers["user-agent"] ? headers["user-agent"][0].value : "";
-        const hostHeader = headers["host"] ? headers["host"][0].value : ""; 
+        const hostHeader = headers["host"] ? headers["host"][0].value : "";
+        const monitorOriginHeader = headers["X-Monitor-Origin"] ? headers["X-Monitor-Origin"][0].value: "";
         const refererHeader = headers["referer"] ? headers["referer"][0].value : ""; // Extract Referer
 
         const requestId = generateRequestId();
@@ -51,7 +52,8 @@ export const handler = async (event) => {
             host: hostHeader || '-', 
             referer: refererHeader || '-',
             user_agent: userAgent || '-',
-            bot_blocked: isBotRequest
+            bot_blocked: isBotRequest,
+            monitor_origin: monitorOriginHeader
         };
 
         await sendToOpenObserve([logEntry]);

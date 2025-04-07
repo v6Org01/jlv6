@@ -22,6 +22,27 @@ resource "aws_iam_role" "iam_role_01" {
 EOF
 }
 
+resource "aws_iam_role" "iam_role_02" {
+  provider = aws.us_east_1
+  name = "EventBridgeSchedRole-jlv6"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "events.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
 data "aws_iam_policy_document" "iam_doc_policy_01" {
   provider = aws.us_east_1
   statement {
@@ -31,7 +52,7 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:*:*:*",
+      "arn:aws:logs:*:*:*"
     ]
   }
 }
@@ -45,13 +66,26 @@ data "aws_iam_policy_document" "iam_doc_policy_02" {
       "cloudfront:CreateInvalidation"
     ]
     resources = [
-      "arn:aws:cloudfront:::distribution/*",  # Allow access to ALL distributions
+      "arn:aws:cloudfront:::distribution/*"
     ]
     condition {
       test     = "StringEquals"
       variable = "aws:ResourceTag/jlv6-com"
       values   = ["true"]
     }
+  }
+}
+
+data "aws_iam_policy_document" "iam_doc_policy_03" {
+  provider = aws.us_east_1
+  statement {
+    actions = [
+      "lambda:InvokeFunction"
+    ]
+    resources = [
+      module.lambda_01.arn,
+      module.lambda_02.arn,
+    ]
   }
 }
 
@@ -69,6 +103,13 @@ resource "aws_iam_policy" "iam_policy_02" {
   policy      = data.aws_iam_policy_document.iam_doc_policy_02.json
 }
 
+resource "aws_iam_policy" "iam_policy_03" {
+  provider    = aws.us_east_1
+  name        = "eventBridge-lambda-jlv6-shared"
+  description = "Policy to invoke Lambda Functions from EventBridge"
+  policy      = data.aws_iam_policy_document.iam_doc_policy_03.json
+}
+
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_01" {
   provider   = aws.us_east_1
   role       = aws_iam_role.iam_role_01.name
@@ -81,7 +122,51 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_02" {
   policy_arn = aws_iam_policy.iam_policy_02.arn
 }
 
-## CLOUDWATCH #
+resource "aws_iam_role_policy_attachment" "iam_role_policy_attach_03" {
+  provider   = aws.us_east_1
+  role       = aws_iam_role.iam_role_02.name
+  policy_arn = aws_iam_policy.iam_policy_03.arn
+}
+
+## EVENTBRIDGE ##
+
+resource "aws_cloudwatch_event_rule" "every_minute_01" {
+  provider   = aws.us_east_1
+  name        = "every-minute-rule-us"
+  description = "Trigger Lambda every minute in us-east-1"
+  schedule_expression = "rate(1 minute)"
+}
+
+resource "aws_cloudwatch_event_rule" "every_minute_02" {
+  provider   = aws.eu_central_1
+  name       = "every-minute-rule-eu"
+  description = "Trigger Lambda every minute in eu-west-1"
+  schedule_expression = "rate(1 minute)"
+}
+
+resource "aws_cloudwatch_event_target" "lambda_target_01" {
+  depends_on = [
+    module.lambda_01
+  ]
+  provider  = aws.us_east_1
+  rule      = aws_cloudwatch_event_rule.every_minute_01.name
+  target_id = "lambda-target-us"
+  arn       = module.lambda_01.lambda_function_qualified_arn
+  role_arn  = aws_iam_role.iam_role_02.arn 
+}
+
+resource "aws_cloudwatch_event_target" "lambda_target_02" {
+  depends_on = [
+    module.lambda_02
+  ]
+  provider  = aws.eu_central_1
+  rule      = aws_cloudwatch_event_rule.every_minute_02.name
+  target_id = "lambda-target-eu"
+  arn       = module.lambda_02.lambda_function_qualified_arn
+  role_arn  = aws_iam_role.iam_role_02.arn 
+}
+
+## CLOUDWATCH ##
 
 module "cw_logs_01" {
   source = "cn-terraform/cloudwatch-logs/aws"
@@ -92,14 +177,23 @@ module "cw_logs_01" {
   log_group_retention_in_days = 7 
 }
 
-/* module "cw_logs_02" {
+module "cw_logs_02" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
-  logs_path = "/aws/lambda/originResp-OpenObserve-jlv6-shared"
+  logs_path = "/aws/lambda/httpCheck-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
-} */
+}
+
+module "cw_logs_03" {
+  source = "cn-terraform/cloudwatch-logs/aws"
+  providers = {
+    aws = aws.eu_central_1
+  }
+  logs_path = "/aws/lambda/httpCheck-OpenObserve-jlv6-shared"
+  log_group_retention_in_days = 7 
+}
 
 ## S3 ##
 
@@ -355,11 +449,11 @@ data "archive_file" "archive_01" {
   output_path = "${path.module}/lambda-viewerReq-Bots-OpenObserve.mjs.zip"
 }
 
-/* data "archive_file" "archive_02" {
+data "archive_file" "archive_02" {
   type        = "zip"
-  source_file = "${path.module}/lambda-originResp-OpenObserve.mjs"
-  output_path = "${path.module}/lambda-originResp-OpenObserve.mjs.zip"
-} */
+  source_file = "${path.module}/lambda-httpCheck-OpenObserve.mjs"
+  output_path = "${path.module}/lambda-httpCheck-OpenObserve.mjs.zip"
+}
 
 module "lambda_at_edge_01" {
   depends_on = [
@@ -393,7 +487,7 @@ module "lambda_at_edge_01" {
   logging_log_group                  = module.cw_logs_01.log_group_name
 }
 
-/* module "lambda_at_edge_02" {
+module "lambda_01" {
   depends_on = [
     data.archive_file.archive_02,
     module.cw_logs_02
@@ -404,16 +498,16 @@ module "lambda_at_edge_01" {
     aws = aws.us_east_1
   }
 
-  lambda_at_edge = true
+  lambda_at_edge = false
   publish        = true
 
   create_package         = false
   local_existing_package = data.archive_file.archive_02.output_path
   
   architectures = ["x86_64"]
-  function_name = "originResp-OpenObserve-jlv6-shared"
-  description   = "Ship logs to OpenObserve"
-  handler       = "lambda-originResp-OpenObserve.handler"
+  function_name = "httpCheck-OpenObserve-jlv6-shared"
+  description   = "Monitor URLs from the US and ship result to OpenObserve"
+  handler       = "lambda-httpCheck-OpenObserve.handler"
   runtime       = "nodejs20.x"
   timeout       = 5
 
@@ -424,4 +518,37 @@ module "lambda_at_edge_01" {
   attach_cloudwatch_logs_policy      = false
   attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_02.log_group_name
-} */
+}
+
+module "lambda_02" {
+  depends_on = [
+    data.archive_file.archive_02,
+    module.cw_logs_03
+  ]
+
+  source = "terraform-aws-modules/lambda/aws"
+  providers = {
+    aws = aws.eu_central_1
+  }
+
+  lambda_at_edge = false
+  publish        = true
+
+  create_package         = false
+  local_existing_package = data.archive_file.archive_02.output_path
+  
+  architectures = ["x86_64"]
+  function_name = "httpCheck-OpenObserve-jlv6-shared"
+  description   = "Monitor URLs from the EU and ship result to OpenObserve"
+  handler       = "lambda-httpCheck-OpenObserve.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 5
+
+  create_role   = false
+  lambda_role   = aws_iam_role.iam_role_01.arn
+  
+  use_existing_cloudwatch_log_group  = true
+  attach_cloudwatch_logs_policy      = false
+  attach_create_log_group_permission = false
+  logging_log_group                  = module.cw_logs_03.log_group_name
+}
