@@ -91,15 +91,19 @@ jobs:
           path: ${{ vars.TF_CONFIG_DIRECTORY }}
       - name: Transform lambda-viewerReq-Bots-Logs.mjs
         run : |
-          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_01_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
+          sed -i \
+            -e "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_CLOUDFRONT_01_URL }}|g" \
+            -e "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" \
+            -e "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" \
+            "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-viewerReq-Bots-OpenObserve.mjs"
       - name: Transform lambda-httpCheck-OpenObserve.mjs
         run: |
-          sed -i "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_LAMBDA_01_URL }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
-          sed -i "s|PLACEHOLDER_URLS_TO_MONITOR|${{ inputs.OPENOBSERVE_AWS_LAMBDA_URLS_TO_MONITOR }}|g" "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
+          sed -i \
+            -e "s|PLACEHOLDER_URLS_TO_MONITOR|${{ inputs.OPENOBSERVE_AWS_LAMBDA_URLS_TO_MONITOR }}|g" \
+            -e "s|PLACEHOLDER_URL|${{ inputs.OPENOBSERVE_AWS_LAMBDA_01_URL }}|g" \
+            -e "s|PLACEHOLDER_USERNAME|${{ secrets.OPENOBSERVE_AWS_01_USERNAME }}|g" \
+            -e "s|PLACEHOLDER_PASSWORD|${{ secrets.OPENOBSERVE_AWS_01_PASSWORD }}|g" \
+            "${{ vars.TF_CONFIG_DIRECTORY }}/lambda-httpCheck-OpenObserve.mjs"
       - name: Terraform Cloud - Apply
         uses: v6Org01/.github/actions/run-TerraformCloud-Apply@main
         id: tf-apply
