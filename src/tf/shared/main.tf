@@ -47,9 +47,7 @@ data "aws_iam_policy_document" "iam_doc_policy_01" {
   provider = aws.us_east_1
   statement {
     actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:*",
     ]
     resources = [
       "arn:aws:logs:*:*:*"
@@ -83,8 +81,8 @@ data "aws_iam_policy_document" "iam_doc_policy_03" {
       "lambda:InvokeFunction"
     ]
     resources = [
-      module.lambda_01.lambda_function_arn,
-      module.lambda_02.lambda_function_arn
+      module.lambda_01.lambda_function_qualified_arn,
+      module.lambda_02.lambda_function_qualified_arn
     ]
   }
 }
