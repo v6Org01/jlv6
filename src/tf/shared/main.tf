@@ -83,8 +83,8 @@ data "aws_iam_policy_document" "iam_doc_policy_03" {
       "lambda:InvokeFunction"
     ]
     resources = [
-      module.lambda_01.arn,
-      module.lambda_02.arn,
+      module.lambda_01.lambda_function_arn,
+      module.lambda_02.lambda_function_arn
     ]
   }
 }
