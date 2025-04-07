@@ -515,7 +515,7 @@ module "lambda_01" {
   lambda_role   = aws_iam_role.iam_role_01.arn
   
   use_existing_cloudwatch_log_group  = true
-  logging_log_group                  = module.cw_logs_01.log_group_name
+  logging_log_group                  = module.cw_logs_02.log_group_name
   logging_log_format                 = "JSON"
   logging_application_log_level      = "INFO"
 }
@@ -548,7 +548,7 @@ module "lambda_02" {
   lambda_role   = aws_iam_role.iam_role_01.arn
 
   use_existing_cloudwatch_log_group  = true
-  logging_log_group                  = module.cw_logs_01.log_group_name
+  logging_log_group                  = module.cw_logs_03.log_group_name
   logging_log_format                 = "JSON"
   logging_application_log_level      = "INFO"
 }
