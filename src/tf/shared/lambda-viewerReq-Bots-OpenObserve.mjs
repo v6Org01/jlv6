@@ -34,7 +34,7 @@ export const handler = async (event) => {
         const headers = request.headers || {};
         const userAgent = headers["user-agent"] ? headers["user-agent"][0].value : "";
         const hostHeader = headers["host"] ? headers["host"][0].value : "";
-        const monitorOriginHeader = headers["x-monitor-origin"] ? headers["x-monitor-origin"][0].value: "";
+        const monitorOriginHeader = headers["x-monitor-origin"] ? headers["x-monitor-origin"][0].value : "";
         const refererHeader = headers["referer"] ? headers["referer"][0].value : ""; // Extract Referer
 
         const requestId = generateRequestId();
