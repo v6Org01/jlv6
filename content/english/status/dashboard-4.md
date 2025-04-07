@@ -8,6 +8,6 @@ draft: false
 
 <div class="main-content">
   <div class="resource-description">
-    <p>PLACEH0LDER</p>
+    <p>PLACEHOLDER</p>
   </div>
 </div>
