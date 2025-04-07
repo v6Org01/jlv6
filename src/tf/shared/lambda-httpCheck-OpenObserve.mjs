@@ -3,8 +3,7 @@
 import https from 'https';
 import { URL } from 'url';
 import { performance } from 'perf_hooks';
-import dns from 'dns';
-import { request } from 'http';
+import dns from 'dns/promises';
 
 // OpenObserve configuration
 const CONFIG = {
@@ -16,142 +15,115 @@ const CONFIG = {
 // URLs to monitor
 const URLS_TO_MONITOR = PLACEHOLDER_URLS_TO_MONITOR;
 
-const origin = `lambda-${process.env.AWS_REGION}`;
+const encodeBasicAuth = (username, password) =>
+    'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
-// Helper function to measure DNS lookup time
-const measureDnsTime = (hostname) => {
-    return new Promise((resolve, reject) => {
-        const startTime = performance.now();
-        dns.lookup(hostname, (err, address, family) => {
-            if (err) {
-                reject(err);
-            } else {
-                const endTime = performance.now();
-                resolve(Math.round(endTime - startTime));  // DNS resolution time in ms
-            }
-        });
-    });
-};
-
-const checkUrl = (targetUrl) => {
-    return new Promise(async (resolve) => {
-        const parsedUrl = new URL(targetUrl);
-        
-        try {
-            // Measure DNS resolution time
-            const dnsTime = await measureDnsTime(parsedUrl.hostname);
-            
-            const startTime = performance.now();
-            const options = {
-                method: 'GET',
-                timeout: 5000,
-                headers: {
-                    'X-Monitor-Origin': origin 
-                }
-            };
-
-            // Start the HTTP request
-            const req = https.request(parsedUrl, options, (res) => {
-                res.on('data', () => {});  // No need to capture the body
-
-                res.on('end', () => {
-                    const endTime = performance.now();  // End time after receiving full response
-                    resolve({
-                        timestamp: new Date().toISOString(),
-                        url: targetUrl,
-                        status_code: res.statusCode,
-                        response_time_ms: Math.round(endTime - startTime),  // Total time for DNS, connection, and response
-                        dns_time_ms: dnsTime,  // DNS lookup time
-                        request_origin: origin
-                    });
-                });
-            });
-
-            req.on('error', (error) => {
-                const endTime = performance.now();
-                resolve({
-                    timestamp: new Date().toISOString(),
-                    url: targetUrl,
-                    status_code: 0,
-                    response_time_ms: Math.round(endTime - startTime),
-                    dns_time_ms: dnsTime,
-                    request_origin: origin,
-                    error: error.message
-                });
-            });
-
-            req.on('timeout', () => {
-                req.destroy();
-                const endTime = performance.now();
-                resolve({
-                    timestamp: new Date().toISOString(),
-                    url: targetUrl,
-                    status_code: 0,
-                    response_time_ms: Math.round(endTime - startTime),
-                    dns_time_ms: dnsTime,
-                    request_origin: origin,
-                    error: "Timeout"
-                });
-            });
-
-            req.end();
-        } catch (err) {
-            resolve({
-                timestamp: new Date().toISOString(),
-                url: targetUrl,
-                status_code: 0,
-                request_origin: origin,
-                error: `DNS Error: ${err.message}`
-            });
-        }
-    });
-};
-
-const sendToOpenObserve = async (logs) => {
-    const url = new URL(CONFIG.url);
-    const jsonData = JSON.stringify(logs);
-    const auth = 'Basic ' + Buffer.from(CONFIG.username + ':' + CONFIG.password).toString('base64');
-
+// Function to send metrics to OpenObserve
+const sendMetrics = async (metricString) => {
+    const parsedUrl = new URL(CONFIG.url);
+  
     const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': auth
-        }
+      method: 'POST',
+      hostname: parsedUrl.hostname,
+      path: parsedUrl.pathname,
+      port: parsedUrl.port || 443,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Authorization': encodeBasicAuth(CONFIG.username, CONFIG.password)
+      }
     };
-
+  
     return new Promise((resolve, reject) => {
-        const req = https.request(url, options, (res) => {
-            let responseBody = '';
-            res.on('data', (chunk) => responseBody += chunk);
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    console.log('Successfully sent logs to OpenObserve');
-                    resolve();
-                } else {
-                    reject(new Error(`OpenObserve error ${res.statusCode}: ${responseBody}`));
-                }
-            });
+      const req = https.request(options, (res) => {
+        res.on('data', () => {});
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log('✅ Metrics sent successfully');
+            resolve();
+          } else {
+            console.error(`❌ Failed to send metrics: ${res.statusCode}`);
+            reject(new Error(`OpenObserve returned status ${res.statusCode}`));
+          }
         });
-
-        req.on('error', (error) => reject(error));
-
-        req.setTimeout(5000, () => {
-            req.destroy(new Error('Request timed out'));
-            reject(new Error('Request timed out'));
-        });
-
-        req.write(jsonData);
-        req.end();
+      });
+  
+      req.on('error', reject);
+      req.write(metricString);
+      req.end();
     });
-};
-
-export const handler = async () => {
+  };
+  
+  // Function to check the URL response time and status code
+  const checkUrl = async (targetUrl) => {
+    const parsedUrl = new URL(targetUrl);
+    const region = process.env.AWS_REGION || 'unknown';
+    const monitorOrigin = `lambda-${region}`;
+  
+    let dnsTime = 0;
+    const startTime = performance.now();
+  
+    // Measure DNS lookup time
     try {
-        const results = await Promise.all(URLS_TO_MONITOR.map(checkUrl));
-        console.log('Health check results:', results);
-        await sendToOpenObserve(results);
-    } catch (error) {
-        console.error('Monitoring failed:', error);
+      const dnsStart = performance.now();
+      await dns.lookup(parsedUrl.hostname);  // This triggers DNS lookup
+      const dnsEnd = performance.now();
+      dnsTime = Math.round(dnsEnd - dnsStart); // DNS response time
+    } catch (e) {
+      console.error(`DNS lookup failed for ${parsedUrl.hostname}`);
     }
-};
+  
+    // Measure total request/response time
+    const result = await new Promise((resolve) => {
+      const req = https.request(parsedUrl, { method: 'GET', timeout: 5000, headers: { 'X-Monitor-Origin': monitorOrigin } }, (res) => {
+        res.on('data', () => {});
+        res.on('end', () => {
+          const endTime = performance.now();
+          resolve({
+            url: targetUrl,
+            statusCode: res.statusCode,
+            responseTimeMs: Math.round(endTime - startTime) // Total response time
+          });
+        });
+      });
+  
+      req.on('error', () => {
+        const endTime = performance.now();
+        resolve({
+          url: targetUrl,
+          statusCode: 0, // Use 0 for unreachable/error
+          responseTimeMs: Math.round(endTime - startTime)
+        });
+      });
+  
+      req.end();
+    });
+  
+    return { ...result, dnsTime };
+  };
+  
+  export const handler = async () => {
+    const metricLines = [];
+  
+    for (const url of URLS_TO_MONITOR) {
+      const result = await checkUrl(url);
+      const region = process.env.AWS_REGION || 'unknown';
+  
+      // Push total response time
+      metricLines.push(`# TYPE http_check_response_time gauge`);
+      metricLines.push(`http_check_response_time{url="${url}",region="${region}"} ${result.responseTimeMs}`);
+  
+      // Push HTTP status code
+      metricLines.push(`# TYPE http_check_status_code gauge`);
+      metricLines.push(`http_check_status_code{url="${url}",region="${region}"} ${result.statusCode}`);
+  
+      // Push DNS lookup time
+      metricLines.push(`# TYPE http_check_dns_time gauge`);
+      metricLines.push(`http_check_dns_time{url="${url}",region="${region}"} ${result.dnsTime}`);
+    }
+  
+    // Combine all metric lines into a single string payload
+    const fullMetricPayload = metricLines.join('\n') + '\n';
+  
+    // Send the metrics to OpenObserve
+    await sendMetrics(fullMetricPayload);
+  };
