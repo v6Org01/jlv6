@@ -482,9 +482,9 @@ module "lambda_at_edge_01" {
   lambda_role   = aws_iam_role.iam_role_01.arn
   
   use_existing_cloudwatch_log_group  = true
-  attach_cloudwatch_logs_policy      = false
-  attach_create_log_group_permission = false
   logging_log_group                  = module.cw_logs_01.log_group_name
+  logging_log_format                 = "JSON"
+  logging_application_log_level      = "INFO"
 }
 
 module "lambda_01" {
@@ -515,9 +515,9 @@ module "lambda_01" {
   lambda_role   = aws_iam_role.iam_role_01.arn
   
   use_existing_cloudwatch_log_group  = true
-  attach_cloudwatch_logs_policy      = false
-  attach_create_log_group_permission = false
-  logging_log_group                  = module.cw_logs_02.log_group_name
+  logging_log_group                  = module.cw_logs_01.log_group_name
+  logging_log_format                 = "JSON"
+  logging_application_log_level      = "INFO"
 }
 
 module "lambda_02" {
@@ -546,9 +546,9 @@ module "lambda_02" {
 
   create_role   = false
   lambda_role   = aws_iam_role.iam_role_01.arn
-  
+
   use_existing_cloudwatch_log_group  = true
-  attach_cloudwatch_logs_policy      = false
-  attach_create_log_group_permission = false
-  logging_log_group                  = module.cw_logs_03.log_group_name
+  logging_log_group                  = module.cw_logs_01.log_group_name
+  logging_log_format                 = "JSON"
+  logging_application_log_level      = "INFO"
 }
