@@ -168,32 +168,32 @@ resource "aws_cloudwatch_event_target" "lambda_target_02" {
 
 ## CLOUDWATCH ##
 
-module "cw_logs_01" {
+/* module "cw_logs_01" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/viewerReq-Bots-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
-}
+} */
 
-module "cw_logs_02" {
+/* module "cw_logs_02" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.us_east_1
   }
   logs_path = "/aws/lambda/httpCheck-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
-}
+} */
 
-module "cw_logs_03" {
+/* module "cw_logs_03" {
   source = "cn-terraform/cloudwatch-logs/aws"
   providers = {
     aws = aws.eu_central_1
   }
   logs_path = "/aws/lambda/httpCheck-OpenObserve-jlv6-shared"
   log_group_retention_in_days = 7 
-}
+} */
 
 ## S3 ##
 
@@ -481,8 +481,8 @@ module "lambda_at_edge_01" {
   create_role   = false
   lambda_role   = aws_iam_role.iam_role_01.arn
   
-  use_existing_cloudwatch_log_group  = true
-  logging_log_group                  = module.cw_logs_01.log_group_name
+  use_existing_cloudwatch_log_group  = false
+  # logging_log_group                  = module.cw_logs_01.log_group_name
   logging_log_format                 = "JSON"
   logging_application_log_level      = "INFO"
 }
@@ -514,8 +514,8 @@ module "lambda_01" {
   create_role   = false
   lambda_role   = aws_iam_role.iam_role_01.arn
   
-  use_existing_cloudwatch_log_group  = true
-  logging_log_group                  = module.cw_logs_02.log_group_name
+  use_existing_cloudwatch_log_group  = false
+  # logging_log_group                  = module.cw_logs_02.log_group_name
   logging_log_format                 = "JSON"
   logging_application_log_level      = "INFO"
 }
@@ -547,8 +547,8 @@ module "lambda_02" {
   create_role   = false
   lambda_role   = aws_iam_role.iam_role_01.arn
 
-  use_existing_cloudwatch_log_group  = true
-  logging_log_group                  = module.cw_logs_03.log_group_name
+  use_existing_cloudwatch_log_group  = false
+  # logging_log_group                  = module.cw_logs_03.log_group_name
   logging_log_format                 = "JSON"
   logging_application_log_level      = "INFO"
 }
