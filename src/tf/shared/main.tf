@@ -457,8 +457,7 @@ data "archive_file" "archive_02" {
 
 module "lambda_at_edge_01" {
   depends_on = [
-    data.archive_file.archive_01,
-    module.cw_logs_01
+    data.archive_file.archive_01
   ]
 
   source = "terraform-aws-modules/lambda/aws"
@@ -489,8 +488,7 @@ module "lambda_at_edge_01" {
 
 module "lambda_01" {
   depends_on = [
-    data.archive_file.archive_02,
-    module.cw_logs_02
+    data.archive_file.archive_02
   ]
 
   source = "terraform-aws-modules/lambda/aws"
@@ -522,8 +520,7 @@ module "lambda_01" {
 
 module "lambda_02" {
   depends_on = [
-    data.archive_file.archive_02,
-    module.cw_logs_03
+    data.archive_file.archive_02
   ]
 
   source = "terraform-aws-modules/lambda/aws"
