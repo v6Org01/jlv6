@@ -4,6 +4,7 @@ import https from 'https';
 import { URL } from 'url';
 import { performance } from 'perf_hooks';
 import dns from 'dns';
+import { request } from 'http';
 
 // OpenObserve configuration
 const CONFIG = {
@@ -14,6 +15,8 @@ const CONFIG = {
 
 // URLs to monitor
 const URLS_TO_MONITOR = PLACEHOLDER_URLS_TO_MONITOR;
+
+const origin = `lambda-${process.env.AWS_REGION}`;
 
 // Helper function to measure DNS lookup time
 const measureDnsTime = (hostname) => {
@@ -43,7 +46,7 @@ const checkUrl = (targetUrl) => {
                 method: 'GET',
                 timeout: 5000,
                 headers: {
-                    'X-Monitor-Origin': `lambda-${process.env.AWS_REGION}`
+                    'X-Monitor-Origin': origin 
                 }
             };
 
@@ -58,7 +61,8 @@ const checkUrl = (targetUrl) => {
                         url: targetUrl,
                         status_code: res.statusCode,
                         response_time_ms: Math.round(endTime - startTime),  // Total time for DNS, connection, and response
-                        dns_time_ms: dnsTime  // DNS lookup time
+                        dns_time_ms: dnsTime,  // DNS lookup time
+                        request_origin: origin
                     });
                 });
             });
@@ -71,6 +75,7 @@ const checkUrl = (targetUrl) => {
                     status_code: 0,
                     response_time_ms: Math.round(endTime - startTime),
                     dns_time_ms: dnsTime,
+                    request_origin: origin,
                     error: error.message
                 });
             });
@@ -84,6 +89,7 @@ const checkUrl = (targetUrl) => {
                     status_code: 0,
                     response_time_ms: Math.round(endTime - startTime),
                     dns_time_ms: dnsTime,
+                    request_origin: origin,
                     error: "Timeout"
                 });
             });
@@ -94,6 +100,7 @@ const checkUrl = (targetUrl) => {
                 timestamp: new Date().toISOString(),
                 url: targetUrl,
                 status_code: 0,
+                request_origin: origin,
                 error: `DNS Error: ${err.message}`
             });
         }
